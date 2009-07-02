@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>build</name>
+	<comment>soapUI Maven2 project for building other Maven 2 projects</comment>
+	<projects>
+		<project>core</project>
+		<project>xmlbeans</project>
+		<project>maven-soapui-plugin</project>
+		<project>soapui-idea-plugin</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.maven.ide.eclipse.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.maven.ide.eclipse.maven2Nature</nature>
+	</natures>
+</projectDescription>
