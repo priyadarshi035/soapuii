@@ -1,0 +1,7 @@
+2009-07-02 15:30:55,226 WARN  [DefaultSoapUICore] Missing folder [/home/pnw/soapui/trunk/core/./ext] for external libraries
+2009-07-02 15:30:55,943 INFO  [DefaultSoapUICore] initialized soapui-settings from [/home/pnw/soapui/trunk/core/soapui-settings.xml]
+2009-07-02 15:30:56,013 INFO  [DefaultSoapUICore] Adding listeners from [/home/pnw/soapui/trunk/core/./listeners/demo-listeners.xml]
+2009-07-02 15:30:57,429 INFO  [WorkspaceImpl] Loading workspace from [/home/pnw/soapui/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
+2009-07-02 15:31:01,920 INFO  [DefaultSoapUICore] Adding actions from [/home/pnw/soapui/trunk/core/./actions/demo-actions.xml]
+2009-07-02 15:31:06,714 INFO  [DefaultSoapUICore] Settings saved to [/home/pnw/soapui/trunk/core/./soapui-settings.xml]
+2009-07-02 15:31:06,732 INFO  [WorkspaceImpl] Saved workspace to [/home/pnw/soapui/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
