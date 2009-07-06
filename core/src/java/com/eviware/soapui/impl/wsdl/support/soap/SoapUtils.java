@@ -351,7 +351,7 @@ public class SoapUtils
 		}
 
 		throw new DispatchException( "Missing operation for soapAction [" + soapAction + "] and body element ["
-				+ contentQName + "] with SOAP Version [" + soapVersion + "] MAKRER 2" );
+				+ contentQName + "] with SOAP Version [" + soapVersion + "]" );
 	}
 
 	@SuppressWarnings( "unchecked" )
