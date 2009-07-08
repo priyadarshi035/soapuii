@@ -78,12 +78,14 @@ import com.eviware.soapui.support.swing.SoapUISplitPaneUI;
 import com.eviware.soapui.support.swing.SwingUtils;
 import com.eviware.soapui.ui.desktop.DesktopPanel;
 import com.eviware.soapui.ui.desktop.SoapUIDesktop;
+import com.eviware.soapui.ui.support.WideComboBoxUI;
 import com.eviware.x.dialogs.XDialogs;
 import com.eviware.x.dialogs.XFileDialogs;
 import com.eviware.x.impl.swing.SwingDialogs;
 import com.eviware.x.impl.swing.SwingFileDialogs;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
+import javax.swing.JTextField;
 
 /**
  * Facade for common UI-related tasks
@@ -102,6 +104,7 @@ public class UISupport
 	private static Component frame;
 	private static Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
 	public static Dimension TOOLBAR_BUTTON_DIMENSION;
+    public static Dimension TOOLBAR_COMBOBOX_DIMENSION;
 	private static Boolean isWindows;
 
 	private static XDialogs dialogs;
@@ -121,7 +124,10 @@ public class UISupport
 		uiUtils = new SwingUtils();
 
 		if( !isHeadless() )
+        {
 			TOOLBAR_BUTTON_DIMENSION = new Dimension( 22, 21 );
+            TOOLBAR_COMBOBOX_DIMENSION = new Dimension( 70, 21 );
+        }
 	}
 
 	public static ImageIcon TOOL_ICON = UISupport.createImageIcon( TOOL_ICON_PATH );
@@ -482,6 +488,21 @@ public class UISupport
 	{
 		return ( T )dialogs.prompt( question, title, objects, value );
 	}
+
+    public static JTextField createToolbarTextField( Action action )
+    {
+        JTextField result = new JTextField();
+        result.setAction( action );
+        return result;
+    }
+
+    public static JComboBox createToolbarComboBox( Action action )
+    {
+        JComboBox result = createComboBox(100, "");
+        result.setUI(new WideComboBoxUI() );
+        result.setAction( action );
+        return result;
+    }
 
 	public static JButton createToolbarButton( Action action )
 	{

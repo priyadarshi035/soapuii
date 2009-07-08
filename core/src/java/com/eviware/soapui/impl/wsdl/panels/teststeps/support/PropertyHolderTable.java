@@ -26,8 +26,11 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -55,6 +58,18 @@ import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.event.ListDataEvent;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileType;
+import org.apache.commons.vfs.VFS;
 
 public class PropertyHolderTable extends JPanel
 {
@@ -66,14 +81,20 @@ public class PropertyHolderTable extends JPanel
 	private JTable propertiesTable;
 	private JXToolBar toolbar;
 	private LoadPropertiesAction loadPropertiesAction;
+    private ChangePropertiesSetAction changePropertiesSetAction;
+    private ChangePropertiesSetsUrlAction changePropertiesSetsUrlAction;
 	private MovePropertyUpAction movePropertyUpAction;
 	private MovePropertyDownAction movePropertyDownAction;
 
+    private JTextField propertiesSetsPath;
+    
 	public PropertyHolderTable( TestPropertyHolder holder )
 	{
 		super( new BorderLayout() );
 		this.holder = holder;
 
+        changePropertiesSetAction = new ChangePropertiesSetAction();
+        changePropertiesSetsUrlAction = new ChangePropertiesSetsUrlAction();
 		loadPropertiesAction = new LoadPropertiesAction();
 		testPropertyListener = new InternalTestPropertyListener();
 		holder.addTestPropertyListener( testPropertyListener );
@@ -173,6 +194,12 @@ public class PropertyHolderTable extends JPanel
 		toolbar.add( clearPropertiesButton );
 		JButton loadPropertiesButton = UISupport.createToolbarButton( loadPropertiesAction );
 		toolbar.add( loadPropertiesButton );
+        JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
+        toolbar.add(propertiesSetsList);
+        changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
+
+        propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction );
+        toolbar.add(propertiesSetsPath);
 
 		return toolbar;
 	}
@@ -487,6 +514,80 @@ public class PropertyHolderTable extends JPanel
 		}
 	}
 
+    private class ChangePropertiesSetsUrlAction extends AbstractAction
+    {
+        private List<JComboBox> comboBoxesList = new ArrayList<JComboBox>();
+
+        public ChangePropertiesSetsUrlAction()
+		{
+			putValue( Action.SHORT_DESCRIPTION, "Changes properties sets url" );
+		}
+
+        public void actionPerformed(ActionEvent evt)
+        {
+            FileSystemManager fsManager;
+            JTextField text = (JTextField)evt.getSource();
+            if (!text.getText().endsWith("/"))
+                text.setText( text.getText() + "/");
+
+            try
+            {
+                fsManager = VFS.getManager();
+                
+                FileObject files = fsManager.resolveFile( text.getText() );
+
+                for(JComboBox cb : comboBoxesList)
+                {
+                    cb.getAction().putValue("enabled", false);
+                    cb.removeAllItems();
+                    for(FileObject child : files.getChildren())
+                        if (child.getType() == FileType.FILE)
+                            cb.addItem( child.getName().getBaseName() );
+                    cb.getAction().putValue("enabled", true);
+                }
+            }
+            catch (FileSystemException e1)
+            {
+                UISupport.showErrorMessage( "Failed to load path [" + text.getText() + "]: " + e1 );
+            }
+        }
+
+        private void addComboBox(JComboBox comboBox)
+        {
+            comboBoxesList.add(comboBox);
+        }
+    }
+
+    private class ChangePropertiesSetAction extends AbstractAction
+    {
+		public ChangePropertiesSetAction()
+		{
+			putValue( Action.SHORT_DESCRIPTION, "Changes properties set from file or remote server" );
+		}
+        
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (this.getValue("enabled").equals(false))
+                return;
+            JComboBox cb = (JComboBox)evt.getSource();
+            String url = propertiesSetsPath.getText() + cb.getSelectedItem();
+            if (!UISupport.confirm( "Load properties from " + url + "?", "Question" ))
+                return;
+            try
+            {
+                FileSystemManager fsManager = VFS.getManager();
+                FileObject fileObject = fsManager.resolveFile( url );
+                loadPropertiesFromFile(fileObject.getContent().getInputStream());
+                //UISupport.showInfoMessage( "Loaded properties from [" + fileObject + "]" );
+            }
+            catch (Exception e1)
+            {
+                UISupport.showErrorMessage( "Failed to load properties from [" + url + "]: " + e1 );
+            }
+        }
+    
+    }
+
 	private class LoadPropertiesAction extends AbstractAction
 	{
 		public LoadPropertiesAction()
@@ -500,33 +601,36 @@ public class PropertyHolderTable extends JPanel
 			File file = UISupport.getFileDialogs().open( this, "Set properties source", null, null, null );
 			if( file != null )
 			{
-				try
-				{
-					boolean createMissing = holder instanceof MutableTestPropertyHolder
-							&& UISupport.confirm( "Create missing properties?", "Set Properties Source" );
+                try
+                {
+                    loadPropertiesFromFile(new FileInputStream(file));
+                    UISupport.showInfoMessage( "Loaded properties from [" + file.getAbsolutePath() + "]" );
+                }
+                catch( Exception e1 )
+                {
+                    UISupport.showErrorMessage( "Failed to load properties from [" + file.getAbsolutePath() + "]; " + e1 );
+                }
+			}
+		}
+	}
 
-					Properties props = new Properties();
-					props.load( new FileInputStream( file ) );
-					for( Object obj : props.keySet() )
-					{
-						String name = obj.toString();
-						if( holder.hasProperty( name ) )
-						{
-							holder.setPropertyValue( name, props.getProperty( name ) );
-						}
-						else if( createMissing )
-						{
-							( ( MutableTestPropertyHolder )holder ).addProperty( name ).setValue( props.getProperty( name ) );
-						}
-					}
+    public void loadPropertiesFromFile( InputStream inStream ) throws IOException
+    {
+		boolean createMissing = holder instanceof MutableTestPropertyHolder
+				&& UISupport.confirm( "Create missing properties?", "Set Properties Source" );
 
-					UISupport.showInfoMessage( "Loaded " + props.size() + " properties from [" + file.getAbsolutePath()
-							+ "]" );
-				}
-				catch( Exception e1 )
-				{
-					UISupport.showErrorMessage( "Failed to load properties from [" + file.getAbsolutePath() + "]; " + e1 );
-				}
+        Properties props = new Properties();
+		props.load( inStream );
+		for( Object obj : props.keySet() )
+		{
+			String name = obj.toString();
+			if( holder.hasProperty( name ) )
+			{
+				holder.setPropertyValue( name, props.getProperty( name ) );
+			}
+			else if( createMissing )
+			{
+				( ( MutableTestPropertyHolder )holder ).addProperty( name ).setValue( props.getProperty( name ) );
 			}
 		}
 	}
