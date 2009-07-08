@@ -527,13 +527,14 @@ public class PropertyHolderTable extends JPanel
             if (!text.getText().endsWith("/"))
                 text.setText( text.getText() + "/");
 
-            holder.setPropertiesURL(text.getText());
+            //holder.setPropertiesURL(text.getText());
 
             try
             {
                 fsManager = VFS.getManager();
                 
-                FileObject files = fsManager.resolveFile( holder.getPropertiesURL() );
+                //FileObject files = fsManager.resolveFile( holder.getPropertiesURL() );
+                FileObject files = fsManager.resolveFile( "" );
 
                 for(JComboBox cb : comboBoxesList)
                 {
@@ -547,7 +548,8 @@ public class PropertyHolderTable extends JPanel
             }
             catch (FileSystemException e1)
             {
-                UISupport.showErrorMessage( "Failed to load path [" + holder.getPropertiesURL() + "]: " + e1 );
+                //UISupport.showErrorMessage( "Failed to load path [" + holder.getPropertiesURL() + "]: " + e1 );
+                UISupport.showErrorMessage( "Failed to load path [ ]: " + e1 );
             }
         }
 
@@ -569,7 +571,8 @@ public class PropertyHolderTable extends JPanel
             if (this.getValue("enabled").equals(false))
                 return;
             JComboBox cb = (JComboBox)evt.getSource();
-            String url = holder.getPropertiesURL() + cb.getSelectedItem();
+            String url = "";
+            //String url = holder.getPropertiesURL() + cb.getSelectedItem();
             if (!UISupport.confirm( "Load properties from " + url + "?", "Question" ))
                 return;
             try
