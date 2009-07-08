@@ -32,6 +32,19 @@ public abstract class AbstractTestPropertyHolderWsdlModelItem<T extends ModelIte
 {
 	private XmlBeansPropertiesTestPropertyHolder propertyHolderSupport;
 	private final static Logger log = Logger.getLogger( AbstractTestPropertyHolderWsdlModelItem.class );
+    private String propertiesURL;
+
+    public void setPropertiesURL(String url)
+    {
+        propertiesURL = url;
+        
+        //config.
+    }
+
+    public String getPropertiesURL()
+    {
+        return propertiesURL;
+    }
 
 	protected AbstractTestPropertyHolderWsdlModelItem( T config, ModelItem parent, String icon )
 	{

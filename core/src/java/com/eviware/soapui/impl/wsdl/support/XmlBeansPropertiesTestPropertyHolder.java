@@ -52,6 +52,7 @@ public class XmlBeansPropertiesTestPropertyHolder implements MutableTestProperty
 	private ModelItem modelItem;
 	private Properties overrideProperties;
 	private String propertiesLabel = "Test Properties";
+    private String propertiesURL;
 
 	public XmlBeansPropertiesTestPropertyHolder( ModelItem modelItem, PropertiesTypeConfig config )
 	{
@@ -227,6 +228,17 @@ public class XmlBeansPropertiesTestPropertyHolder implements MutableTestProperty
 		property.setName( newName );
 		return true;
 	}
+
+    public void setPropertiesURL(String url)
+    {
+        propertiesURL = url;
+        //config.
+    }
+
+    public String getPropertiesURL()
+    {
+        return propertiesURL;
+    }
 
 	/**
 	 * Internal property class

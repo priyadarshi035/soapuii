@@ -20,6 +20,10 @@ import com.eviware.soapui.model.testsuite.TestPropertyListener;
 
 public interface TestPropertyHolder
 {
+    public void setPropertiesURL( String url );
+
+    public String getPropertiesURL();
+
 	public String[] getPropertyNames();
 
 	public void setPropertyValue( String name, String value );
