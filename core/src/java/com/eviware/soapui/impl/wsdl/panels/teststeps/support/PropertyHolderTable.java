@@ -46,6 +46,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.wsdl.MutableTestPropertyHolder;
+import com.eviware.soapui.impl.wsdl.MutableTestPropertyUrlHolder;
 import com.eviware.soapui.model.TestPropertyHolder;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionImpl;
@@ -59,6 +60,7 @@ import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
@@ -80,6 +82,7 @@ public class PropertyHolderTable extends JPanel
 	private InternalTestPropertyListener testPropertyListener;
 	private JTable propertiesTable;
 	private JXToolBar toolbar;
+	private JTextField propertiesSetsPath;
 	private LoadPropertiesAction loadPropertiesAction;
     private ChangePropertiesSetAction changePropertiesSetAction;
     private ChangePropertiesSetsUrlAction changePropertiesSetsUrlAction;
@@ -192,11 +195,17 @@ public class PropertyHolderTable extends JPanel
 		toolbar.add( clearPropertiesButton );
 		JButton loadPropertiesButton = UISupport.createToolbarButton( loadPropertiesAction );
 		toolbar.add( loadPropertiesButton );
-        JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
-        toolbar.add(propertiesSetsList);
-        changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
-        JTextField propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction );
-        toolbar.add(propertiesSetsPath);
+		if(holder instanceof MutableTestPropertyUrlHolder)
+		{
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+
+			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
+			toolbar.add(propertiesSetsList);
+			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
+			
+			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
+			toolbar.add( propertiesSetsPath );
+		}
 
 		return toolbar;
 	}
@@ -520,21 +529,21 @@ public class PropertyHolderTable extends JPanel
 			putValue( Action.SHORT_DESCRIPTION, "Changes properties sets url" );
 		}
 
-        public void actionPerformed(ActionEvent evt)
-        {
-            FileSystemManager fsManager;
-            JTextField text = (JTextField)evt.getSource();
-            if (!text.getText().endsWith("/"))
-                text.setText( text.getText() + "/");
+		public void updateComboBoxes()
+		{
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
 
-            //holder.setPropertiesURL(text.getText());
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+			
+			if ( StringUtils.isNullOrEmpty( urlHolder.getPropertiesUrl() ) )
+				return;
 
             try
             {
-                fsManager = VFS.getManager();
-                
-                //FileObject files = fsManager.resolveFile( holder.getPropertiesURL() );
-                FileObject files = fsManager.resolveFile( "" );
+				FileSystemManager fsManager = VFS.getManager();
+
+                FileObject files = fsManager.resolveFile( urlHolder.getPropertiesUrl() );
 
                 for(JComboBox cb : comboBoxesList)
                 {
@@ -548,14 +557,30 @@ public class PropertyHolderTable extends JPanel
             }
             catch (FileSystemException e1)
             {
-                //UISupport.showErrorMessage( "Failed to load path [" + holder.getPropertiesURL() + "]: " + e1 );
-                UISupport.showErrorMessage( "Failed to load path [ ]: " + e1 );
+                UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1 );
             }
+		}
+
+        public void actionPerformed(ActionEvent evt)
+        {
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
+
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+			
+            JTextField text = (JTextField)evt.getSource();
+            if (!text.getText().endsWith("/"))
+                text.setText( text.getText() + "/");
+
+			urlHolder.setPropertiesUrl( text.getText() );
+
+			updateComboBoxes();
         }
 
         private void addComboBox(JComboBox comboBox)
         {
             comboBoxesList.add(comboBox);
+			updateComboBoxes();
         }
     }
 
@@ -570,9 +595,13 @@ public class PropertyHolderTable extends JPanel
         {
             if (this.getValue("enabled").equals(false))
                 return;
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
+
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+
             JComboBox cb = (JComboBox)evt.getSource();
-            String url = "";
-            //String url = holder.getPropertiesURL() + cb.getSelectedItem();
+			String url = urlHolder.getPropertiesUrl() + cb.getSelectedItem();
             if (!UISupport.confirm( "Load properties from " + url + "?", "Question" ))
                 return;
             try
@@ -606,6 +635,10 @@ public class PropertyHolderTable extends JPanel
                 {
                     loadPropertiesFromStream(new FileInputStream(file));
                     UISupport.showInfoMessage( "Loaded properties from [" + file.getAbsolutePath() + "]" );
+					String path = file.getParent();
+					propertiesSetsPath.setText(path);
+					propertiesSetsPath.getAction().actionPerformed(new ActionEvent(propertiesSetsPath, ActionEvent.ACTION_PERFORMED, null));
+					//changePropertiesSetsUrlAction.updateComboBoxes();
                 }
                 catch( Exception e1 )
                 {

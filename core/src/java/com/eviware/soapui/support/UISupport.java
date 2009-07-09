@@ -489,17 +489,17 @@ public class UISupport
 		return ( T )dialogs.prompt( question, title, objects, value );
 	}
 
-    public static JTextField createToolbarTextField( Action action )
+    public static JTextField createToolbarTextField( Action action, String text)
     {
-        JTextField result = new JTextField();
+        JTextField result = new JTextField(text);
         result.setAction( action );
         return result;
     }
 
     public static JComboBox createToolbarComboBox( Action action )
     {
-        JComboBox result = createComboBox(100, "");
-        result.setUI(new WideComboBoxUI() );
+        JComboBox result = createComboBox(70, "");
+        result.setUI( new WideComboBoxUI() );
         result.setAction( action );
         return result;
     }

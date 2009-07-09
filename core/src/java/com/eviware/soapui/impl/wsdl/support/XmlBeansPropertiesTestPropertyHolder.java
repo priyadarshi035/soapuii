@@ -35,6 +35,7 @@ import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.config.PropertiesTypeConfig;
 import com.eviware.soapui.config.PropertyConfig;
 import com.eviware.soapui.impl.wsdl.MutableTestPropertyHolder;
+import com.eviware.soapui.impl.wsdl.MutableTestPropertyUrlHolder;
 import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
 import com.eviware.soapui.model.ModelItem;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
@@ -43,7 +44,7 @@ import com.eviware.soapui.model.testsuite.TestProperty;
 import com.eviware.soapui.model.testsuite.TestPropertyListener;
 import com.eviware.soapui.support.StringUtils;
 
-public class XmlBeansPropertiesTestPropertyHolder implements MutableTestPropertyHolder, Map<String, TestProperty>
+public class XmlBeansPropertiesTestPropertyHolder implements MutableTestPropertyUrlHolder, Map<String, TestProperty>
 {
 	private PropertiesTypeConfig config;
 	private List<PropertiesStepProperty> properties = new ArrayList<PropertiesStepProperty>();
@@ -52,7 +53,6 @@ public class XmlBeansPropertiesTestPropertyHolder implements MutableTestProperty
 	private ModelItem modelItem;
 	private Properties overrideProperties;
 	private String propertiesLabel = "Test Properties";
-    private String propertiesURL;
 
 	public XmlBeansPropertiesTestPropertyHolder( ModelItem modelItem, PropertiesTypeConfig config )
 	{
@@ -72,6 +72,16 @@ public class XmlBeansPropertiesTestPropertyHolder implements MutableTestProperty
 				c--;
 			}
 		}
+	}
+
+	public void setPropertiesUrl(String url)
+	{
+		config.setPropertiesurl(url);
+	}
+
+	public String getPropertiesUrl()
+	{
+		return config.getPropertiesurl();
 	}
 
 	protected PropertiesStepProperty addProperty( PropertyConfig propertyConfig, boolean notify )
@@ -228,17 +238,6 @@ public class XmlBeansPropertiesTestPropertyHolder implements MutableTestProperty
 		property.setName( newName );
 		return true;
 	}
-
-    public void setPropertiesURL(String url)
-    {
-        propertiesURL = url;
-        //config.
-    }
-
-    public String getPropertiesURL()
-    {
-        return propertiesURL;
-    }
 
 	/**
 	 * Internal property class

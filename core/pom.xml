@@ -370,7 +370,7 @@
 		<dependency>
 			<groupId>eviware</groupId>
 			<artifactId>soapui-xmlbeans</artifactId>
-			<version>2.5.1</version>
+			<version>2.5.2-touk1</version>
 		</dependency>
 		<dependency>
 			<groupId>eviware</groupId>
@@ -485,6 +485,14 @@
 			<id>soapui.org</id>
 			<url>http://www.soapui.org/repository</url>
 			<layout>legacy</layout>
+			<releases>
+			</releases>
+			<snapshots>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>TouK Nexus 3rd party</id>
+			<url>https://nexus.touk.pl/nexus/content/repositories/thirdparty/</url>
 			<releases>
 			</releases>
 			<snapshots>

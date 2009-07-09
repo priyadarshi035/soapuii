@@ -1046,6 +1046,7 @@
                          name="property" type="tns:Property">
             </xsd:element>
         </xsd:sequence>
+        <xsd:attribute name="propertiesurl" type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="RequirementsType">

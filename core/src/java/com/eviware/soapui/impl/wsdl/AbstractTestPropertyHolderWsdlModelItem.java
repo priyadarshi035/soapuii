@@ -28,27 +28,24 @@ import com.eviware.soapui.model.testsuite.TestPropertyListener;
 import com.eviware.soapui.support.StringUtils;
 
 public abstract class AbstractTestPropertyHolderWsdlModelItem<T extends ModelItemConfig> extends
-		AbstractWsdlModelItem<T> implements MutableTestPropertyHolder
+		AbstractWsdlModelItem<T> implements MutableTestPropertyUrlHolder
 {
 	private XmlBeansPropertiesTestPropertyHolder propertyHolderSupport;
 	private final static Logger log = Logger.getLogger( AbstractTestPropertyHolderWsdlModelItem.class );
-    private String propertiesURL;
-
-    public void setPropertiesURL(String url)
-    {
-        propertiesURL = url;
-        
-        //config.
-    }
-
-    public String getPropertiesURL()
-    {
-        return propertiesURL;
-    }
 
 	protected AbstractTestPropertyHolderWsdlModelItem( T config, ModelItem parent, String icon )
 	{
 		super( config, parent, icon );
+	}
+
+	public void setPropertiesUrl(String url)
+	{
+		propertyHolderSupport.setPropertiesUrl(url);
+	}
+
+	public String getPropertiesUrl()
+	{
+		return propertyHolderSupport.getPropertiesUrl();
 	}
 
 	protected void setPropertiesConfig( PropertiesTypeConfig config )
