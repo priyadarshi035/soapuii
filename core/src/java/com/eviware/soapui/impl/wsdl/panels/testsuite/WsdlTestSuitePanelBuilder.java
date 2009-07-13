@@ -46,8 +46,9 @@ public class WsdlTestSuitePanelBuilder extends EmptyPanelBuilder<WsdlTestSuite>
 		JPropertiesTable<WsdlTestSuite> table = new JPropertiesTable<WsdlTestSuite>( "TestSuite Properties", modelItem );
 
 		table.addProperty( "Name", "name", true );
+                table.addProperty("Run TestSuite Startup Script On Startup Of TestCase", "runSuiteStartupInTestCase", JPropertiesTable.BOOLEAN_OPTIONS);
 
-		table.setPropertyObject( modelItem );
+                table.setPropertyObject( modelItem );
 
 		return table;
 	}

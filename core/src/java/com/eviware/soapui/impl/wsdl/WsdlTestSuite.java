@@ -54,6 +54,7 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 {
 	public final static String SETUP_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@setupScript";
 	public final static String TEARDOWN_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@tearDownScript";
+        public static final String RUN_SUITE_STARTUP_IN_TEST_CASE  = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_case";
 
 	private final WsdlProject project;
 	private List<WsdlTestCase> testCases = new ArrayList<WsdlTestCase>();
@@ -427,7 +428,14 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 			setupScriptEngine.setScript( script );
 
 		notifyPropertyChanged( SETUP_SCRIPT_PROPERTY, oldScript, script );
-	}
+      	}
+
+//
+//        public void setSetupScriptsInTestCases(String script){
+//                for( WsdlTestCase testCase : testCases ){
+//                        testCase.setSetupScript(script);
+//                }
+//        }
 
 	public String getSetupScript()
 	{
@@ -629,5 +637,17 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 	{
 		for( WsdlTestCase testCase : testCases )
 			testCase.afterCopy( oldTestSuite, null );
+	}
+
+        public boolean isRunSuiteStartupInTestCase ()
+	{
+		return getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
+	}
+
+	public void setRunSuiteStartupInTestCase( boolean runSuitStartupInTestCase )
+	{
+		boolean old = getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
+		getSettings().setBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE, runSuitStartupInTestCase );
+		notifyPropertyChanged( RUN_SUITE_STARTUP_IN_TEST_CASE, old, runSuitStartupInTestCase );
 	}
 }

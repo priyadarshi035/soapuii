@@ -130,7 +130,7 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 			getConfig().addNewProperties();
 
 		setPropertiesConfig( getConfig().getProperties() );
-	}
+    	}
 
 	public boolean getKeepSession()
 	{
@@ -163,7 +163,7 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 
 	public String getSetupScript()
 	{
-		return getConfig().isSetSetupScript() ? getConfig().getSetupScript().getStringValue() : null;
+                return getConfig().isSetSetupScript() ? getConfig().getSetupScript().getStringValue() : null;
 	}
 
 	public void setTearDownScript( String script )
@@ -802,9 +802,9 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 
 	public Object runSetupScript( TestRunContext runContext, TestRunner runner ) throws Exception
 	{
-		String script = getSetupScript();
-		if( StringUtils.isNullOrEmpty( script ) )
-			return null;
+                String script = getSetupScript();
+                if( StringUtils.isNullOrEmpty( script ) )                     
+                    return null;
 
 		if( setupScriptEngine == null )
 		{
@@ -817,6 +817,26 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 		setupScriptEngine.setVariable( "log", SoapUI.ensureGroovyLog() );
 		return setupScriptEngine.run();
 	}
+
+        public Object runSetupScriptFromSuite(  TestRunContext runContext, TestRunner runner) throws Exception
+        {
+                String script = testSuite.getSetupScript();
+
+                if( setupScriptEngine == null )
+		{
+			setupScriptEngine = SoapUIScriptEngineRegistry.create( SoapUIScriptEngineRegistry.GROOVY_ID, this );
+			setupScriptEngine.setScript( script );
+		}
+                else
+                {
+                        setupScriptEngine.setScript( script );
+                }
+
+		setupScriptEngine.setVariable( "context", runContext );
+		setupScriptEngine.setVariable( "testRunner", runner );
+		setupScriptEngine.setVariable( "log", SoapUI.ensureGroovyLog() );
+		return setupScriptEngine.run();
+        }
 
 	public Object runTearDownScript( TestRunContext runContext, TestRunner runner ) throws Exception
 	{
@@ -922,4 +942,18 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 		for( WsdlTestStep testStep : testSteps )
 			testStep.afterCopy( oldTestSuite, oldTestCase );
 	}
+
+
+//        public boolean isSetupScriptTaken()
+//	{
+//		return getSettings().getBoolean( SETUP_SCRIPT_TAKEN );
+//	}
+//
+//	public void setSetupScriptTaken( boolean setupScriptTaken )
+//	{
+//		boolean old = getSettings().getBoolean( SETUP_SCRIPT_TAKEN );
+//		getSettings().setBoolean( SETUP_SCRIPT_TAKEN, setupScriptTaken );
+//		notifyPropertyChanged( SETUP_SCRIPT_TAKEN, old, setupScriptTaken );
+//	}
+
 }

@@ -541,7 +541,7 @@ public class WsdlTestSuiteDesktopPanel extends ModelItemDesktopPanel<WsdlTestSui
 		}
 	}
 
-	private class TearDownScriptGroovyEditorModel extends AbstractGroovyEditorModel
+        private class TearDownScriptGroovyEditorModel extends AbstractGroovyEditorModel
 	{
 		public TearDownScriptGroovyEditorModel()
 		{

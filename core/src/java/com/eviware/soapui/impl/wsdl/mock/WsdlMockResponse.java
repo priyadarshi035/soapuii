@@ -879,7 +879,7 @@ public class WsdlMockResponse extends AbstractWsdlModelItem<MockResponseConfig> 
 		return getSettings().getBoolean( WsdlMockResponse.ENABLE_INLINE_FILES );
 	}
 
-	public void setInlineFilesEnabled( boolean inlineFilesEnabled )
+       	public void setInlineFilesEnabled( boolean inlineFilesEnabled )
 	{
 		getSettings().setBoolean( WsdlMockResponse.ENABLE_INLINE_FILES, inlineFilesEnabled );
 	}

@@ -718,7 +718,7 @@ public class WsdlMockResponseTestStep extends WsdlTestStepWithProperties impleme
 		mockResponse.setForceMtom( forceMtom );
 	}
 
-	public boolean isInlineFilesEnabled()
+        public boolean isInlineFilesEnabled()
 	{
 		return mockResponse.isInlineFilesEnabled();
 	}

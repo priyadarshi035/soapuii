@@ -83,7 +83,7 @@ public class MockResponseStepPanelBuilder extends EmptyPanelBuilder<WsdlMockResp
 
 		table.addProperty( "Port", "port", true );
 		table.addProperty( "Path", "path", true );
-		table.addProperty( "Host", "host", true );
+		table.addProperty( "Host", "host", true );               
 		table.setPropertyObject( mockResponseStep );
 
 		return table;

@@ -51,8 +51,8 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 		{
 			compile();
 		}
-		
-		return script.run();
+
+                return script.run();
 	}
 
 	public synchronized void setScript( String scriptText )
