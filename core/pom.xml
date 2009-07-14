@@ -556,6 +556,11 @@
 			</snapshots>
 		</repository>
 		<repository>
+			<id>TouK Snapshot Repository</id>
+			<url>https://nexus.touk.pl/nexus/content/repositories/touk-repository-snapshots/</url>
+		</repository>
+
+		<repository>
 			<id>TouK Nexus 3rd party</id>
 			<url>https://nexus.touk.pl/nexus/content/repositories/thirdparty/</url>
 			<releases>
