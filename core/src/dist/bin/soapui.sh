@@ -26,7 +26,7 @@ fi
 export SOAPUI_HOME
 
 SOAPUI_CLASSPATH="`find $SOAPUI_HOME/bin/ -name soapui*.jar`"
-for file in `find "$SOAPUI_HOME"/lib/ -name *.jar`; do
+for file in `find $SOAPUI_HOME/lib/ -name \*.jar`; do
     SOAPUI_CLASSPATH="$SOAPUI_CLASSPATH:$file"
 done
 
