@@ -5,7 +5,7 @@
 
 	<groupId>eviware</groupId>
 	<artifactId>build</artifactId>
-	<version>2.5.2-touk1</version>
+	<version>2.5.2-touk1.1</version>
 	<packaging>pom</packaging>
 	<name>soapUI - Project Builder</name>
 	<url>http://www.soapui.org</url>
