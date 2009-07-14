@@ -28,9 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.lang.Integer;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -60,18 +59,20 @@ import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.event.ListDataEvent;
+import org.apache.commons.vfs.AllFileSelector;
+import org.apache.commons.vfs.FileDepthSelector;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs.auth.StaticUserAuthenticator;
+import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
 
 public class PropertyHolderTable extends JPanel
 {
@@ -541,19 +542,51 @@ public class PropertyHolderTable extends JPanel
 
             try
             {
-				FileSystemManager fsManager = VFS.getManager();
+				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
+				StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
+				FileSystemOptions opts = new FileSystemOptions();
+				DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
 
-                FileObject files = fsManager.resolveFile( urlHolder.getPropertiesUrl() );
+				FileSystemManager mgr = VFS.getManager();
+				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
+				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
+				//FileObject file = mgr.resolveFile( urlHolder.getPropertiesUrl(), opts);
+				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
+				//if (file.getType() == FileType.FOLDER)
+				{
+					FileObject[] children = file.getChildren();
+					//UISupport.showInfoMessage( Integer.toString(children.length) );
+					for(JComboBox cb : comboBoxesList)
+					{
+						cb.getAction().putValue("enabled", false);
+						cb.removeAllItems();
+						for (int iterChildren = 0; iterChildren < children.length; iterChildren++)
+							cb.addItem( children[iterChildren].getName().getBaseName() );
+						cb.getAction().putValue("enabled", true);
+					}
+				}
+
+/*				FileSystemManager fsManager = VFS.getManager();
+
+                FileObject file = fsManager.resolveFile( urlHolder.getPropertiesUrl() );
+				UISupport.showInfoMessage( file.getName().toString() );
 
                 for(JComboBox cb : comboBoxesList)
                 {
                     cb.getAction().putValue("enabled", false);
                     cb.removeAllItems();
-                    for(FileObject child : files.getChildren())
+                    //for(FileObject child : files.getChildren())
+					//FileObject[] files = file.getChildren();
+					FileObject[] files = file.findFiles(new FileDepthSelector(1, 1));
+					if (files == null)
+						break;
+					UISupport.showInfoMessage( Integer.toString(files.length) );
+					for(FileObject child : files)
                         if (child.getType() == FileType.FILE)
                             cb.addItem( child.getName().getBaseName() );
                     cb.getAction().putValue("enabled", true);
                 }
+*/
             }
             catch (FileSystemException e1)
             {
@@ -569,8 +602,8 @@ public class PropertyHolderTable extends JPanel
 			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
 			
             JTextField text = (JTextField)evt.getSource();
-            if (!text.getText().endsWith("/"))
-                text.setText( text.getText() + "/");
+			if (!text.getText().endsWith("/"))
+				text.setText( text.getText() + "/");
 
 			urlHolder.setPropertiesUrl( text.getText() );
 
@@ -638,7 +671,6 @@ public class PropertyHolderTable extends JPanel
 					String path = file.getParent();
 					propertiesSetsPath.setText(path);
 					propertiesSetsPath.getAction().actionPerformed(new ActionEvent(propertiesSetsPath, ActionEvent.ACTION_PERFORMED, null));
-					//changePropertiesSetsUrlAction.updateComboBoxes();
                 }
                 catch( Exception e1 )
                 {
