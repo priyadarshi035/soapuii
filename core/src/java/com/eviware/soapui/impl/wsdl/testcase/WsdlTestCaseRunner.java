@@ -142,10 +142,14 @@ public class WsdlTestCaseRunner implements Runnable, TestRunner
 				runContext.setProperty( SubmitContext.HTTP_STATE_PROPERTY, new HttpState() );
 			}
 
-                        if (testCase.getTestSuite().isRunSuiteStartupInTestCase() == true)
-                                testCase.runSetupScriptFromSuite( runContext, this );
-                        else
-                                testCase.runSetupScript( runContext, this );
+					if (testCase.getTestSuite().isRunSuiteStartupInTestCase() == true)
+					{
+//							System.out.println("MARK1: flaga true");
+							testCase.getTestSuite().runSetupScript(runContext);
+							testCase.runSetupScript( runContext, this );				
+					}
+					else
+                            testCase.runSetupScript( runContext, this );
 
 			status = Status.RUNNING;
 			startTime = System.currentTimeMillis();

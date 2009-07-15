@@ -554,11 +554,7 @@ public class WsdlTestCaseDesktopPanel extends ModelItemDesktopPanel<WsdlTestCase
 					try
 					{
 						MockTestRunner mockTestRunner = new MockTestRunner( getModelItem(), SoapUI.ensureGroovyLog() );
-
-                                                if (getModelItem().getTestSuite().isRunSuiteStartupInTestCase()  == true )
-                                                    getModelItem().runSetupScriptFromSuite(new MockTestRunContext( mockTestRunner, null ), mockTestRunner);
-                                                else
-                                                    getModelItem().runSetupScript( new MockTestRunContext( mockTestRunner, null ), mockTestRunner );
+						getModelItem().runSetupScript( new MockTestRunContext( mockTestRunner, null ), mockTestRunner );
 					}
 					catch( Exception e1 )
 					{
