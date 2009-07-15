@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.lang.Integer;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -64,16 +63,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
-import org.apache.commons.vfs.AllFileSelector;
-import org.apache.commons.vfs.FileDepthSelector;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.VFS;
-import org.apache.commons.vfs.auth.StaticUserAuthenticator;
-import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
 
 public class PropertyHolderTable extends JPanel
 {
@@ -548,7 +542,6 @@ public class PropertyHolderTable extends JPanel
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
 				//FileSystemOptions opts = new FileSystemOptions();
-				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
 
 				FileSystemManager mgr = VFS.getManager();
 				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
