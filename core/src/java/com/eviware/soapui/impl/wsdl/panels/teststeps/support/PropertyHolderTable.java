@@ -50,6 +50,7 @@ import com.eviware.soapui.model.TestPropertyHolder;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionImpl;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionUtils;
+import com.eviware.soapui.model.support.TestPropertyUtils;
 import com.eviware.soapui.model.testsuite.TestProperty;
 import com.eviware.soapui.model.testsuite.TestPropertyListener;
 import com.eviware.soapui.model.tree.nodes.PropertyTreeNode.PropertyModelItem;
@@ -196,6 +197,8 @@ public class PropertyHolderTable extends JPanel
 		toolbar.add( clearPropertiesButton );
 		JButton loadPropertiesButton = UISupport.createToolbarButton( loadPropertiesAction );
 		toolbar.add( loadPropertiesButton );
+		toolbar.add( UISupport.createToolbarButton( new SavePropertiesAction() ) );
+		
 		if(holder instanceof MutableTestPropertyUrlHolder)
 		{
 			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
@@ -543,16 +546,14 @@ public class PropertyHolderTable extends JPanel
             try
             {
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
-				StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
-				FileSystemOptions opts = new FileSystemOptions();
-				DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
+				//FileSystemOptions opts = new FileSystemOptions();
+				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
 
 				FileSystemManager mgr = VFS.getManager();
 				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
 				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
-				//FileObject file = mgr.resolveFile( urlHolder.getPropertiesUrl(), opts);
 				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
-				//if (file.getType() == FileType.FOLDER)
 				{
 					FileObject[] children = file.getChildren();
 					//UISupport.showInfoMessage( Integer.toString(children.length) );
@@ -560,33 +561,16 @@ public class PropertyHolderTable extends JPanel
 					{
 						cb.getAction().putValue("enabled", false);
 						cb.removeAllItems();
-						for (int iterChildren = 0; iterChildren < children.length; iterChildren++)
-							cb.addItem( children[iterChildren].getName().getBaseName() );
+						for (FileObject child : children)
+							if (child.getType() == FileType.FILE && child.getName().getExtension().equals("properties"))
+								cb.addItem(child.getName().getBaseName());
 						cb.getAction().putValue("enabled", true);
 					}
 				}
-
-/*				FileSystemManager fsManager = VFS.getManager();
-
-                FileObject file = fsManager.resolveFile( urlHolder.getPropertiesUrl() );
-				UISupport.showInfoMessage( file.getName().toString() );
-
-                for(JComboBox cb : comboBoxesList)
-                {
-                    cb.getAction().putValue("enabled", false);
-                    cb.removeAllItems();
-                    //for(FileObject child : files.getChildren())
-					//FileObject[] files = file.getChildren();
-					FileObject[] files = file.findFiles(new FileDepthSelector(1, 1));
-					if (files == null)
-						break;
-					UISupport.showInfoMessage( Integer.toString(files.length) );
-					for(FileObject child : files)
-                        if (child.getType() == FileType.FILE)
-                            cb.addItem( child.getName().getBaseName() );
-                    cb.getAction().putValue("enabled", true);
-                }
-*/
+				else
+				{
+					UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: file doesn't exist, is not a folder or is not readable" );
+				}
             }
             catch (FileSystemException e1)
             {
@@ -680,6 +664,7 @@ public class PropertyHolderTable extends JPanel
 		}
 	}
 
+	//should be moved to TestPropertyUtils.java
     public void loadPropertiesFromStream( InputStream inStream ) throws IOException
     {
 		boolean createMissing = holder instanceof MutableTestPropertyHolder
@@ -697,6 +682,38 @@ public class PropertyHolderTable extends JPanel
 			else if( createMissing )
 			{
 				( ( MutableTestPropertyHolder )holder ).addProperty( name ).setValue( props.getProperty( name ) );
+			}
+		}
+	}
+
+	private class SavePropertiesAction extends AbstractAction
+	{
+		public SavePropertiesAction()
+		{
+			putValue( Action.SMALL_ICON, UISupport.createImageIcon( "/set_properties_target.gif" ) );
+			putValue( Action.SHORT_DESCRIPTION, "Saves current property-values to a file" );
+		}
+
+		public void actionPerformed( ActionEvent e )
+		{
+			if( holder.getPropertyCount() == 0 )
+			{
+				UISupport.showErrorMessage( "No properties to save!" );
+				return;
+			}
+
+			File file = UISupport.getFileDialogs().saveAs( this, "Save Properties" );
+			if( file != null )
+			{
+				try
+				{
+					int cnt = TestPropertyUtils.saveTo( holder, file.getAbsolutePath() );
+					UISupport.showInfoMessage( "Saved " + cnt + " propert" + ((cnt == 1)?"y":"ies") + " to file" );
+				}
+				catch( IOException e1 )
+				{
+					UISupport.showErrorMessage( e1 );
+				}
 			}
 		}
 	}
