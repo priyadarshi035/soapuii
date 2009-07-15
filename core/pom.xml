@@ -112,7 +112,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:svn://touk.pl/svn/internal/touk/soapuii/trunk/core/</connection>
+		<connection>scm:svn:https://touk.pl/svn/internal/touk/soapuii/trunk/core/</connection>
 	</scm>
 	<organization>
 		<name>eviware.com</name>

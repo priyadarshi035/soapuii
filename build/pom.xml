@@ -63,7 +63,7 @@
 	</organization>
 
 	<scm>
-		<connection>scm:svn:svn://touk.pl/svn/internal/touk/soapuii/trunk/build
+		<connection>scm:svn:https://touk.pl/svn/internal/touk/soapuii/trunk/build
 		</connection>
 	</scm>
 
