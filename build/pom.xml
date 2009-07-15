@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eviware</groupId>
 	<artifactId>build</artifactId>
-	<version>2.5.2-SNAPSHOT</version>
+	<version>2.5.2-touk2</version>
 	<packaging>pom</packaging>
 	<name>soapUI - Project Builder</name>
 	<url>http://www.soapui.org</url>
@@ -63,8 +62,7 @@
 	</organization>
 
 	<scm>
-		<connection>scm:svn:svn://svn.eviware.com/soapui/trunk/buil
-		</connection>
+		<connection>scm:svn:svn://svn.eviware.com/soapui/tags/sprint2</connection>
 	</scm>
 
 	<issueManagement>
