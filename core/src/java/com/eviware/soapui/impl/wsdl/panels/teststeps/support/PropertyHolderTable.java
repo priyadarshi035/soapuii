@@ -24,6 +24,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,6 +59,7 @@ import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
+import java.awt.event.MouseListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -204,8 +206,10 @@ public class PropertyHolderTable extends JPanel
 			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
 			toolbar.add(propertiesSetsList);
 			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
-			//PopupMenuListener actionListener = new UriComboBoxPopupMenuListener();
-			//propertiesSetsList.addPopupMenuListener(actionListener);
+			MouseListener mouseListener = new UriComboBoxMouseListener();
+			for (int i = 0; i < propertiesSetsList.getComponentCount(); i++)
+				propertiesSetsList.getComponent(i).addMouseListener(mouseListener);
+			
 			
 			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
 			toolbar.add( propertiesSetsPath );
@@ -284,6 +288,35 @@ public class PropertyHolderTable extends JPanel
 		{
 			if( enabled )
 				propertiesModel.fireTableDataChanged();
+		}
+	}
+
+	private class UriComboBoxMouseListener implements MouseListener
+	{
+		private boolean used = false;
+
+		public void mouseClicked(MouseEvent arg0)
+		{
+			//we update it on click only first time. Next updates will be made by uri changes
+			if(!used)
+			{
+				changePropertiesSetsUrlAction.updateComboBoxes();
+				used = true;
+			}
+		}
+
+		public void mousePressed(MouseEvent arg0) {
+			
+		}
+
+		public void mouseReleased(MouseEvent arg0) {
+
+		}
+
+		public void mouseEntered(MouseEvent arg0) {
+		}
+
+		public void mouseExited(MouseEvent arg0) {
 		}
 	}
 

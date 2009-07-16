@@ -1,9 +1,0 @@
-2009-07-15 17:54:11,225 WARN  [DefaultSoapUICore] Missing folder [/home/pnw/soapuii/trunk/core/./ext] for external libraries
-2009-07-15 17:54:11,835 INFO  [DefaultSoapUICore] initialized soapui-settings from [/home/pnw/soapuii/trunk/core/soapui-settings.xml]
-2009-07-15 17:54:11,872 INFO  [DefaultSoapUICore] Adding listeners from [/home/pnw/soapuii/trunk/core/./listeners/demo-listeners.xml]
-2009-07-15 17:54:13,243 INFO  [WorkspaceImpl] Loading workspace from [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
-2009-07-15 17:54:13,354 INFO  [WsdlProject] Loaded project from [file:/home/pnw/wsdl/userstory12-soapui-project.xml]
-2009-07-15 17:54:16,748 INFO  [DefaultSoapUICore] Adding actions from [/home/pnw/soapuii/trunk/core/./actions/demo-actions.xml]
-2009-07-15 17:55:45,405 INFO  [DefaultSoapUICore] Settings saved to [/home/pnw/soapuii/trunk/core/./soapui-settings.xml]
-2009-07-15 17:55:45,437 INFO  [WsdlProject] Saved project [userstory12] to [/home/pnw/wsdl/userstory12-soapui-project.xml - 7971 bytes
-2009-07-15 17:55:45,448 INFO  [WorkspaceImpl] Saved workspace to [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
