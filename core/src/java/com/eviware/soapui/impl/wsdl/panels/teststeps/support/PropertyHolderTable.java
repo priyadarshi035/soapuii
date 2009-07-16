@@ -63,6 +63,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
@@ -202,6 +204,8 @@ public class PropertyHolderTable extends JPanel
 			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
 			toolbar.add(propertiesSetsList);
 			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
+			//PopupMenuListener actionListener = new UriComboBoxPopupMenuListener();
+			//propertiesSetsList.addPopupMenuListener(actionListener);
 			
 			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
 			toolbar.add( propertiesSetsPath );
@@ -281,6 +285,28 @@ public class PropertyHolderTable extends JPanel
 			if( enabled )
 				propertiesModel.fireTableDataChanged();
 		}
+	}
+
+	private class UriComboBoxPopupMenuListener implements PopupMenuListener
+	{
+		private boolean used = false;
+
+		// This method is called just before the menu becomes visible
+		public void popupMenuWillBecomeVisible(PopupMenuEvent evt)
+		{
+			//we update it on click only first time. Next updates will be made by uri changes
+			if(!used)
+			{
+				changePropertiesSetsUrlAction.updateComboBoxes();
+				used = true;
+			}
+		}
+
+		// This method is called just before the menu becomes hidden
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {	}
+
+		// This method is called when menu is hidden because the user cancelled it
+		public void popupMenuCanceled(PopupMenuEvent evt) {	}
 	}
 
 	private class PropertiesModel extends AbstractTableModel
@@ -552,7 +578,7 @@ public class PropertyHolderTable extends JPanel
 					log.info("Found " + Integer.toString(children.length) + " files in path [" + urlHolder.getPropertiesUrl() + "]");
 					for(JComboBox cb : comboBoxesList)
 					{
-						cb.getAction().putValue("enabled", false);
+						cb.getAction().putValue("enabled", false); //to prevent unwanted events
 						cb.removeAllItems();
 						for (FileObject child : children)
 							if (child.getType() == FileType.FILE && child.getName().getExtension().equals("properties"))
@@ -563,17 +589,15 @@ public class PropertyHolderTable extends JPanel
 				else
 				{
 					throw new FileSystemException("file doesn't exist, is not a folder or is not readable");
-//					UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: file doesn't exist, is not a folder or is not readable" );
-//					return;
 				}
             }
             catch (FileSystemException e1)
             {
                 UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1 );
-				urlHolder.setPropertiesUrl("");
+				//urlHolder.setPropertiesUrl("");
 				for(JComboBox cb : comboBoxesList)
 				{
-					cb.getAction().putValue("enabled", false);
+					cb.getAction().putValue("enabled", false); //to prevent unwanted events
 					cb.removeAllItems();
 					cb.getAction().putValue("enabled", true);
 				}
@@ -599,7 +623,7 @@ public class PropertyHolderTable extends JPanel
         private void addComboBox(JComboBox comboBox)
         {
             comboBoxesList.add(comboBox);
-			updateComboBoxes();
+			//updateComboBoxes();
         }
     }
 
@@ -612,7 +636,7 @@ public class PropertyHolderTable extends JPanel
         
         public void actionPerformed(ActionEvent evt)
         {
-            if (this.getValue("enabled").equals(false))
+            if (this.getValue("enabled").equals(false)) //to prevent unwanted events
                 return;
 			if(!(holder instanceof MutableTestPropertyUrlHolder))
 				return;
