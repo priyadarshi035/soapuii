@@ -29803,3 +29803,16 @@ java.net.MalformedURLException: no protocol: /home/azl/userstory1-soapui-project
 	at com.eviware.soapui.impl.WorkspaceFactoryImpl.openWorkspace(WorkspaceFactoryImpl.java:32)
 	at com.eviware.soapui.SoapUI.startSoapUI(SoapUI.java:570)
 	at com.eviware.soapui.SoapUI.main(SoapUI.java:529)
+2009-07-15 17:51:51,375 ERROR [errorlog] java.net.MalformedURLException: no protocol: /home/azl/userstory1-soapui-project.xml
+java.net.MalformedURLException: no protocol: /home/azl/userstory1-soapui-project.xml
+	at java.net.URL.<init>(URL.java:567)
+	at java.net.URL.<init>(URL.java:464)
+	at java.net.URL.<init>(URL.java:413)
+	at com.eviware.soapui.impl.wsdl.WsdlProject.<init>(WsdlProject.java:196)
+	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:62)
+	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:24)
+	at com.eviware.soapui.impl.WorkspaceImpl.loadWorkspace(WorkspaceImpl.java:174)
+	at com.eviware.soapui.impl.WorkspaceImpl.<init>(WorkspaceImpl.java:86)
+	at com.eviware.soapui.impl.WorkspaceFactoryImpl.openWorkspace(WorkspaceFactoryImpl.java:32)
+	at com.eviware.soapui.SoapUI.startSoapUI(SoapUI.java:570)
+	at com.eviware.soapui.SoapUI.main(SoapUI.java:529)

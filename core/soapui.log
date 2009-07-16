@@ -1,48 +1,9 @@
-2009-07-14 16:14:43,503 INFO  [DefaultSoapUICore] initialized soapui-settings from [/home/pnw/soapuii/trunk/core/soapui-settings.xml]
-2009-07-14 16:14:44,826 INFO  [WorkspaceImpl] Loading workspace from [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
-2009-07-14 16:14:44,965 ERROR [SoapUI] An error occured [no protocol: /home/azl/Pulpit/userstory7-soapui-project.xml], see error log for details
-2009-07-14 16:14:44,967 ERROR [errorlog] java.net.MalformedURLException: no protocol: /home/azl/Pulpit/userstory7-soapui-project.xml
-java.net.MalformedURLException: no protocol: /home/azl/Pulpit/userstory7-soapui-project.xml
-	at java.net.URL.<init>(URL.java:567)
-	at java.net.URL.<init>(URL.java:464)
-	at java.net.URL.<init>(URL.java:413)
-	at com.eviware.soapui.impl.wsdl.WsdlProject.<init>(WsdlProject.java:196)
-	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:62)
-	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:24)
-	at com.eviware.soapui.impl.WorkspaceImpl.loadWorkspace(WorkspaceImpl.java:174)
-	at com.eviware.soapui.impl.WorkspaceImpl.<init>(WorkspaceImpl.java:86)
-	at com.eviware.soapui.impl.WorkspaceFactoryImpl.openWorkspace(WorkspaceFactoryImpl.java:32)
-	at com.eviware.soapui.SoapUI.startSoapUI(SoapUI.java:570)
-	at com.eviware.soapui.SoapUI.main(SoapUI.java:529)
-2009-07-14 16:14:45,380 ERROR [SoapUI] An error occured [no protocol: /home/azl/userstory1-soapui-project.xml], see error log for details
-2009-07-14 16:14:45,381 ERROR [errorlog] java.net.MalformedURLException: no protocol: /home/azl/userstory1-soapui-project.xml
-java.net.MalformedURLException: no protocol: /home/azl/userstory1-soapui-project.xml
-	at java.net.URL.<init>(URL.java:567)
-	at java.net.URL.<init>(URL.java:464)
-	at java.net.URL.<init>(URL.java:413)
-	at com.eviware.soapui.impl.wsdl.WsdlProject.<init>(WsdlProject.java:196)
-	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:62)
-	at com.eviware.soapui.impl.wsdl.WsdlProjectFactory.createNew(WsdlProjectFactory.java:24)
-	at com.eviware.soapui.impl.WorkspaceImpl.loadWorkspace(WorkspaceImpl.java:174)
-	at com.eviware.soapui.impl.WorkspaceImpl.<init>(WorkspaceImpl.java:86)
-	at com.eviware.soapui.impl.WorkspaceFactoryImpl.openWorkspace(WorkspaceFactoryImpl.java:32)
-	at com.eviware.soapui.SoapUI.startSoapUI(SoapUI.java:570)
-	at com.eviware.soapui.SoapUI.main(SoapUI.java:529)
-2009-07-14 16:15:19,365 INFO  [WsdlProject] Loaded project from [file:/home/pnw/wsdl/feature 6-soapui.xml]
-2009-07-14 16:15:21,411 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/xop.xsd with targetNamespace http://www.w3.org/2004/08/xop/include
-2009-07-14 16:15:21,557 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/XMLSchema.xsd with targetNamespace http://www.w3.org/2001/XMLSchema
-2009-07-14 16:15:21,579 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/xml.xsd with targetNamespace http://www.w3.org/XML/1998/namespace
-2009-07-14 16:15:21,595 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/swaref.xsd with targetNamespace http://ws-i.org/profiles/basic/1.1/xsd
-2009-07-14 16:15:21,596 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/xmime200505.xsd with targetNamespace http://www.w3.org/2005/05/xmlmime
-2009-07-14 16:15:21,597 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/xmime200411.xsd with targetNamespace http://www.w3.org/2004/11/xmlmime
-2009-07-14 16:15:21,648 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/soapEnvelope.xsd with targetNamespace http://schemas.xmlsoap.org/soap/envelope/
-2009-07-14 16:15:21,652 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/soapEncoding.xsd with targetNamespace http://schemas.xmlsoap.org/soap/encoding/
-2009-07-14 16:15:21,653 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/soapEnvelope12.xsd with targetNamespace http://www.w3.org/2003/05/soap-envelope
-2009-07-14 16:15:21,691 INFO  [SchemaUtils] Added default schema from file:/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/bin/soapui-core-2.5.2-touk1.1.jar!/com/eviware/soapui/resources/xsds/soapEncoding12.xsd with targetNamespace http://www.w3.org/2003/05/soap-encoding
-2009-07-14 16:15:21,692 INFO  [SchemaUtils] Loading schema types from [file:/home/pnw/wsdl/weather.wsdl]
-2009-07-14 16:15:21,692 INFO  [SchemaUtils] Getting schema file:/home/pnw/wsdl/weather.wsdl
-2009-07-14 16:15:22,767 INFO  [WorkspaceImpl] Saved workspace to [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
-2009-07-14 16:15:22,889 INFO  [DefaultFileReplicator] Using "/tmp/vfs_cache" as temporary files store.
-2009-07-14 16:17:34,145 INFO  [DefaultSoapUICore] Settings saved to [/home/pnw/soapuii/trunk/core/target/soapui-2.5.2-touk1.1/soapui-settings.xml]
-2009-07-14 16:17:34,318 INFO  [WsdlProject] Saved project [feature 6] to [/home/pnw/wsdl/feature 6-soapui.xml - 58640 bytes
-2009-07-14 16:17:34,322 INFO  [WorkspaceImpl] Saved workspace to [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
+2009-07-15 17:54:11,225 WARN  [DefaultSoapUICore] Missing folder [/home/pnw/soapuii/trunk/core/./ext] for external libraries
+2009-07-15 17:54:11,835 INFO  [DefaultSoapUICore] initialized soapui-settings from [/home/pnw/soapuii/trunk/core/soapui-settings.xml]
+2009-07-15 17:54:11,872 INFO  [DefaultSoapUICore] Adding listeners from [/home/pnw/soapuii/trunk/core/./listeners/demo-listeners.xml]
+2009-07-15 17:54:13,243 INFO  [WorkspaceImpl] Loading workspace from [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
+2009-07-15 17:54:13,354 INFO  [WsdlProject] Loaded project from [file:/home/pnw/wsdl/userstory12-soapui-project.xml]
+2009-07-15 17:54:16,748 INFO  [DefaultSoapUICore] Adding actions from [/home/pnw/soapuii/trunk/core/./actions/demo-actions.xml]
+2009-07-15 17:55:45,405 INFO  [DefaultSoapUICore] Settings saved to [/home/pnw/soapuii/trunk/core/./soapui-settings.xml]
+2009-07-15 17:55:45,437 INFO  [WsdlProject] Saved project [userstory12] to [/home/pnw/wsdl/userstory12-soapui-project.xml - 7971 bytes
+2009-07-15 17:55:45,448 INFO  [WorkspaceImpl] Saved workspace to [/home/pnw/soapuii/trunk/core/C:\Documents and Settings\ole\My Documents\Demo-workspace.xml]
