@@ -2,4 +2,6 @@
 <con:soapui-workspace name="Projects" soapui-version="2.5.2" xmlns:con="http://eviware.com/soapui/config">
   <con:settings/>
   <con:project name="userstory1">/home/azl/userstory1-soapui-project.xml</con:project>
+  <con:project name="userstory12">/home/azl/Pulpit/userstory12-soapui-project.xml</con:project>
+  <con:project name="userstory7">/home/azl/Pulpit/userstory7-soapui-project.xml</con:project>
 </con:soapui-workspace>
