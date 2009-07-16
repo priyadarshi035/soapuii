@@ -533,7 +533,6 @@ public class PropertyHolderTable extends JPanel
 		{
 			if(!(holder instanceof MutableTestPropertyUrlHolder))
 				return;
-
 			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
 			
 			if ( StringUtils.isNullOrEmpty( urlHolder.getPropertiesUrl() ) )
@@ -544,7 +543,6 @@ public class PropertyHolderTable extends JPanel
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
 				//FileSystemOptions opts = new FileSystemOptions();
-
 				FileSystemManager mgr = VFS.getManager();
 				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
 				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
@@ -564,12 +562,21 @@ public class PropertyHolderTable extends JPanel
 				}
 				else
 				{
-					UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: file doesn't exist, is not a folder or is not readable" );
+					throw new FileSystemException("file doesn't exist, is not a folder or is not readable");
+//					UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: file doesn't exist, is not a folder or is not readable" );
+//					return;
 				}
             }
             catch (FileSystemException e1)
             {
                 UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1 );
+				urlHolder.setPropertiesUrl("");
+				for(JComboBox cb : comboBoxesList)
+				{
+					cb.getAction().putValue("enabled", false);
+					cb.removeAllItems();
+					cb.getAction().putValue("enabled", true);
+				}
             }
 		}
 
@@ -581,11 +588,11 @@ public class PropertyHolderTable extends JPanel
 			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
 			
             JTextField text = (JTextField)evt.getSource();
+			
 			if (!text.getText().endsWith("/"))
 				text.setText( text.getText() + "/");
 
 			urlHolder.setPropertiesUrl( text.getText() );
-
 			updateComboBoxes();
         }
 
