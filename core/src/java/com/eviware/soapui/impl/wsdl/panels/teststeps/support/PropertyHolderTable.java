@@ -68,9 +68,11 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.VFS;
+import org.apache.log4j.Logger;
 
 public class PropertyHolderTable extends JPanel
 {
+	private final static Logger log = Logger.getLogger( PropertyHolderTable.class );
 	private final TestPropertyHolder holder;
 	private PropertiesModel propertiesModel;
 	private RemovePropertyAction removePropertyAction;
@@ -549,7 +551,7 @@ public class PropertyHolderTable extends JPanel
 				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
 				{
 					FileObject[] children = file.getChildren();
-					//UISupport.showInfoMessage( Integer.toString(children.length) );
+					log.info("Found " + Integer.toString(children.length) + " files in path [" + urlHolder.getPropertiesUrl() + "]");
 					for(JComboBox cb : comboBoxesList)
 					{
 						cb.getAction().putValue("enabled", false);
