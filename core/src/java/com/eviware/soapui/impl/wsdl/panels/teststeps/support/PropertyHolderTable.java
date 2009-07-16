@@ -59,11 +59,13 @@ import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
+import java.awt.Container;
 import java.awt.event.MouseListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -295,7 +297,11 @@ public class PropertyHolderTable extends JPanel
 	{
 		private boolean used = false;
 
-		public void mouseClicked(MouseEvent arg0)
+		public void mouseClicked(MouseEvent evt)
+		{
+		}
+
+		public void mousePressed(MouseEvent evt)
 		{
 			//we update it on click only first time. Next updates will be made by uri changes
 			if(!used)
@@ -305,41 +311,11 @@ public class PropertyHolderTable extends JPanel
 			}
 		}
 
-		public void mousePressed(MouseEvent arg0) {
-			
-		}
+		public void mouseReleased(MouseEvent evt) {}
 
-		public void mouseReleased(MouseEvent arg0) {
+		public void mouseEntered(MouseEvent evt) {}
 
-		}
-
-		public void mouseEntered(MouseEvent arg0) {
-		}
-
-		public void mouseExited(MouseEvent arg0) {
-		}
-	}
-
-	private class UriComboBoxPopupMenuListener implements PopupMenuListener
-	{
-		private boolean used = false;
-
-		// This method is called just before the menu becomes visible
-		public void popupMenuWillBecomeVisible(PopupMenuEvent evt)
-		{
-			//we update it on click only first time. Next updates will be made by uri changes
-			if(!used)
-			{
-				changePropertiesSetsUrlAction.updateComboBoxes();
-				used = true;
-			}
-		}
-
-		// This method is called just before the menu becomes hidden
-		public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {	}
-
-		// This method is called when menu is hidden because the user cancelled it
-		public void popupMenuCanceled(PopupMenuEvent evt) {	}
+		public void mouseExited(MouseEvent evt) {}
 	}
 
 	private class PropertiesModel extends AbstractTableModel
@@ -616,6 +592,11 @@ public class PropertyHolderTable extends JPanel
 						for (FileObject child : children)
 							if (child.getType() == FileType.FILE && child.getName().getExtension().equals("properties"))
 								cb.addItem(child.getName().getBaseName());
+						if (cb.isPopupVisible())
+						{
+							cb.hidePopup();
+							cb.showPopup();
+						}
 						cb.getAction().putValue("enabled", true);
 					}
 				}
