@@ -59,19 +59,16 @@ import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringList;
 import com.eviware.soapui.support.xml.XmlUtils;
-import java.awt.Container;
 import java.awt.event.MouseListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JTextField;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.VFS;
 import org.apache.log4j.Logger;
@@ -208,10 +205,16 @@ public class PropertyHolderTable extends JPanel
 			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
 			toolbar.add(propertiesSetsList);
 			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
+			//we dont popuplate comboboxes on create, but on first mouse click
 			MouseListener mouseListener = new UriComboBoxMouseListener();
 			for (int i = 0; i < propertiesSetsList.getComponentCount(); i++)
 				propertiesSetsList.getComponent(i).addMouseListener(mouseListener);
-			
+			if ( !StringUtils.isNullOrEmpty(urlHolder.getPropertiesUrl()) )
+			{
+				propertiesSetsList.getAction().putValue("enabled", false); //to prevent unwanted events
+				propertiesSetsList.addItem("...");
+				propertiesSetsList.getAction().putValue("enabled", true); //to prevent unwanted events
+			}
 			
 			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
 			toolbar.add( propertiesSetsPath );
@@ -576,11 +579,19 @@ public class PropertyHolderTable extends JPanel
             try
             {
 				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
-				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "", "");
+				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "usern", "pass");
 				//FileSystemOptions opts = new FileSystemOptions();
+				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+
+
+				FileSystemOptions opts = new FileSystemOptions();
+				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+				//FileObject fo = VFS.getManager().resolveFile("smb://host/anyshare/dir", opts);
+
 				FileSystemManager mgr = VFS.getManager();
 				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
 				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
+
 				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
 				{
 					FileObject[] children = file.getChildren();
@@ -594,6 +605,7 @@ public class PropertyHolderTable extends JPanel
 								cb.addItem(child.getName().getBaseName());
 						if (cb.isPopupVisible())
 						{
+							//without this, combobox's popup menu updated by mouse pressed event won't have proper size
 							cb.hidePopup();
 							cb.showPopup();
 						}
@@ -607,8 +619,7 @@ public class PropertyHolderTable extends JPanel
             }
             catch (FileSystemException e1)
             {
-                UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1 );
-				//urlHolder.setPropertiesUrl("");
+                UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1.getMessage());
 				for(JComboBox cb : comboBoxesList)
 				{
 					cb.getAction().putValue("enabled", false); //to prevent unwanted events
@@ -637,7 +648,6 @@ public class PropertyHolderTable extends JPanel
         private void addComboBox(JComboBox comboBox)
         {
             comboBoxesList.add(comboBox);
-			//updateComboBoxes();
         }
     }
 
