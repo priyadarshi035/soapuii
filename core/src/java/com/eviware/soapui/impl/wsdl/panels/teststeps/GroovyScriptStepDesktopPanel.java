@@ -246,7 +246,7 @@ public class GroovyScriptStepDesktopPanel extends ModelItemDesktopPanel<WsdlGroo
 		{
 			public void run()
 			{
-				//log.info("script running");
+				log.info("script running");
 				MockTestRunner mockTestRunner = new MockTestRunner(groovyStep.getTestCase(), logger);
 				statusBar.setIndeterminate(true);
 				WsdlTestStepResult result = (WsdlTestStepResult) groovyStep.run(mockTestRunner, new MockTestRunContext(
@@ -264,14 +264,14 @@ public class GroovyScriptStepDesktopPanel extends ModelItemDesktopPanel<WsdlGroo
 					UISupport.showErrorMessage(er.toString());
 					editor.requestFocus();
 				}
-				//log.info("script finished");
+				log.info("script finished");
 			}
 		}
 		
 		public RunAction()
 		{
 			putValue( Action.SMALL_ICON, UISupport.createImageIcon( "/run_groovy_script.gif" ) );
-			putValue( Action.SHORT_DESCRIPTION, "Runs this script in seperate thread using a mock testRunner and testContext" );
+			putValue( Action.SHORT_DESCRIPTION, "Runs this script in separate thread using a mock testRunner and testContext" );
 		}
 
 		public void actionPerformed( ActionEvent e )

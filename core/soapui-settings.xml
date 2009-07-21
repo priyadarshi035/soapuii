@@ -9,8 +9,8 @@
   <con:entry key="/home/robert/test2-soapui-project.xml" value="test2"/>
   <con:entry key="/home/robert/workspace/soapui/test2-test2" value="test2"/>
   <con:entry key="/home/pnw/wsdl/feature 1-soapui_same_port_and_path_with_delays.xml" value="feature 1"/>
-  <con:entry key="/home/robert/test4-soapui-project.xml" value="test4"/>
   <con:entry key="/home/azl/userstory1-soapui-project.xml" value="userstory1"/>
+  <con:entry key="/home/robert/test4-soapui-project.xml" value="test4"/>
   <con:entry key="/home/pnw/wsdl/weather-soapui-project.xml" value="weather"/>
   <con:entry key="/home/robert/test3-soapui-project" value="test3"/>
   <con:entry key="/home/robert/test3-soapui-project.xml" value="test3"/>
