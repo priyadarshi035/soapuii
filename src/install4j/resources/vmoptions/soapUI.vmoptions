@@ -1,0 +1,10 @@
+-Xms128m 
+-Xmx384m 
+-Dsoapui.properties=soapui.properties
+-Dsoapui.home=${installer:sys.installationDir}/bin
+-Dsoapui.ext.libraries=${installer:sys.installationDir}/bin/ext
+-Dsoapui.ext.listeners=${installer:sys.installationDir}/bin/listeners
+-Dsoapui.ext.actions=${installer:sys.installationDir}/bin/actions
+-Dwsi.dir=${installer:sys.installationDir}/wsi-test-tools
+-Djava.library.path=${installer:sys.installationDir}/bin
+-DGRE_HOME=${installer:sys.installationDir}/${compiler:XULRUNNER}
