@@ -1,4 +1,4 @@
-package touk.proxygeneratorcore;
+package pl.touk.proxygenerator;
 
 /**
  * Hello world!

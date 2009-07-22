@@ -1,4 +1,4 @@
-package touk.proxygeneratorcore;
+package pl.touk.proxygenerator;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
