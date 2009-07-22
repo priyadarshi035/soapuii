@@ -47,6 +47,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.wsdl.MutableTestPropertyHolder;
+import com.eviware.soapui.impl.wsdl.MutableTestPropertyUrlHolder;
 import com.eviware.soapui.model.TestPropertyHolder;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionImpl;
@@ -65,9 +66,24 @@ import com.eviware.x.form.support.ADialogBuilder;
 import com.eviware.x.form.support.AField;
 import com.eviware.x.form.support.AForm;
 import com.eviware.x.form.support.AField.AFieldType;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileSystemOptions;
+import org.apache.commons.vfs.FileType;
+import org.apache.commons.vfs.VFS;
+import org.apache.log4j.Logger;
 
 public class PropertyHolderTable extends JPanel
 {
+	private final static Logger log = Logger.getLogger( PropertyHolderTable.class );
 	private final TestPropertyHolder holder;
 	private PropertiesModel propertiesModel;
 	private RemovePropertyAction removePropertyAction;
@@ -75,7 +91,10 @@ public class PropertyHolderTable extends JPanel
 	private InternalTestPropertyListener testPropertyListener;
 	private JTable propertiesTable;
 	private JXToolBar toolbar;
+	private JTextField propertiesSetsPath;
 	private LoadPropertiesAction loadPropertiesAction;
+    private ChangePropertiesSetAction changePropertiesSetAction;
+    private ChangePropertiesSetsUrlAction changePropertiesSetsUrlAction;
 	private MovePropertyUpAction movePropertyUpAction;
 	private MovePropertyDownAction movePropertyDownAction;
 
@@ -84,6 +103,8 @@ public class PropertyHolderTable extends JPanel
 		super( new BorderLayout() );
 		this.holder = holder;
 
+        changePropertiesSetAction = new ChangePropertiesSetAction();
+        changePropertiesSetsUrlAction = new ChangePropertiesSetsUrlAction();
 		loadPropertiesAction = new LoadPropertiesAction();
 		testPropertyListener = new InternalTestPropertyListener();
 		holder.addTestPropertyListener( testPropertyListener );
@@ -190,6 +211,28 @@ public class PropertyHolderTable extends JPanel
 		toolbar.add( loadPropertiesButton );
 		toolbar.add( UISupport.createToolbarButton( new SavePropertiesAction() ) );
 
+		if(holder instanceof MutableTestPropertyUrlHolder)
+		{
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+
+			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
+			toolbar.add(propertiesSetsList);
+			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
+			//we dont popuplate comboboxes on create, but on first mouse click
+			MouseListener mouseListener = new UriComboBoxMouseListener();
+			for (int i = 0; i < propertiesSetsList.getComponentCount(); i++)
+				propertiesSetsList.getComponent(i).addMouseListener(mouseListener);
+			if ( !StringUtils.isNullOrEmpty(urlHolder.getPropertiesUrl()) )
+			{
+				propertiesSetsList.getAction().putValue("enabled", false); //to prevent unwanted events
+				propertiesSetsList.addItem("...");
+				propertiesSetsList.getAction().putValue("enabled", true); //to prevent unwanted events
+			}
+
+			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
+			toolbar.add( propertiesSetsPath );
+		}
+		
 		return toolbar;
 	}
 
@@ -217,6 +260,8 @@ public class PropertyHolderTable extends JPanel
 		removePropertyAction.setEnabled( enabled );
 		propertiesTable.setEnabled( enabled );
 		loadPropertiesAction.setEnabled( enabled );
+		changePropertiesSetAction.setEnabled( enabled );
+		changePropertiesSetsUrlAction.setEnabled( enabled );
 
 		super.setEnabled( enabled );
 	}
@@ -264,6 +309,31 @@ public class PropertyHolderTable extends JPanel
 			if( enabled )
 				propertiesModel.fireTableDataChanged();
 		}
+	}
+
+	private class UriComboBoxMouseListener implements MouseListener
+	{
+		private boolean used = false;
+
+		public void mouseClicked(MouseEvent evt)
+		{
+		}
+
+		public void mousePressed(MouseEvent evt)
+		{
+			//we update it on click only first time. Next updates will be made by uri changes
+			if(!used)
+			{
+				changePropertiesSetsUrlAction.updateComboBoxes();
+				used = true;
+			}
+		}
+
+		public void mouseReleased(MouseEvent evt) {}
+
+		public void mouseEntered(MouseEvent evt) {}
+
+		public void mouseExited(MouseEvent evt) {}
 	}
 
 	private class PropertiesModel extends AbstractTableModel
@@ -503,6 +573,150 @@ public class PropertyHolderTable extends JPanel
 		}
 	}
 
+    private class ChangePropertiesSetsUrlAction extends AbstractAction
+    {
+        private List<JComboBox> comboBoxesList = new ArrayList<JComboBox>();
+
+        public ChangePropertiesSetsUrlAction()
+		{
+			putValue( Action.SHORT_DESCRIPTION, "Changes properties sets url" );
+		}
+
+		public void updateComboBoxes()
+		{
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+			
+			if ( StringUtils.isNullOrEmpty( urlHolder.getPropertiesUrl() ) )
+				return;
+
+            try
+            {
+				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
+				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "usern", "pass");
+				//FileSystemOptions opts = new FileSystemOptions();
+				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+
+
+				FileSystemOptions opts = new FileSystemOptions();
+				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+				//FileObject fo = VFS.getManager().resolveFile("smb://host/anyshare/dir", opts);
+
+				FileSystemManager mgr = VFS.getManager();
+				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
+				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
+
+				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
+				{
+					FileObject[] children = file.getChildren();
+					log.info("Found " + Integer.toString(children.length) + " files in path [" + urlHolder.getPropertiesUrl() + "]");
+					for(JComboBox cb : comboBoxesList)
+					{
+						cb.getAction().putValue("enabled", false); //to prevent unwanted events
+						cb.removeAllItems();
+						for (FileObject child : children)
+							if (child.getType() == FileType.FILE && child.getName().getExtension().equals("properties"))
+								cb.addItem(child.getName().getBaseName());
+						if (cb.isPopupVisible())
+						{
+							//without this, combobox's popup menu updated by mouse pressed event won't have proper size
+							cb.hidePopup();
+							cb.showPopup();
+						}
+						cb.getAction().putValue("enabled", true);
+					}
+				}
+				else
+				{
+					throw new FileSystemException("file doesn't exist, is not a folder or is not readable");
+				}
+            }
+            catch (FileSystemException e1)
+            {
+                UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1.getMessage());
+				for(JComboBox cb : comboBoxesList)
+				{
+					cb.getAction().putValue("enabled", false); //to prevent unwanted events
+					cb.removeAllItems();
+					cb.getAction().putValue("enabled", true);
+				}
+            }
+		}
+
+        public void actionPerformed(ActionEvent evt)
+        {
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
+
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+			
+            JTextField text = (JTextField)evt.getSource();
+			
+			if (!text.getText().endsWith("/"))
+				text.setText( text.getText() + "/");
+
+			urlHolder.setPropertiesUrl( text.getText() );
+			updateComboBoxes();
+        }
+
+        private void addComboBox(JComboBox comboBox)
+        {
+            comboBoxesList.add(comboBox);
+        }
+    }
+
+    private class ChangePropertiesSetAction extends AbstractAction
+    {
+		private XFormDialog dialog;
+		
+		public ChangePropertiesSetAction()
+		{
+			putValue( Action.SHORT_DESCRIPTION, "Changes properties set from file or remote server" );
+		}
+        
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (this.getValue("enabled").equals(false)) //to prevent unwanted events
+                return;
+			if(!(holder instanceof MutableTestPropertyUrlHolder))
+				return;
+
+			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
+
+            JComboBox cb = (JComboBox)evt.getSource();
+			String url = urlHolder.getPropertiesUrl() + cb.getSelectedItem();
+
+			if( dialog == null )
+				dialog = ADialogBuilder.buildDialog( LoadOptionsForm.class );
+
+			dialog.getFormField( LoadOptionsForm.FILE )
+					.setValue(url);
+			dialog.getFormField( LoadOptionsForm.DELETEREMAINING )
+					.setEnabled( holder instanceof MutableTestPropertyHolder );
+			dialog.getFormField( LoadOptionsForm.CREATEMISSING ).setEnabled( holder instanceof MutableTestPropertyHolder );
+
+
+			if( dialog.show() )
+			{
+				try
+				{
+					FileSystemManager fsManager = VFS.getManager();
+					FileObject fileObject = fsManager.resolveFile( dialog.getValue( LoadOptionsForm.FILE ) );
+					loadPropertiesFromReader(
+							new BufferedReader(new InputStreamReader(fileObject.getContent().getInputStream())),
+							dialog.getBooleanValue(LoadOptionsForm.CREATEMISSING),
+							dialog.getBooleanValue(LoadOptionsForm.DELETEREMAINING));
+				}
+				catch (Exception e1)
+				{
+					UISupport.showErrorMessage( "Failed to load properties from [" + url + "]: " + e1 );
+				}
+			}
+        }
+    
+    }
+
 	private class LoadPropertiesAction extends AbstractAction
 	{
 		private XFormDialog dialog;
@@ -527,68 +741,15 @@ public class PropertyHolderTable extends JPanel
 				try
 				{
 					BufferedReader reader = new BufferedReader( new FileReader( dialog.getValue( LoadOptionsForm.FILE ) ) );
+					int count = loadPropertiesFromReader(
+							reader,
+							dialog.getBooleanValue(LoadOptionsForm.CREATEMISSING),
+							dialog.getBooleanValue(LoadOptionsForm.DELETEREMAINING));
 
-					String line = reader.readLine();
-					int count = 0;
-
-					Set<String> names = new HashSet<String>( Arrays.asList( holder.getPropertyNames() ) );
-
-					while( line != null )
-					{
-						if( line.trim().length() > 0 && !( line.charAt( 0 ) == '#' ) )
-						{
-							int ix = line.indexOf( '=' );
-							if( ix > 0 )
-							{
-								String name = line.substring( 0, ix ).trim();
-								String value = line.length() > ix ? line.substring( ix + 1 ) : "";
-
-								// read multiline value
-								if( value.endsWith( "\\" ) )
-								{
-									value = value.substring( 0, value.length() - 1 );
-
-									String ln = reader.readLine();
-									while( ln != null && ln.endsWith( "\\" ) )
-									{
-										value += ln.substring( 0, ln.length() - 1 );
-										ln = reader.readLine();
-									}
-
-									if( ln != null )
-										value += ln;
-									if( ln == null )
-										break;
-								}
-
-								if( holder.hasProperty( name ) )
-								{
-									count++ ;
-									holder.setPropertyValue( name, value );
-								}
-								else if( dialog.getBooleanValue( LoadOptionsForm.CREATEMISSING )
-										&& holder instanceof MutableTestPropertyHolder )
-								{
-									( ( MutableTestPropertyHolder )holder ).addProperty( name ).setValue( value );
-									count++ ;
-								}
-
-								names.remove( name );
-							}
-						}
-
-						line = reader.readLine();
-					}
-
-					if( dialog.getBooleanValue( LoadOptionsForm.DELETEREMAINING )
-							&& holder instanceof MutableTestPropertyHolder )
-					{
-						for( String name : names )
-						{
-							( ( MutableTestPropertyHolder )holder ).removeProperty( name );
-						}
-					}
-
+					//ugly...
+					String path = new File(dialog.getValue( LoadOptionsForm.FILE )).getParent();
+					propertiesSetsPath.setText(path);
+					
 					reader.close();
 					UISupport.showInfoMessage( "Added/Updated " + count + " properties from file" );
 				}
@@ -598,6 +759,74 @@ public class PropertyHolderTable extends JPanel
 				}
 			}
 		}
+	}
+
+	public int loadPropertiesFromReader(BufferedReader reader, boolean createMissing, boolean deleteRemaining) throws IOException
+	{
+		String line = reader.readLine();
+		int count = 0;
+
+		Set<String> names = new HashSet<String>(Arrays.asList(holder.getPropertyNames()));
+
+		while (line != null)
+		{
+			if (line.trim().length() > 0 && !(line.charAt(0) == '#'))
+			{
+				int ix = line.indexOf('=');
+				if (ix > 0)
+				{
+					String name = line.substring(0, ix).trim();
+					String value = line.length() > ix ? line.substring(ix + 1) : "";
+
+					// read multiline value
+					if (value.endsWith("\\"))
+					{
+						value = value.substring(0, value.length() - 1);
+
+						String ln = reader.readLine();
+						while (ln != null && ln.endsWith("\\"))
+						{
+							value += ln.substring(0, ln.length() - 1);
+							ln = reader.readLine();
+						}
+
+						if (ln != null)
+						{
+							value += ln;
+						}
+						if (ln == null)
+						{
+							break;
+						}
+					}
+
+					if (holder.hasProperty(name))
+					{
+						count++;
+						holder.setPropertyValue(name, value);
+					}
+					else if (createMissing && holder instanceof MutableTestPropertyHolder)
+					{
+						((MutableTestPropertyHolder) holder).addProperty(name).setValue(value);
+						count++;
+					}
+
+					names.remove(name);
+				}
+			}
+
+			line = reader.readLine();
+		}
+
+		if (deleteRemaining && holder instanceof MutableTestPropertyHolder)
+		{
+			for (String name : names)
+			{
+				((MutableTestPropertyHolder) holder).removeProperty(name);
+			}
+		}
+
+		return count;
 	}
 
 	private class SavePropertiesAction extends AbstractAction

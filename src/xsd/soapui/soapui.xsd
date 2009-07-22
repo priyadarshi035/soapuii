@@ -1126,6 +1126,7 @@
                          name="property" type="tns:Property">
             </xsd:element>
         </xsd:sequence>
+        <xsd:attribute name="propertiesurl" type="xsd:string" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="RequirementsType">
@@ -1522,7 +1523,7 @@
         <xsd:attribute name="replyToRefParams" type="xsd:string"></xsd:attribute>
         <xsd:attribute name="faultToRefParams" type="xsd:string"></xsd:attribute>
     </xsd:complexType>
-    
+
     <xsd:complexType name="WsrmConfig">
     	<xsd:attribute name="version" type="tns:WsrmVersionType"></xsd:attribute>
         <xsd:attribute name="ackTo" type="xsd:string"></xsd:attribute>
@@ -1560,7 +1561,7 @@
             <xsd:enumeration value="NONE"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
-	
+
 	<xsd:simpleType name="WsrmVersionType">
         <xsd:restriction base="xsd:string">
         	<xsd:enumeration value="1.0"></xsd:enumeration>
@@ -1668,7 +1669,7 @@
     	</xsd:sequence>
     </xsd:complexType>
 
-    
+
 
 
 
@@ -1773,7 +1774,7 @@
     	</xsd:complexContent>
     </xsd:complexType>
 
-    
+
 
     <xsd:element name="reportTemplate" type="tns:ReportTemplate"></xsd:element>
 

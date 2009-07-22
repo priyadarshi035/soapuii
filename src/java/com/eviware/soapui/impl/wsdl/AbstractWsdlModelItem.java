@@ -21,6 +21,7 @@ import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.config.ModelItemConfig;
 import com.eviware.soapui.impl.settings.XmlBeansSettingsImpl;
 import com.eviware.soapui.model.ModelItem;
+import com.eviware.soapui.model.TestPropertyHolder;
 import com.eviware.soapui.model.support.AbstractModelItem;
 import com.eviware.soapui.model.support.ModelSupport;
 import com.eviware.soapui.support.StringUtils;
@@ -49,7 +50,7 @@ public abstract class AbstractWsdlModelItem<T extends ModelItemConfig> extends A
 		if( icon != null )
 			this.icon = UISupport.createImageIcon( icon );
 	}
-
+	
 	public boolean dependsOn( ModelItem modelItem )
 	{
 		return ModelSupport.dependsOn( this, modelItem );
