@@ -108,7 +108,7 @@ public class JUnitReport
 		testcase.setTime( time / 1000 );
 		Failure fail = testcase.addNewFailure();
 		fail.setType( failure );
-		fail.setMessage( failure );
+		//fail.setMessage( failure );
 		fail.setStringValue( stacktrace );
 		noofTestCases++ ;
 		noofFailures++ ;
@@ -123,7 +123,7 @@ public class JUnitReport
 		testcase.setTime( time / 1000 );
 		com.eviware.soapui.junit.ErrorDocument.Error err = testcase.addNewError();
 		err.setType( error );
-		err.setMessage( error );
+		//err.setMessage( error );
 		err.setStringValue( stacktrace );
 		noofTestCases++ ;
 		noofErrors++ ;
