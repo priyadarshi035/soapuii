@@ -86,6 +86,7 @@ import com.eviware.soapui.support.swing.ComponentBag;
 import com.eviware.soapui.support.types.StringToObjectMap;
 import com.eviware.soapui.ui.support.ModelItemDesktopPanel;
 
+import org.apache.log4j.Logger;
 /**
  * WsdlTestCase desktop panel
  * 
@@ -116,6 +117,8 @@ public class WsdlTestCaseDesktopPanel extends ModelItemDesktopPanel<WsdlTestCase
 	private JInspectorPanel testStepListInspectorPanel;
 	private JButton createLoadTestButton;
 	private JInspectorPanel inspectorPanel;
+
+	private final static Logger log = Logger.getLogger( WsdlTestCaseDesktopPanel.class );
 
 	public WsdlTestCaseDesktopPanel( WsdlTestCase testCase )
 	{
@@ -530,6 +533,7 @@ public class WsdlTestCaseDesktopPanel extends ModelItemDesktopPanel<WsdlTestCase
 
 	protected void beforeRun()
 	{
+		getModelItem().setAlreadyLaunched(true);
 	}
 
 	protected void afterRun()
@@ -537,6 +541,7 @@ public class WsdlTestCaseDesktopPanel extends ModelItemDesktopPanel<WsdlTestCase
 		runButton.setEnabled( true );
 		cancelButton.setEnabled( false );
 		testStepList.setEnabled( true );
+		getModelItem().setAlreadyLaunched(false);
 	}
 
 	private class SetupScriptGroovyEditorModel extends AbstractGroovyEditorModel

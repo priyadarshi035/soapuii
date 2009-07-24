@@ -34,6 +34,7 @@ import com.eviware.soapui.support.scripting.SoapUIScriptEngine;
 import com.eviware.soapui.support.scripting.SoapUIScriptEngineRegistry;
 import com.eviware.soapui.support.xml.XmlObjectConfigurationBuilder;
 import com.eviware.soapui.support.xml.XmlObjectConfigurationReader;
+import java.util.logging.Level;
 
 /**
  * TestStep that executes an arbitraty Groovy script
@@ -133,6 +134,22 @@ public class WsdlGroovyScriptTestStep extends WsdlTestStepWithProperties impleme
 		Logger log = ( Logger )context.getProperty( "log" );
 		if( log == null )
 			log = logger;
+
+		boolean alreadyLaunchedTestSuite = getTestCase().getTestSuite().getAlreadyLaunched();
+		boolean alreadyLaunchedTestCase = getTestCase().getAlreadyLaunched();
+
+		if (getTestCase().getTestSuite().isRunSuiteStartupInTestCase() == true && alreadyLaunchedTestSuite == false)
+		{
+			if(alreadyLaunchedTestCase == false)
+			{
+				try {
+					getTestCase().getTestSuite().runSetupScript(context);
+					getTestCase().runSetupScript(context, testRunner);
+				} catch (Exception ex) {
+					java.util.logging.Logger.getLogger(WsdlGroovyScriptTestStep.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
+		}
 
 		try
 		{

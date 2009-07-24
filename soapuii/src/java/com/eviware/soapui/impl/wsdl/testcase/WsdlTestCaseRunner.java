@@ -15,6 +15,8 @@ package com.eviware.soapui.impl.wsdl.testcase;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import org.apache.commons.httpclient.HttpState;
 
 import com.eviware.soapui.SoapUI;
@@ -42,6 +44,7 @@ public class WsdlTestCaseRunner extends AbstractTestRunner<WsdlTestCase, WsdlTes
 	private List<TestStepResult> testStepResults = new LinkedList<TestStepResult>();
 	private int gotoStepIndex;
 	private int resultCount;
+	private final static Logger log = Logger.getLogger( WsdlTestCaseRunner.class );
 	// private HashMap<String, WsrmSequence> wsrmMap;
 
 	// private final static Logger log =
@@ -84,7 +87,19 @@ public class WsdlTestCaseRunner extends AbstractTestRunner<WsdlTestCase, WsdlTes
 			runContext.setProperty( SubmitContext.HTTP_STATE_PROPERTY, new HttpState() );
 		}
 
-		testCase.runSetupScript( runContext, this );
+		boolean alreadyLaunched = testCase.getTestSuite().getAlreadyLaunched();
+		if (testCase.getTestSuite().isRunSuiteStartupInTestCase() == true && alreadyLaunched == false)
+		{
+			log.info("flag is true and setup script from TestSuite wasn't already launched");
+			testCase.getTestSuite().runSetupScript(runContext);
+			testCase.runSetupScript( runContext, this );
+		}
+		else
+		{
+				log.info("flag is flase or setup script from TestSuite was already launched");
+				testCase.runSetupScript( runContext, this );
+		}
+
 		if( !isRunning() )
 			return;
 

@@ -32,6 +32,8 @@ import com.eviware.soapui.model.testsuite.TestSuiteRunner;
 import com.eviware.soapui.model.testsuite.TestSuite.TestSuiteRunType;
 import com.eviware.soapui.support.types.StringToObjectMap;
 
+import org.apache.log4j.Logger;
+
 /**
  * WSDL TestCase Runner - runs all steps in a testcase and collects performance
  * data
@@ -48,6 +50,8 @@ public class WsdlTestSuiteRunner extends AbstractTestRunner<WsdlTestSuite, WsdlT
 	private int currentTestCaseIndex;
 	private WsdlTestCase currentTestCase;
 	private TestRunListener parallellTestRunListener = new ParallellTestRunListener();
+
+	private final static Logger log = Logger.getLogger( WsdlTestSuiteRunner.class );
 
 	public WsdlTestSuiteRunner( WsdlTestSuite testSuite, StringToObjectMap properties )
 	{
@@ -187,7 +191,7 @@ public class WsdlTestSuiteRunner extends AbstractTestRunner<WsdlTestSuite, WsdlT
 		{
 			SoapUI.logError( e );
 		}
-		
+
 		notifyAfterRun();
 
 		runContext.clear();

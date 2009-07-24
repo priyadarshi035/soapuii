@@ -81,6 +81,7 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 	private final boolean forLoadTest;
 	private SoapUIScriptEngine setupScriptEngine;
 	private SoapUIScriptEngine tearDownScriptEngine;
+	private boolean AlreadyLaunched = false;
 
 	public WsdlTestCase( WsdlTestSuite testSuite, TestCaseConfig config, boolean forLoadTest )
 	{
@@ -838,6 +839,7 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 		setupScriptEngine.setVariable( "context", runContext );
 		setupScriptEngine.setVariable( "testRunner", runner );
 		setupScriptEngine.setVariable( "log", SoapUI.ensureGroovyLog() );
+		logger.info("Running SetupScript from the level of TestCase");
 		return setupScriptEngine.run();
 	}
 
@@ -993,4 +995,13 @@ public class WsdlTestCase extends AbstractTestPropertyHolderWsdlModelItem<TestCa
 		return WsrmUtils.getWsrmVersionNamespace( getConfig().getWsrmVersion() );
 	}
 
+	public void setAlreadyLaunched(boolean AlreadyLaunched)
+	{
+		this.AlreadyLaunched = AlreadyLaunched;
+	}
+
+	public boolean getAlreadyLaunched()
+	{
+		return AlreadyLaunched;
+	}
 }

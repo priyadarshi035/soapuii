@@ -33,6 +33,8 @@ import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunner;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
 import com.eviware.soapui.model.ModelItem;
+import com.eviware.soapui.model.propertyexpansion.DefaultPropertyExpansionContext;
+import com.eviware.soapui.model.propertyexpansion.PropertyExpansionContext;
 import com.eviware.soapui.model.support.ModelSupport;
 import com.eviware.soapui.model.testsuite.TestCase;
 import com.eviware.soapui.model.testsuite.TestSuite;
@@ -47,6 +49,7 @@ import com.eviware.soapui.support.scripting.SoapUIScriptEngine;
 import com.eviware.soapui.support.scripting.SoapUIScriptEngineRegistry;
 import com.eviware.soapui.support.types.StringToObjectMap;
 
+import org.apache.log4j.Logger;
 /**
  * TestSuite implementation for WSDL projects.
  * 
@@ -57,6 +60,7 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 {
 	public final static String SETUP_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@setupScript";
 	public final static String TEARDOWN_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@tearDownScript";
+	public static final String RUN_SUITE_STARTUP_IN_TEST_CASE  = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_case";
 
 	private final WsdlProject project;
 	private List<WsdlTestCase> testCases = new ArrayList<WsdlTestCase>();
@@ -64,6 +68,9 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 	private Set<TestSuiteRunListener> testSuiteRunListeners = new HashSet<TestSuiteRunListener>();
 	private SoapUIScriptEngine setupScriptEngine;
 	private SoapUIScriptEngine tearDownScriptEngine;
+	private boolean AlreadyLaunched = false;
+
+	private final static Logger log = Logger.getLogger( WsdlTestSuite.class );
 
 	public WsdlTestSuite( WsdlProject project, TestSuiteConfig config )
 	{
@@ -493,8 +500,32 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 		setupScriptEngine.setVariable( "context", context );
 		setupScriptEngine.setVariable( "testSuite", this );
 		setupScriptEngine.setVariable( "log", SoapUI.ensureGroovyLog() );
+		log.info("Running SetupScript from the level of TestSuite");
 		return setupScriptEngine.run();
 	}
+
+	public Object runSetupScript( PropertyExpansionContext context ) throws Exception
+	{
+		String script = getSetupScript();
+		if( StringUtils.isNullOrEmpty( script ) )
+			return null;
+
+		if( setupScriptEngine == null )
+		{
+			setupScriptEngine = SoapUIScriptEngineRegistry.create( this );
+			setupScriptEngine.setScript( script );
+		}
+
+		if( context == null )
+			context = new DefaultPropertyExpansionContext( this );
+
+		setupScriptEngine.setVariable( "context", context );
+		setupScriptEngine.setVariable( "testSuite", this );
+		setupScriptEngine.setVariable( "log", SoapUI.ensureGroovyLog() );
+		log.info("Running SetupScript from the level of TestSuite in a fake way");
+		return setupScriptEngine.run();
+	}
+
 
 	public Object runTearDownScript( TestSuiteRunContext context, TestSuiteRunner runner ) throws Exception
 	{
@@ -704,5 +735,27 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 		}
 
 		setPropertiesConfig( testSuiteConfig.getProperties() );
+	}
+
+	public boolean isRunSuiteStartupInTestCase ()
+	{
+		return getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
+	}
+
+	public void setRunSuiteStartupInTestCase( boolean runSuitStartupInTestCase )
+	{
+		boolean old = getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
+		getSettings().setBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE, runSuitStartupInTestCase );
+		notifyPropertyChanged( RUN_SUITE_STARTUP_IN_TEST_CASE, old, runSuitStartupInTestCase );
+	}
+
+	public void setAlreadyLaunched(boolean AlreadyLaunched)
+	{
+		this.AlreadyLaunched = AlreadyLaunched;
+	}
+
+	public boolean getAlreadyLaunched()
+	{
+		return AlreadyLaunched;
 	}
 }

@@ -66,6 +66,8 @@ import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.types.StringToObjectMap;
 import com.eviware.soapui.ui.support.ModelItemDesktopPanel;
 
+import org.apache.log4j.Logger;
+
 /**
  * DesktopPanel for WsdlTestSuite
  * 
@@ -91,6 +93,8 @@ public class WsdlTestSuiteDesktopPanel extends ModelItemDesktopPanel<WsdlTestSui
 	private JInspectorPanel testCaseListInspectorPanel;
 	private JInspectorPanel inspectorPanel;
 	private WsdlTestSuiteRunner testSuiteRunner;
+
+	private final static Logger log = Logger.getLogger( WsdlTestSuiteDesktopPanel.class );
 
 	public WsdlTestSuiteDesktopPanel( WsdlTestSuite testSuite )
 	{
@@ -345,6 +349,7 @@ public class WsdlTestSuiteDesktopPanel extends ModelItemDesktopPanel<WsdlTestSui
 		cancelAction.setEnabled( testSuiteRunner != null );
 		testCaseList.setEnabled( false );
 		progressBar.setForeground( Color.GREEN.darker() );
+		getModelItem().setAlreadyLaunched(true);
 	}
 
 	protected void afterRun( WsdlTestSuiteRunner testSuiteRunner )
@@ -352,6 +357,7 @@ public class WsdlTestSuiteDesktopPanel extends ModelItemDesktopPanel<WsdlTestSui
 		runAction.setEnabled( true );
 		cancelAction.setEnabled( false );
 		testCaseList.setEnabled( true );
+		getModelItem().setAlreadyLaunched(false);
 
 		progressBar.setString( String.valueOf( testSuiteRunner.getStatus() ) );
 		progressBar.setForeground( testSuiteRunner.isFailed() ? Color.RED : Color.GREEN.darker() );

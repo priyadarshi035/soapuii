@@ -103,7 +103,7 @@ public class WsdlMockService extends AbstractTestPropertyHolderWsdlModelItem<Moc
 			config.setPath( "/" );
 
 		if( !getSettings().isSet( REQUIRE_SOAP_ACTION ) )
-			setRequireSoapAction( true );
+			setRequireSoapAction( false );
 
 		try
 		{
