@@ -1,7 +1,7 @@
-Index: soapuii/src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java
+Index: src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java
 ===================================================================
---- soapuii/src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java	(wersja 12844)
-+++ soapuii/src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java	(wersja 12851)
+--- src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java	(wersja 12844)
++++ src/java/com/eviware/soapui/impl/wsdl/mock/WsdlMockService.java	(wersja 12851)
 @@ -103,7 +103,7 @@
  			config.setPath( "/" );
  
