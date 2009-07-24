@@ -40,7 +40,7 @@ then
 	JAVA_OPTS="$JAVA_OPTS -Dwsi.dir=$SOAPUI_HOME/wsi-test-tools"
     JAVA_OPTS="$JAVA_OPTS -DGRE_HOME=$SOAPUI_HOME/xulrunner-linux"
 #uncomment to disable browser component
-#   JAVA_OPTS="$JAVA_OPTS -Dsoapui.jxbrowser.disable=true"
+    JAVA_OPTS="$JAVA_OPTS -Dsoapui.jxbrowser.disable=true"
 fi
 
 export JAVA_OPTS
