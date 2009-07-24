@@ -1,0 +1,13 @@
+Index: soapuii/src/dist/bin/soapui.sh
+===================================================================
+--- soapuii/src/dist/bin/soapui.sh	(wersja 12844)
++++ soapuii/src/dist/bin/soapui.sh	(wersja 12851)
+@@ -40,7 +40,7 @@
+ 	JAVA_OPTS="$JAVA_OPTS -Dwsi.dir=$SOAPUI_HOME/wsi-test-tools"
+     JAVA_OPTS="$JAVA_OPTS -DGRE_HOME=$SOAPUI_HOME/xulrunner-linux"
+ #uncomment to disable browser component
+-#   JAVA_OPTS="$JAVA_OPTS -Dsoapui.jxbrowser.disable=true"
++    JAVA_OPTS="$JAVA_OPTS -Dsoapui.jxbrowser.disable=true"
+ fi
+ 
+ export JAVA_OPTS

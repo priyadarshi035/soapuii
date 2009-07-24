@@ -1,0 +1,822 @@
+Index: src/java/com/eviware/soapui/model/support/TestPropertyUtils.java
+===================================================================
+--- src/java/com/eviware/soapui/model/support/TestPropertyUtils.java	(wersja 60981)
++++ src/java/com/eviware/soapui/model/support/TestPropertyUtils.java	(wersja 61026)
+@@ -53,4 +53,4 @@
+ 	public synchronized static void sortProperties( MutableTestPropertyHolder holder )
+ 	{
+ 	}
+-}
++}
+\ No newline at end of file
+Index: src/java/com/eviware/soapui/impl/wsdl/AbstractTestPropertyHolderWsdlModelItem.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/AbstractTestPropertyHolderWsdlModelItem.java	(wersja 60981)
++++ src/java/com/eviware/soapui/impl/wsdl/AbstractTestPropertyHolderWsdlModelItem.java	(wersja 61026)
+@@ -28,7 +28,7 @@
+ import com.eviware.soapui.support.StringUtils;
+ 
+ public abstract class AbstractTestPropertyHolderWsdlModelItem<T extends ModelItemConfig> extends
+-		AbstractWsdlModelItem<T> implements MutableTestPropertyHolder
++		AbstractWsdlModelItem<T> implements MutableTestPropertyUrlHolder
+ {
+ 	private XmlBeansPropertiesTestPropertyHolder propertyHolderSupport;
+ 	private final static Logger log = Logger.getLogger( AbstractTestPropertyHolderWsdlModelItem.class );
+@@ -38,6 +38,16 @@
+ 		super( config, parent, icon );
+ 	}
+ 
++	public void setPropertiesUrl(String url)
++	{
++		propertyHolderSupport.setPropertiesUrl(url);
++	}
++
++	public String getPropertiesUrl()
++	{
++		return propertyHolderSupport.getPropertiesUrl();
++	}
++
+ 	protected void setPropertiesConfig( PropertiesTypeConfig config )
+ 	{
+ 		if( propertyHolderSupport == null )
+Index: src/java/com/eviware/soapui/impl/wsdl/panels/teststeps/support/PropertyHolderTable.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/panels/teststeps/support/PropertyHolderTable.java	(wersja 60981)
++++ src/java/com/eviware/soapui/impl/wsdl/panels/teststeps/support/PropertyHolderTable.java	(wersja 61026)
+@@ -47,6 +47,7 @@
+ 
+ import com.eviware.soapui.SoapUI;
+ import com.eviware.soapui.impl.wsdl.MutableTestPropertyHolder;
++import com.eviware.soapui.impl.wsdl.MutableTestPropertyUrlHolder;
+ import com.eviware.soapui.model.TestPropertyHolder;
+ import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
+ import com.eviware.soapui.model.propertyexpansion.PropertyExpansionImpl;
+@@ -65,9 +66,24 @@
+ import com.eviware.x.form.support.AField;
+ import com.eviware.x.form.support.AForm;
+ import com.eviware.x.form.support.AField.AFieldType;
++import java.awt.event.MouseEvent;
++import java.awt.event.MouseListener;
++import java.io.InputStreamReader;
++import java.util.ArrayList;
++import java.util.List;
++import javax.swing.JComboBox;
++import javax.swing.JTextField;
++import org.apache.commons.vfs.FileObject;
++import org.apache.commons.vfs.FileSystemException;
++import org.apache.commons.vfs.FileSystemManager;
++import org.apache.commons.vfs.FileSystemOptions;
++import org.apache.commons.vfs.FileType;
++import org.apache.commons.vfs.VFS;
++import org.apache.log4j.Logger;
+ 
+ public class PropertyHolderTable extends JPanel
+ {
++	private final static Logger log = Logger.getLogger( PropertyHolderTable.class );
+ 	private final TestPropertyHolder holder;
+ 	private PropertiesModel propertiesModel;
+ 	private RemovePropertyAction removePropertyAction;
+@@ -75,7 +91,10 @@
+ 	private InternalTestPropertyListener testPropertyListener;
+ 	private JTable propertiesTable;
+ 	private JXToolBar toolbar;
++	private JTextField propertiesSetsPath;
+ 	private LoadPropertiesAction loadPropertiesAction;
++    private ChangePropertiesSetAction changePropertiesSetAction;
++    private ChangePropertiesSetsUrlAction changePropertiesSetsUrlAction;
+ 	private MovePropertyUpAction movePropertyUpAction;
+ 	private MovePropertyDownAction movePropertyDownAction;
+ 
+@@ -84,6 +103,8 @@
+ 		super( new BorderLayout() );
+ 		this.holder = holder;
+ 
++        changePropertiesSetAction = new ChangePropertiesSetAction();
++        changePropertiesSetsUrlAction = new ChangePropertiesSetsUrlAction();
+ 		loadPropertiesAction = new LoadPropertiesAction();
+ 		testPropertyListener = new InternalTestPropertyListener();
+ 		holder.addTestPropertyListener( testPropertyListener );
+@@ -190,6 +211,28 @@
+ 		toolbar.add( loadPropertiesButton );
+ 		toolbar.add( UISupport.createToolbarButton( new SavePropertiesAction() ) );
+ 
++		if(holder instanceof MutableTestPropertyUrlHolder)
++		{
++			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
++
++			JComboBox propertiesSetsList = UISupport.createToolbarComboBox( changePropertiesSetAction );
++			toolbar.add(propertiesSetsList);
++			changePropertiesSetsUrlAction.addComboBox( propertiesSetsList );
++			//we dont popuplate comboboxes on create, but on first mouse click
++			MouseListener mouseListener = new UriComboBoxMouseListener();
++			for (int i = 0; i < propertiesSetsList.getComponentCount(); i++)
++				propertiesSetsList.getComponent(i).addMouseListener(mouseListener);
++			if ( !StringUtils.isNullOrEmpty(urlHolder.getPropertiesUrl()) )
++			{
++				propertiesSetsList.getAction().putValue("enabled", false); //to prevent unwanted events
++				propertiesSetsList.addItem("...");
++				propertiesSetsList.getAction().putValue("enabled", true); //to prevent unwanted events
++			}
++
++			propertiesSetsPath = UISupport.createToolbarTextField( changePropertiesSetsUrlAction,  urlHolder.getPropertiesUrl() );
++			toolbar.add( propertiesSetsPath );
++		}
++		
+ 		return toolbar;
+ 	}
+ 
+@@ -217,6 +260,8 @@
+ 		removePropertyAction.setEnabled( enabled );
+ 		propertiesTable.setEnabled( enabled );
+ 		loadPropertiesAction.setEnabled( enabled );
++		changePropertiesSetAction.setEnabled( enabled );
++		changePropertiesSetsUrlAction.setEnabled( enabled );
+ 
+ 		super.setEnabled( enabled );
+ 	}
+@@ -266,6 +311,31 @@
+ 		}
+ 	}
+ 
++	private class UriComboBoxMouseListener implements MouseListener
++	{
++		private boolean used = false;
++
++		public void mouseClicked(MouseEvent evt)
++		{
++		}
++
++		public void mousePressed(MouseEvent evt)
++		{
++			//we update it on click only first time. Next updates will be made by uri changes
++			if(!used)
++			{
++				changePropertiesSetsUrlAction.updateComboBoxes();
++				used = true;
++			}
++		}
++
++		public void mouseReleased(MouseEvent evt) {}
++
++		public void mouseEntered(MouseEvent evt) {}
++
++		public void mouseExited(MouseEvent evt) {}
++	}
++
+ 	private class PropertiesModel extends AbstractTableModel
+ 	{
+ 		private StringList names = new StringList();
+@@ -503,6 +573,150 @@
+ 		}
+ 	}
+ 
++    private class ChangePropertiesSetsUrlAction extends AbstractAction
++    {
++        private List<JComboBox> comboBoxesList = new ArrayList<JComboBox>();
++
++        public ChangePropertiesSetsUrlAction()
++		{
++			putValue( Action.SHORT_DESCRIPTION, "Changes properties sets url" );
++		}
++
++		public void updateComboBoxes()
++		{
++			if(!(holder instanceof MutableTestPropertyUrlHolder))
++				return;
++			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
++			
++			if ( StringUtils.isNullOrEmpty( urlHolder.getPropertiesUrl() ) )
++				return;
++
++            try
++            {
++				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, userName, password);
++				//StaticUserAuthenticator auth = new StaticUserAuthenticator(null, "usern", "pass");
++				//FileSystemOptions opts = new FileSystemOptions();
++				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
++
++
++				FileSystemOptions opts = new FileSystemOptions();
++				//DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
++				//FileObject fo = VFS.getManager().resolveFile("smb://host/anyshare/dir", opts);
++
++				FileSystemManager mgr = VFS.getManager();
++				FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
++				FileObject file = mgr.resolveFile(cwd, urlHolder.getPropertiesUrl());
++
++				if (file.exists() && file.getType().equals(FileType.FOLDER) && file.isReadable())
++				{
++					FileObject[] children = file.getChildren();
++					log.info("Found " + Integer.toString(children.length) + " files in path [" + urlHolder.getPropertiesUrl() + "]");
++					for(JComboBox cb : comboBoxesList)
++					{
++						cb.getAction().putValue("enabled", false); //to prevent unwanted events
++						cb.removeAllItems();
++						for (FileObject child : children)
++							if (child.getType() == FileType.FILE && child.getName().getExtension().equals("properties"))
++								cb.addItem(child.getName().getBaseName());
++						if (cb.isPopupVisible())
++						{
++							//without this, combobox's popup menu updated by mouse pressed event won't have proper size
++							cb.hidePopup();
++							cb.showPopup();
++						}
++						cb.getAction().putValue("enabled", true);
++					}
++				}
++				else
++				{
++					throw new FileSystemException("file doesn't exist, is not a folder or is not readable");
++				}
++            }
++            catch (FileSystemException e1)
++            {
++                UISupport.showErrorMessage( "Failed to load path [" + urlHolder.getPropertiesUrl() + "]: " + e1.getMessage());
++				for(JComboBox cb : comboBoxesList)
++				{
++					cb.getAction().putValue("enabled", false); //to prevent unwanted events
++					cb.removeAllItems();
++					cb.getAction().putValue("enabled", true);
++				}
++            }
++		}
++
++        public void actionPerformed(ActionEvent evt)
++        {
++			if(!(holder instanceof MutableTestPropertyUrlHolder))
++				return;
++
++			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
++			
++            JTextField text = (JTextField)evt.getSource();
++			
++			if (!text.getText().endsWith("/"))
++				text.setText( text.getText() + "/");
++
++			urlHolder.setPropertiesUrl( text.getText() );
++			updateComboBoxes();
++        }
++
++        private void addComboBox(JComboBox comboBox)
++        {
++            comboBoxesList.add(comboBox);
++        }
++    }
++
++    private class ChangePropertiesSetAction extends AbstractAction
++    {
++		private XFormDialog dialog;
++		
++		public ChangePropertiesSetAction()
++		{
++			putValue( Action.SHORT_DESCRIPTION, "Changes properties set from file or remote server" );
++		}
++        
++        public void actionPerformed(ActionEvent evt)
++        {
++            if (this.getValue("enabled").equals(false)) //to prevent unwanted events
++                return;
++			if(!(holder instanceof MutableTestPropertyUrlHolder))
++				return;
++
++			MutableTestPropertyUrlHolder urlHolder = (MutableTestPropertyUrlHolder) holder;
++
++            JComboBox cb = (JComboBox)evt.getSource();
++			String url = urlHolder.getPropertiesUrl() + cb.getSelectedItem();
++
++			if( dialog == null )
++				dialog = ADialogBuilder.buildDialog( LoadOptionsForm.class );
++
++			dialog.getFormField( LoadOptionsForm.FILE )
++					.setValue(url);
++			dialog.getFormField( LoadOptionsForm.DELETEREMAINING )
++					.setEnabled( holder instanceof MutableTestPropertyHolder );
++			dialog.getFormField( LoadOptionsForm.CREATEMISSING ).setEnabled( holder instanceof MutableTestPropertyHolder );
++
++
++			if( dialog.show() )
++			{
++				try
++				{
++					FileSystemManager fsManager = VFS.getManager();
++					FileObject fileObject = fsManager.resolveFile( dialog.getValue( LoadOptionsForm.FILE ) );
++					loadPropertiesFromReader(
++							new BufferedReader(new InputStreamReader(fileObject.getContent().getInputStream())),
++							dialog.getBooleanValue(LoadOptionsForm.CREATEMISSING),
++							dialog.getBooleanValue(LoadOptionsForm.DELETEREMAINING));
++				}
++				catch (Exception e1)
++				{
++					UISupport.showErrorMessage( "Failed to load properties from [" + url + "]: " + e1 );
++				}
++			}
++        }
++    
++    }
++
+ 	private class LoadPropertiesAction extends AbstractAction
+ 	{
+ 		private XFormDialog dialog;
+@@ -527,77 +741,92 @@
+ 				try
+ 				{
+ 					BufferedReader reader = new BufferedReader( new FileReader( dialog.getValue( LoadOptionsForm.FILE ) ) );
++					int count = loadPropertiesFromReader(
++							reader,
++							dialog.getBooleanValue(LoadOptionsForm.CREATEMISSING),
++							dialog.getBooleanValue(LoadOptionsForm.DELETEREMAINING));
+ 
+-					String line = reader.readLine();
+-					int count = 0;
++					//ugly...
++					String path = new File(dialog.getValue( LoadOptionsForm.FILE )).getParent();
++					propertiesSetsPath.setText(path);
++					
++					reader.close();
++					UISupport.showInfoMessage( "Added/Updated " + count + " properties from file" );
++				}
++				catch( Exception ex )
++				{
++					UISupport.showErrorMessage( ex );
++				}
++			}
++		}
++	}
+ 
+-					Set<String> names = new HashSet<String>( Arrays.asList( holder.getPropertyNames() ) );
++	public int loadPropertiesFromReader(BufferedReader reader, boolean createMissing, boolean deleteRemaining) throws IOException
++	{
++		String line = reader.readLine();
++		int count = 0;
+ 
+-					while( line != null )
+-					{
+-						if( line.trim().length() > 0 && !( line.charAt( 0 ) == '#' ) )
+-						{
+-							int ix = line.indexOf( '=' );
+-							if( ix > 0 )
+-							{
+-								String name = line.substring( 0, ix ).trim();
+-								String value = line.length() > ix ? line.substring( ix + 1 ) : "";
++		Set<String> names = new HashSet<String>(Arrays.asList(holder.getPropertyNames()));
+ 
+-								// read multiline value
+-								if( value.endsWith( "\\" ) )
+-								{
+-									value = value.substring( 0, value.length() - 1 );
++		while (line != null)
++		{
++			if (line.trim().length() > 0 && !(line.charAt(0) == '#'))
++			{
++				int ix = line.indexOf('=');
++				if (ix > 0)
++				{
++					String name = line.substring(0, ix).trim();
++					String value = line.length() > ix ? line.substring(ix + 1) : "";
+ 
+-									String ln = reader.readLine();
+-									while( ln != null && ln.endsWith( "\\" ) )
+-									{
+-										value += ln.substring( 0, ln.length() - 1 );
+-										ln = reader.readLine();
+-									}
++					// read multiline value
++					if (value.endsWith("\\"))
++					{
++						value = value.substring(0, value.length() - 1);
+ 
+-									if( ln != null )
+-										value += ln;
+-									if( ln == null )
+-										break;
+-								}
++						String ln = reader.readLine();
++						while (ln != null && ln.endsWith("\\"))
++						{
++							value += ln.substring(0, ln.length() - 1);
++							ln = reader.readLine();
++						}
+ 
+-								if( holder.hasProperty( name ) )
+-								{
+-									count++ ;
+-									holder.setPropertyValue( name, value );
+-								}
+-								else if( dialog.getBooleanValue( LoadOptionsForm.CREATEMISSING )
+-										&& holder instanceof MutableTestPropertyHolder )
+-								{
+-									( ( MutableTestPropertyHolder )holder ).addProperty( name ).setValue( value );
+-									count++ ;
+-								}
+-
+-								names.remove( name );
+-							}
++						if (ln != null)
++						{
++							value += ln;
+ 						}
+-
+-						line = reader.readLine();
++						if (ln == null)
++						{
++							break;
++						}
+ 					}
+ 
+-					if( dialog.getBooleanValue( LoadOptionsForm.DELETEREMAINING )
+-							&& holder instanceof MutableTestPropertyHolder )
++					if (holder.hasProperty(name))
+ 					{
+-						for( String name : names )
+-						{
+-							( ( MutableTestPropertyHolder )holder ).removeProperty( name );
+-						}
++						count++;
++						holder.setPropertyValue(name, value);
+ 					}
++					else if (createMissing && holder instanceof MutableTestPropertyHolder)
++					{
++						((MutableTestPropertyHolder) holder).addProperty(name).setValue(value);
++						count++;
++					}
+ 
+-					reader.close();
+-					UISupport.showInfoMessage( "Added/Updated " + count + " properties from file" );
++					names.remove(name);
+ 				}
+-				catch( Exception ex )
+-				{
+-					UISupport.showErrorMessage( ex );
+-				}
+ 			}
++
++			line = reader.readLine();
+ 		}
++
++		if (deleteRemaining && holder instanceof MutableTestPropertyHolder)
++		{
++			for (String name : names)
++			{
++				((MutableTestPropertyHolder) holder).removeProperty(name);
++			}
++		}
++
++		return count;
+ 	}
+ 
+ 	private class SavePropertiesAction extends AbstractAction
+Index: src/java/com/eviware/soapui/impl/wsdl/MutableTestPropertyUrlHolder.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/MutableTestPropertyUrlHolder.java	(wersja 0)
++++ src/java/com/eviware/soapui/impl/wsdl/MutableTestPropertyUrlHolder.java	(wersja 61026)
+@@ -0,0 +1,20 @@
++/*
++ *  soapUI, copyright (C) 2004-2009 eviware.com
++ *
++ *  soapUI is free software; you can redistribute it and/or modify it under the
++ *  terms of version 2.1 of the GNU Lesser General Public License as published by
++ *  the Free Software Foundation.
++ *
++ *  soapUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
++ *  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *  See the GNU Lesser General Public License for more details at gnu.org.
++ */
++
++package com.eviware.soapui.impl.wsdl;
++
++public interface MutableTestPropertyUrlHolder extends MutableTestPropertyHolder
++{
++    public void setPropertiesUrl( String url );
++
++    public String getPropertiesUrl();
++}
+Index: src/java/com/eviware/soapui/impl/wsdl/support/XmlBeansPropertiesTestPropertyHolder.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/support/XmlBeansPropertiesTestPropertyHolder.java	(wersja 60981)
++++ src/java/com/eviware/soapui/impl/wsdl/support/XmlBeansPropertiesTestPropertyHolder.java	(wersja 61026)
+@@ -34,6 +34,7 @@
+ import com.eviware.soapui.config.PropertiesTypeConfig;
+ import com.eviware.soapui.config.PropertyConfig;
+ import com.eviware.soapui.impl.wsdl.MutableTestPropertyHolder;
++import com.eviware.soapui.impl.wsdl.MutableTestPropertyUrlHolder;
+ import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
+ import com.eviware.soapui.model.ModelItem;
+ import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
+@@ -43,7 +44,7 @@
+ import com.eviware.soapui.model.testsuite.TestPropertyListener;
+ import com.eviware.soapui.support.StringUtils;
+ 
+-public class XmlBeansPropertiesTestPropertyHolder implements MutableTestPropertyHolder, Map<String, TestProperty>
++public class XmlBeansPropertiesTestPropertyHolder implements MutableTestPropertyUrlHolder, Map<String, TestProperty>
+ {
+ 	private PropertiesTypeConfig config;
+ 	private List<PropertiesStepProperty> properties = new ArrayList<PropertiesStepProperty>();
+@@ -73,6 +74,16 @@
+ 		}
+ 	}
+ 
++	public void setPropertiesUrl(String url)
++	{
++		config.setPropertiesurl(url);
++	}
++
++	public String getPropertiesUrl()
++	{
++		return config.getPropertiesurl();
++	}
++
+ 	protected PropertiesStepProperty addProperty( PropertyConfig propertyConfig, boolean notify )
+ 	{
+ 		PropertiesStepProperty propertiesStepProperty = new PropertiesStepProperty( propertyConfig );
+Index: src/java/com/eviware/soapui/impl/wsdl/AbstractWsdlModelItem.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/AbstractWsdlModelItem.java	(wersja 60981)
++++ src/java/com/eviware/soapui/impl/wsdl/AbstractWsdlModelItem.java	(wersja 61026)
+@@ -21,6 +21,7 @@
+ import com.eviware.soapui.config.ModelItemConfig;
+ import com.eviware.soapui.impl.settings.XmlBeansSettingsImpl;
+ import com.eviware.soapui.model.ModelItem;
++import com.eviware.soapui.model.TestPropertyHolder;
+ import com.eviware.soapui.model.support.AbstractModelItem;
+ import com.eviware.soapui.model.support.ModelSupport;
+ import com.eviware.soapui.support.StringUtils;
+@@ -49,7 +50,7 @@
+ 		if( icon != null )
+ 			this.icon = UISupport.createImageIcon( icon );
+ 	}
+-
++	
+ 	public boolean dependsOn( ModelItem modelItem )
+ 	{
+ 		return ModelSupport.dependsOn( this, modelItem );
+Index: src/java/com/eviware/soapui/support/UISupport.java
+===================================================================
+--- src/java/com/eviware/soapui/support/UISupport.java	(wersja 60981)
++++ src/java/com/eviware/soapui/support/UISupport.java	(wersja 61026)
+@@ -78,12 +78,14 @@
+ import com.eviware.soapui.support.swing.SwingUtils;
+ import com.eviware.soapui.ui.desktop.DesktopPanel;
+ import com.eviware.soapui.ui.desktop.SoapUIDesktop;
++import com.eviware.soapui.ui.support.WideComboBoxUI;
+ import com.eviware.x.dialogs.XDialogs;
+ import com.eviware.x.dialogs.XFileDialogs;
+ import com.eviware.x.impl.swing.SwingDialogs;
+ import com.eviware.x.impl.swing.SwingFileDialogs;
+ import com.jgoodies.looks.HeaderStyle;
+ import com.jgoodies.looks.Options;
++import javax.swing.JTextField;
+ 
+ /**
+  * Facade for common UI-related tasks
+@@ -103,6 +105,7 @@
+ 	private static Component frame;
+ 	private static Map<String, ImageIcon> iconCache = new HashMap<String, ImageIcon>();
+ 	public static Dimension TOOLBAR_BUTTON_DIMENSION;
++    public static Dimension TOOLBAR_COMBOBOX_DIMENSION;
+ 	private static Boolean isWindows;
+ 
+ 	private static XDialogs dialogs;
+@@ -122,7 +125,10 @@
+ 		uiUtils = new SwingUtils();
+ 
+ 		if( !isHeadless() )
++        {
+ 			TOOLBAR_BUTTON_DIMENSION = new Dimension( 22, 21 );
++            TOOLBAR_COMBOBOX_DIMENSION = new Dimension( 70, 21 );
++        }
+ 	}
+ 
+ 	public static ImageIcon TOOL_ICON = UISupport.createImageIcon( TOOL_ICON_PATH );
+@@ -495,6 +501,27 @@
+ 		return ( T )dialogs.prompt( question, title, objects, value );
+ 	}
+ 
++    public static JTextField createToolbarTextField( Action action, String text)
++    {
++        JTextField result = new JTextField(text);
++        result.setAction( action );
++        return result;
++    }
++
++    public static JComboBox createToolbarComboBox( Action action )
++    {
++        JComboBox result = createComboBox(70, "");
++        result.setUI( new WideComboBoxUI() );
++        result.setAction( action );
++        return result;
++    }
++	
++	public static JComboBox createComboBox(int width, String defaultTooltip)
++	{
++		JComboBox comboBox = UISupport.addTooltipListener(new JComboBox(), defaultTooltip);
++		return UISupport.setFixedSize(comboBox, width, 20);
++	}
++
+ 	public static JButton createToolbarButton( Action action )
+ 	{
+ 		JButton result = new JButton( action );
+Index: src/java/com/eviware/soapui/ui/support/WideComboBoxUI.java
+===================================================================
+--- src/java/com/eviware/soapui/ui/support/WideComboBoxUI.java	(wersja 0)
++++ src/java/com/eviware/soapui/ui/support/WideComboBoxUI.java	(wersja 61026)
+@@ -0,0 +1,83 @@
++package com.eviware.soapui.ui.support;
++
++import com.jgoodies.looks.plastic.PlasticComboBoxUI;
++import java.awt.*;
++import javax.swing.plaf.basic.*;
++
++public class WideComboBoxUI extends PlasticComboBoxUI
++{
++	private int padding = 10;
++
++    @Override
++	protected ComboPopup createPopup()
++	{
++		BasicComboPopup basicPopup = new BasicComboPopup( comboBox )
++		{
++			public void show()
++			{
++				//Need to compute width of text
++				int widest = getWidestItemWidth();
++
++				//Get the box's size
++				Dimension popupSize = comboBox.getSize();
++
++				//Set the size of the popup
++				popupSize.setSize( widest + ( 2 * padding ), getPopupHeightForRowCount( comboBox.getMaximumRowCount() ) );
++
++				//Compute the complete bounds
++				Rectangle popupBounds = computePopupBounds( 0, comboBox.getBounds().height, popupSize.width, popupSize.height );
++
++				//Set the size of the scroll pane
++				scroller.setMaximumSize( popupBounds.getSize() );
++				scroller.setPreferredSize( popupBounds.getSize() );
++				scroller.setMinimumSize( popupBounds.getSize() );
++
++				//Cause it to re-layout
++				list.invalidate();
++
++				//Handle selection of proper item
++				int selectedIndex = comboBox.getSelectedIndex();
++				if ( selectedIndex == -1 ) list.clearSelection();
++				else list.setSelectedIndex( selectedIndex );
++
++				//Make sure the selected item is visible
++				list.ensureIndexIsVisible( list.getSelectedIndex() );
++
++				//Use lightweight if asked for
++				setLightWeightPopupEnabled( comboBox.isLightWeightPopupEnabled() );
++
++				//Show the popup
++				show( comboBox, popupBounds.x, popupBounds.y );
++			}
++		};
++
++		basicPopup.getAccessibleContext().setAccessibleParent( comboBox );
++
++		return basicPopup;
++	}
++
++	public int getWidestItemWidth()
++	{
++		//Items, font
++		int numItems = comboBox.getItemCount();
++		Font font = comboBox.getFont();
++		FontMetrics metrics = comboBox.getFontMetrics( font );
++
++		//The widest width
++		int widest = 0;
++
++		for ( int i = 0; i < numItems; i++ )
++		{
++			//Get the item
++			Object item = comboBox.getItemAt( i );
++
++			//Calculate the width of this line
++			int lineWidth = metrics.stringWidth( item.toString() );
++
++			//Use whatever's widest
++			widest = Math.max( widest, lineWidth );
++		}
++
++		return widest;
++	}
++}
+\ No newline at end of file
+Index: src/xsd/soapui/soapui.xsd
+===================================================================
+--- src/xsd/soapui/soapui.xsd	(wersja 60981)
++++ src/xsd/soapui/soapui.xsd	(wersja 61026)
+@@ -1126,6 +1126,7 @@
+                          name="property" type="tns:Property">
+             </xsd:element>
+         </xsd:sequence>
++        <xsd:attribute name="propertiesurl" type="xsd:string" use="optional"/>
+     </xsd:complexType>
+ 
+     <xsd:complexType name="RequirementsType">
+@@ -1522,7 +1523,7 @@
+         <xsd:attribute name="replyToRefParams" type="xsd:string"></xsd:attribute>
+         <xsd:attribute name="faultToRefParams" type="xsd:string"></xsd:attribute>
+     </xsd:complexType>
+-    
++
+     <xsd:complexType name="WsrmConfig">
+     	<xsd:attribute name="version" type="tns:WsrmVersionType"></xsd:attribute>
+         <xsd:attribute name="ackTo" type="xsd:string"></xsd:attribute>
+@@ -1560,7 +1561,7 @@
+             <xsd:enumeration value="NONE"></xsd:enumeration>
+         </xsd:restriction>
+     </xsd:simpleType>
+-	
++
+ 	<xsd:simpleType name="WsrmVersionType">
+         <xsd:restriction base="xsd:string">
+         	<xsd:enumeration value="1.0"></xsd:enumeration>
+@@ -1628,23 +1629,23 @@
+         <xsd:attribute name="expand" type="xsd:boolean"></xsd:attribute>
+ 
+     </xsd:complexType>
+-    -->
+-    <xsd:complexType name="DriversType">
+-    	<xsd:sequence>
+-    		<xsd:element name="driver" type="tns:DriverConfig" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+-    	</xsd:sequence>
+-    </xsd:complexType>
+-
+-    <xsd:complexType name="DriverConfig">
+-    	<xsd:sequence>
+-    		<xsd:element name="name" type="xsd:string"></xsd:element>
+-    		<xsd:element name="connectionTemplateString" type="xsd:string"></xsd:element>
+-    	</xsd:sequence>
+-    </xsd:complexType>
+-
+-    <xsd:complexType name="ReportTemplate">
+-
+-    	<xsd:annotation>
++    -->
++    <xsd:complexType name="DriversType">
++    	<xsd:sequence>
++    		<xsd:element name="driver" type="tns:DriverConfig" maxOccurs="unbounded" minOccurs="0"></xsd:element>
++    	</xsd:sequence>
++    </xsd:complexType>
++
++    <xsd:complexType name="DriverConfig">
++    	<xsd:sequence>
++    		<xsd:element name="name" type="xsd:string"></xsd:element>
++    		<xsd:element name="connectionTemplateString" type="xsd:string"></xsd:element>
++    	</xsd:sequence>
++    </xsd:complexType>
++
++    <xsd:complexType name="ReportTemplate">
++
++    	<xsd:annotation>
+     		</xsd:annotation>
+     	<xsd:sequence>
+     		<xsd:element name="name" type="xsd:string"></xsd:element>
+@@ -1668,15 +1669,15 @@
+     	</xsd:sequence>
+     </xsd:complexType>
+ 
+-    
+-
+ 
+ 
++
++
+     <xsd:complexType name="DatabaseConnectionContainer">
+     	<xsd:sequence>
+     		<xsd:element name="databaseConnection" type="tns:DatabaseConnection" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+     	</xsd:sequence>
+-    </xsd:complexType>
++    </xsd:complexType>
+ 
+     <xsd:complexType name="NewXSDComplexType"></xsd:complexType>
+ 
+@@ -1687,7 +1688,7 @@
+     		<xsd:element name="connectionString" type="xsd:string"></xsd:element>
+     		<xsd:element name="password" type="xsd:string"></xsd:element>
+     	</xsd:sequence>
+-    </xsd:complexType>
++    </xsd:complexType>
+ 
+ 
+ 
+@@ -1773,8 +1774,8 @@
+     	</xsd:complexContent>
+     </xsd:complexType>
+ 
+-    
+ 
++
+     <xsd:element name="reportTemplate" type="tns:ReportTemplate"></xsd:element>
+ 
+     <xsd:simpleType name="scopeType">
+@@ -1836,4 +1837,4 @@
+     	<xsd:attribute name="target" type="xsd:string"></xsd:attribute>
+     	<xsd:attribute name="name" type="xsd:string"></xsd:attribute>
+     </xsd:complexType>
+-</xsd:schema>
+\ No newline at end of file
++</xsd:schema>
