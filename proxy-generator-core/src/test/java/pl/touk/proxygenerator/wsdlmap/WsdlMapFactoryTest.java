@@ -54,6 +54,7 @@ public class WsdlMapFactoryTest extends TestCase
 		catch (Exception ex)
 		{
 			System.err.println(ex);
+			fail("exception occured");
 		}
 
 	}
