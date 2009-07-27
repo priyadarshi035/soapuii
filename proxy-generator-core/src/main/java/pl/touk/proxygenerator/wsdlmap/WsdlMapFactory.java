@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.NamespaceContext;
@@ -49,7 +50,7 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 
 	private class FilenameFilterClass implements FilenameFilter
 	{
-		public String filename;
+		private String filename;
 		public FilenameFilterClass(String filename)
 		{
 			this.filename = filename;
@@ -96,39 +97,63 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
-		public Iterator getPrefixes(String uri) {
+		public Iterator getPrefixes(String uri)
+		{
 			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
 	};
 
-	public Map<MultiKey, String> createWsdlMap(String path)
-			throws WsdlMapException, FileNotFoundException, SAXException, IOException, XPathExpressionException
+	public Map<MultiKey, String> createWsdlMap(String path) throws WsdlMapException
 	{
+		Map<MultiKey, String> result = null;
+
 		File dir = new File(path);
 		if (!dir.isDirectory())
 			throw new WsdlMapException(path + " is not a directory.");
 
 		File[] files = dir.listFiles(new ExtFileFilter(".bpel"));
 		ArrayList<InputStream> streams = new ArrayList();
+
 		for(File file : files)
-			streams.add(new FileInputStream(file));
-		Map<MultiKey, MultiKey> bpelsPartnerLinks = cacheBpels(streams);
-		
-		Iterator it = bpelsPartnerLinks.entrySet().iterator();
-/*		while (it.hasNext())
+			try
+			{
+				streams.add(new FileInputStream(file));
+			} catch (FileNotFoundException ex) //should never happen
+			{
+				throw new WsdlMapException("File: [" + file + "] not found. " + ex);
+			}
+
+		try
 		{
-			Map.Entry pairs = (Map.Entry) it.next();
-			System.out.println(pairs.getKey() + " = " + pairs.getValue());
-		}*/
+			Map<MultiKey, MultiKey> bpelsPartnerLinks = cacheBpels(streams);
 
-		files = dir.listFiles(new ExtFileFilter(".wsdl"));
-		ArrayList<File> filesArrayList = new ArrayList(Arrays.asList(files));
+/*			Iterator it = bpelsPartnerLinks.entrySet().iterator();
+			while (it.hasNext())
+			{
+				Map.Entry pairs = (Map.Entry) it.next();
+				System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			}*/
 
-		return parseWsdl(filesArrayList, bpelsPartnerLinks);
+			files = dir.listFiles(new ExtFileFilter(".wsdl"));
+			ArrayList<File> filesArrayList = new ArrayList(Arrays.asList(files));
+
+			result = parseWsdl(filesArrayList, bpelsPartnerLinks);
+		}
+		catch (XPathExpressionException ex) //should never happen
+		{
+			throw new WsdlMapException("Hardcoded xpath error. " + ex);
+		} catch (SAXException ex)
+		{
+			throw new WsdlMapException("Building xml parser error. " + ex);
+		} catch (IOException ex) //shouldn't happen
+		{
+			throw new WsdlMapException("Error while processing stream: " + ex);
+		}
+		return result;
 	};
 
-	private Map parseWsdl(ArrayList<File> files, Map<MultiKey, MultiKey> bpelsPartnerLinks) throws SAXException, IOException, XPathExpressionException
+	protected Map parseWsdl(ArrayList<File> files, Map<MultiKey, MultiKey> bpelsPartnerLinks) throws SAXException, IOException, XPathExpressionException
 	{
 		Map<MultiKey, String> result = new HashMap<MultiKey, String>();
 		for (File file : files)
@@ -139,14 +164,16 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 
 			String targetNamespace = root.getAttributes().getNamedItem("targetNamespace").getNodeValue();
 			BasicNamespaceContext namespaceContext = new BasicNamespaceContext();
-			String pre = root.getPrefix();
-			namespaceContext.setNemaspace(pre, root.getNamespaceURI());
+			//String pre = root.getPrefix();
+			//namespaceContext.setNemaspace(pre, root.getNamespaceURI());
+			namespaceContext.setNemaspace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
 			namespaceContext.setNemaspace("plnk", "http://docs.oasis-open.org/wsbpel/2.0/plnktype");
 
 			XPath xpath = factory.newXPath();
 			xpath.setNamespaceContext(namespaceContext);
 
-			String xpathExpr = String.format( "/%s:definitions/plnk:partnerLinkType", pre);
+			//String xpathExpr = String.format( "/%s:definitions/plnk:partnerLinkType", pre);
+			String xpathExpr = "/wsdl:definitions/plnk:partnerLinkType";
 			NodeList partnerLinkTypes = (NodeList) xpath.evaluate(xpathExpr, root, XPathConstants.NODESET);
 
 			for (int i = 0; i < partnerLinkTypes.getLength(); i++)
@@ -155,10 +182,11 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 				String partnerLinkTypeName =
 						partnerLinkType.getAttributes().getNamedItem("name").getNodeValue();
 
-				String roleXpathExpr =
-						String.format(
-							"/%s:definitions/plnk:partnerLinkType[@name='%s']/plnk:role",
-							pre, partnerLinkTypeName);
+				//String roleXpathExpr = String.format("/%s:definitions/plnk:partnerLinkType[@name='%s']/plnk:role", pre, partnerLinkTypeName);
+				String roleXpathExpr = String.format(
+						"/wsdl:definitions/plnk:partnerLinkType[@name='%s']/plnk:role",
+						partnerLinkTypeName);
+				
 				NodeList roles = (NodeList) xpath.evaluate(roleXpathExpr, root, XPathConstants.NODESET);
 
 				for (int j = 0; j < roles.getLength(); j++)
@@ -167,14 +195,15 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 					String roleName = role.getAttributes().getNamedItem("name").getNodeValue();
 //					log.info("Processing: " + targetNamespace + ", " + partnerLinkTypeName + ", " + roleName);
 					MultiKey key =  bpelsPartnerLinks.get(new MultiKey(targetNamespace, partnerLinkTypeName, roleName));
-					result.put(key, file.getAbsolutePath());
+					if (key != null)
+						result.put(key, file.getAbsolutePath());
 				}
 			}
 		}
 		return result;
 	}
 
-	private Map<MultiKey, MultiKey> cacheBpels(ArrayList<InputStream> streams) throws SAXException, IOException, XPathExpressionException
+	protected Map<MultiKey, MultiKey> cacheBpels(ArrayList<InputStream> streams) throws SAXException, IOException, XPathExpressionException
 	{
 		Map<MultiKey, MultiKey> result = new HashMap<MultiKey, MultiKey>();
 		for (InputStream stream : streams)
@@ -183,15 +212,15 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 			Node root = doc.getFirstChild();
 			String processName = root.getAttributes().getNamedItem("name").getNodeValue();
 			BasicNamespaceContext namespaceContext = new BasicNamespaceContext();
-			String pre = root.getPrefix();
-			namespaceContext.setNemaspace(pre, root.getNamespaceURI());
+			//String pre = root.getPrefix();
+			//namespaceContext.setNemaspace(pre, root.getNamespaceURI());
+			namespaceContext.setNemaspace("bpws", "http://docs.oasis-open.org/wsbpel/2.0/process/executable");
 
 			XPath xpath = factory.newXPath();
 			xpath.setNamespaceContext(namespaceContext);
 
-			String xpathExpr = String.format(
-					"/%s:process/%s:partnerLinks/%s:partnerLink",
-					pre, pre, pre);
+			//String xpathExpr = String.format("/%s:process/%s:partnerLinks/%s:partnerLink", pre, pre, pre);
+			String xpathExpr = "/bpws:process/bpws:partnerLinks/bpws:partnerLink";
 			NodeList partnerLinks = (NodeList) xpath.evaluate(xpathExpr, root, XPathConstants.NODESET);
 			for (int i = 0; i < partnerLinks.getLength(); i++)
 			{
@@ -234,25 +263,5 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 			}
 		}
 		return result;
-	}
-	
-	protected NodeList cacheDeployXml(InputStream deployXml) throws Exception
-			//throws ParserConfigurationException, SAXException, IOException, XPathExpressionException
-	{
-		Document doc = builder.parse(deployXml);
-		Node root = doc.getFirstChild();
-
-		BasicNamespaceContext namespaceContext = new BasicNamespaceContext();
-		String pre = root.getPrefix();
-		namespaceContext.setNemaspace(pre, root.getNamespaceURI());
-		log.info(root.getNodeName() + "'s namespace: " + pre + "=" + root.getNamespaceURI());
-
-		XPath xpath = factory.newXPath();
-		xpath.setNamespaceContext(namespaceContext);
-
-		String xpathExpr = String.format(
-				"//%s:deploy/%s:process/%s:provide[@partnerLink] | //%s:deploy/%s:process/%s:invoke[@partnerLink]",
-				pre, pre, pre, pre, pre, pre);
-		return (NodeList) xpath.evaluate(xpathExpr, root, XPathConstants.NODESET);
 	}
 }

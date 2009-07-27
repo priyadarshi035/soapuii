@@ -22,6 +22,6 @@ public interface WsdlMapFactoryInterface {
 	 * @param path   path to directory containing *.wsdl and *.bpel files
 	 * @return       map, value - absolute path to *.wsdl file. key - MultiKey<processName, partnerLinkName, role (bool)>
 	 */
-	Map<MultiKey, String> createWsdlMap(String path) throws Exception;
+	Map<MultiKey, String> createWsdlMap(String path) throws WsdlMapException;
 
 }
