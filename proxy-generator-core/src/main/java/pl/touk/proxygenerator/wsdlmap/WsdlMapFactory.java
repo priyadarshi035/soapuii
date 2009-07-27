@@ -7,6 +7,7 @@ package pl.touk.proxygenerator.wsdlmap;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,7 +102,8 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 
 	};
 
-	public Map<MultiKey, String> createWsdlMap(String path) throws Exception
+	public Map<MultiKey, String> createWsdlMap(String path)
+			throws WsdlMapException, FileNotFoundException, SAXException, IOException, XPathExpressionException
 	{
 		File dir = new File(path);
 		if (!dir.isDirectory())
@@ -114,11 +116,11 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 		Map<MultiKey, MultiKey> bpelsPartnerLinks = cacheBpels(streams);
 		
 		Iterator it = bpelsPartnerLinks.entrySet().iterator();
-		while (it.hasNext())
+/*		while (it.hasNext())
 		{
 			Map.Entry pairs = (Map.Entry) it.next();
 			System.out.println(pairs.getKey() + " = " + pairs.getValue());
-		}
+		}*/
 
 		files = dir.listFiles(new ExtFileFilter(".wsdl"));
 		ArrayList<File> filesArrayList = new ArrayList(Arrays.asList(files));
@@ -131,7 +133,7 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 		Map<MultiKey, String> result = new HashMap<MultiKey, String>();
 		for (File file : files)
 		{
-			log.info("processing file: " + file.getName());
+//			log.info("processing file: " + file.getName());
 			Document doc = builder.parse(new FileInputStream(file));
 			Node root = doc.getFirstChild();
 
@@ -153,13 +155,17 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 				String partnerLinkTypeName =
 						partnerLinkType.getAttributes().getNamedItem("name").getNodeValue();
 
-				String roleXpathExpr = "/plnk:partnerLinkType/plnk:role";
-				NodeList roles = (NodeList) xpath.evaluate(xpathExpr, partnerLinkType, XPathConstants.NODESET);
+				String roleXpathExpr =
+						String.format(
+							"/%s:definitions/plnk:partnerLinkType[@name='%s']/plnk:role",
+							pre, partnerLinkTypeName);
+				NodeList roles = (NodeList) xpath.evaluate(roleXpathExpr, root, XPathConstants.NODESET);
 
 				for (int j = 0; j < roles.getLength(); j++)
 				{
 					Node role = roles.item(j);
 					String roleName = role.getAttributes().getNamedItem("name").getNodeValue();
+//					log.info("Processing: " + targetNamespace + ", " + partnerLinkTypeName + ", " + roleName);
 					MultiKey key =  bpelsPartnerLinks.get(new MultiKey(targetNamespace, partnerLinkTypeName, roleName));
 					result.put(key, file.getAbsolutePath());
 				}
