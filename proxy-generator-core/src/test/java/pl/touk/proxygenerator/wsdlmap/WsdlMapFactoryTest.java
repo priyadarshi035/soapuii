@@ -5,8 +5,10 @@
 
 package pl.touk.proxygenerator.wsdlmap;
 
+import java.net.URI;
 import java.util.Map;
 import junit.framework.TestCase;
+import org.apache.commons.collections.keyvalue.MultiKey;
 
 /**
  *
@@ -39,9 +41,15 @@ public class WsdlMapFactoryTest extends TestCase
 		{
 			System.out.println("createWsdlMap");
 			WsdlMapFactory instance = new WsdlMapFactory();
-			Map expResult = null;
-			Map result = instance.createWsdlMap("/home/pnw/wsdl/przykladowy_proces/przykladowy_proces/");
-			assertEquals(expResult, result);
+			MultiKey key = new MultiKey("HelloWorld2", "helloPartnerLink", WsdlMapFactory.MYROLE);
+			Map<MultiKey, String> result = instance.createWsdlMap("src/test/resources/bpel/HelloWorld2/");
+			String path = result.get(key);
+			assertTrue(path != null);
+			URI absUri = new URI(path);
+			URI expectedUri = new URI("src/test/resources/bpel/HelloWorld2/HelloWorld2.wsdl");
+			URI userDir = new URI(System.getProperty("user.dir"));
+			URI endResult = userDir.relativize(absUri);
+			assertTrue(endResult.equals(expectedUri));
 		}
 		catch (Exception ex)
 		{
