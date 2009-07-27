@@ -5,7 +5,7 @@
 	<groupId>eviware</groupId>
 	<artifactId>soapui-core</artifactId>
 	<name>soapUI - Core 3.0</name>
-	<version>3.0-touk3-SNAPSHOT</version>
+	<version>3.0-touk3</version>
 	<url>http://www.soapui.org</url>
 	<description>Core soapUI project that implements the Swing UI and all the functionality.</description>
 	
