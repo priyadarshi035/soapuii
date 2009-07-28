@@ -20,9 +20,12 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
@@ -39,35 +42,36 @@ public class DeployParser implements DeployParserInterface
 	private File deployFile;
 	private File xbeanFile;
 	private Beans beans;
+	private Document dom = null;
 	private WsdlMapFactory wsdlMapFactory;
 	private Map<MultiKey, String> wsdlMap;
 
 	private final static Logger log = Logger.getLogger(DeployParser.class.getName());
 
-	private DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
-	private DocumentBuilder domBuilder;
-	private Document dom;
+	
 	private List endpointData;
 
 	private XPathFactory factory = XPathFactory.newInstance();
 
-
-
 	public DeployParser() throws ParserConfigurationException
 	{
-		domBuilderFactory.setNamespaceAware(true);
-		domBuilderFactory.setIgnoringComments(true);
-		domBuilder = domBuilderFactory.newDocumentBuilder();
 		org.apache.log4j.BasicConfigurator.configure();
+		wsdlMapFactory = new WsdlMapFactory();
 		endpointData = new ArrayList();
 	};
 
 	public File parseDeployXml(File fileToParse, Map<MultiKey, String> wsdlMap) throws Exception
 	{
 		File result = null;
-		Document doc;
+		
+		Document doc = null;
 
 		try {
+			DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
+			domBuilderFactory.setNamespaceAware(true);
+			domBuilderFactory.setIgnoringComments(true);
+
+			DocumentBuilder domBuilder = domBuilderFactory.newDocumentBuilder();
 			dom = domBuilder.parse(fileToParse);
 			dom.getDocumentElement().normalize();
 		} catch (IOException ex) {
@@ -76,37 +80,64 @@ public class DeployParser implements DeployParserInterface
 
 		doc = generateDOMTree(dom, wsdlMap);
 
-		result = createXBeanFile(doc);
+		printToFile(doc);
 		return result;
 	}
 
 
 	public Document generateDOMTree(Document dom, Map<MultiKey,String> wsdlMap)
 	{
-		Document result = null;
+		Element domRoot = null;
+//		NodeList domList = dom.getChildNodes();
+
+//		for	(int i = 0; i < domList.getLength(); i++)
+//		{
+//			if (domList.item(i) instanceof Element)
+//			{
+//				domRoot = (Element) domList.item(i);
+//				System.out.println ("Root element of the doc is " +
+//						domRoot.getNodeName());
+//				break;
+//			}
+//		}
+
+
+		domRoot = dom.getDocumentElement();
+		System.out.println ("Root element of the doc is " +
+						domRoot.getNodeName());
+
+		NamedNodeMap domInAttrs = domRoot.getAttributes();
+
+
+//		System.out.println ("Root element of the doc is " +
+//                 dom.getDocumentElement().getNodeName());
 		
+
+
+//new dom file
+		Document result = null;
+
 		try {
-			result = domBuilder.newDocument();	
+			DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder domBuilder = domBuilderFactory.newDocumentBuilder();
+			result = domBuilder.newDocument();
 		}catch(Exception pce) {
 			  System.out.println("Error while trying to instantiate DocumentBuilder " + pce);
 			  System.exit(1);
 		}
 
-		Element domRoot = null;
-
-		NodeList domList = dom.getChildNodes();
-		for	(int i = 0; i < domList.getLength(); i++)
-		{
-			if (domList.item(i) instanceof Element)
-			{
-				domRoot = (Element) domList.item(i);
-				break;
-			}
-		}
-
-		domRoot = dom.getDocumentElement();
 
 		Element rootElement = result.createElement("beans");
+
+		for (int i = 0; i < domInAttrs.getLength(); i++)
+		{
+			Attr attr = (Attr)domInAttrs.item(i);
+			String attrName = attr.getNodeName();
+			String attrValue = attr.getNodeValue();
+
+			result.createAttributeNS(attrName, attrValue);
+		}
+
 
 		Comment provides = result.createComment("provides");
 		Comment caseProcess = result.createComment("CaseProcess");
@@ -117,25 +148,25 @@ public class DeployParser implements DeployParserInterface
 		Comment invoke = result.createComment("Invoke");
 
 
-		rootElement.setAttribute("xmlns:http", beans.getHttp());
-		rootElement.setAttribute("xmlns:atm", beans.getAtm());
-		rootElement.setAttribute("xmlns:dh", beans.getDh());
-		rootElement.setAttribute("xmlns:qmm", beans.getQmm());
-		rootElement.setAttribute("xmlns:mwk", beans.getMwk());
-		rootElement.setAttribute("xmlns:ws", beans.getWs());
+//		rootElement.setAttribute("xmlns:http", beans.getHttp());
+//		rootElement.setAttribute("xmlns:atm", beans.getAtm());
+//		rootElement.setAttribute("xmlns:dh", beans.getDh());
+//		rootElement.setAttribute("xmlns:qmm", beans.getQmm());
+//		rootElement.setAttribute("xmlns:mwk", beans.getMwk());
+//		rootElement.setAttribute("xmlns:ws", beans.getWs());
 
 		result.appendChild(rootElement);
 
 
-		endpointData.add(new Endpoint("default", "http://0.0.0.0:8667/process/mnpm/portln/Caserunner-1/ ", "consumer", "ws:CaseRunner-1", "true", "1,1", "classpath:Caserunner.wsdl") );
-
-		Iterator it = endpointData.iterator();
-		while(it.hasNext())
-		{
-			Endpoint endpoint = (Endpoint)it.next();
-			Element endpointElement = createEndpointElement(endpoint);
-			rootElement.appendChild(endpointElement);
-		}
+//		endpointData.add(new Endpoint("default", "http://0.0.0.0:8667/process/mnpm/portln/Caserunner-1/ ", "consumer", "ws:CaseRunner-1", "true", "1,1", "classpath:Caserunner.wsdl") );
+//
+//		Iterator it = endpointData.iterator();
+//		while(it.hasNext())
+//		{
+//			Endpoint endpoint = (Endpoint)it.next();
+//			Element endpointElement = createEndpointElement(endpoint);
+//			rootElement.appendChild(endpointElement);
+//		}
 
 		return result;
 				
@@ -158,7 +189,7 @@ public class DeployParser implements DeployParserInterface
 	public File createXBeanFile(Document doc) throws DeployParserException
 	{
 		File temp = null;
-		Document localDoc = null;
+		Document localDoc = doc;
 
 		printToFile(localDoc);
 		return temp;
@@ -174,7 +205,7 @@ public class DeployParser implements DeployParserInterface
 		  //XMLSerializer serializer = new XMLSerializer(System.out, format);
 		 //to generate a file output use fileoutputstream instead of system.out
 			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(new File("xbean.xml")), format);
-			  serializer.serialize(dom);
+			  serializer.serialize(localDoc);
 		} catch(IOException ie) {
 		   ie.printStackTrace();
 		}
@@ -186,9 +217,10 @@ public class DeployParser implements DeployParserInterface
 		File deploy = new File("deploy.xml");
 
 		Map<MultiKey, String> wsdlMap = dp.wsdlMapFactory.createWsdlMap("src/test/resources/bpel/HelloWorld2/");
-		Beans beans
 
 		File xbean = dp.parseDeployXml(deploy, wsdlMap);
+
+		//File xbean = dp.parseDeployXml(deploy, wsdlMap);
 
 //		Beans beans = new Beans("http://servicemix.apache.org/http/1.0",
 //								"http://playmobile.pl/adapter/atmosfera",
