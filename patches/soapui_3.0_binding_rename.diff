@@ -1,0 +1,83 @@
+Index: src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties	(wersja 12883)
++++ src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties	(wersja 12885)
+@@ -23,4 +23,4 @@
+ AddWsdlAction.Form.GenerateTestSuite.Label=Create TestSuite
+ AddWsdlAction.Form.GenerateTestSuite.Description=Creates a TestSuite for the imported WSDL
+ AddWsdlAction.Form.GenerateMockService.Label=Create MockService
+-AddWsdlAction.Form.GenerateMockService.Description=Creates a Web Service Simulation of the imported WSDL
++AddWsdlAction.Form.GenerateMockService.Description=Creates a Web Service Simulation of the imported WSDL
+\ No newline at end of file
+Index: src/java/com/eviware/soapui/impl/wsdl/actions/iface/RenameInterfaceAction.java
+===================================================================
+--- src/java/com/eviware/soapui/impl/wsdl/actions/iface/RenameInterfaceAction.java	(wersja 0)
++++ src/java/com/eviware/soapui/impl/wsdl/actions/iface/RenameInterfaceAction.java	(wersja 12885)
+@@ -0,0 +1,46 @@
++/*
++ *  soapUI, copyright (C) 2004-2009 eviware.com 
++ *
++ *  soapUI is free software; you can redistribute it and/or modify it under the 
++ *  terms of version 2.1 of the GNU Lesser General Public License as published by 
++ *  the Free Software Foundation.
++ *
++ *  soapUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
++ *  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
++ *  See the GNU Lesser General Public License for more details at gnu.org.
++ */
++
++package com.eviware.soapui.impl.wsdl.actions.iface;
++
++
++import com.eviware.soapui.impl.wsdl.WsdlInterface;
++import com.eviware.soapui.support.MessageSupport;
++import com.eviware.soapui.support.UISupport;
++import com.eviware.soapui.support.action.support.AbstractSoapUIAction;
++
++/**
++ * Action for renaming an existing WSDL project
++ * 
++ * @author Piotr Nowojski
++ */
++
++public class RenameInterfaceAction extends AbstractSoapUIAction<WsdlInterface>
++{
++	public static final String SOAPUI_ACTION_ID = "RenameWsdlProjectAction";
++
++	public static final MessageSupport messages = MessageSupport.getMessages( RenameInterfaceAction.class );
++
++	public RenameInterfaceAction()
++	{
++		super( "Rename" ,  "Renames this WSDL" );
++	}
++
++	public void perform( WsdlInterface iface, Object param )
++	{
++		String name = UISupport.prompt( "Specify name of WSDL", "Rename WSDL", iface.getName());
++		if( name == null || name.equals( iface.getName() ) )
++			return;
++
++		iface.setName( name );
++	}
++}
+\ No newline at end of file
+Index: src/java/com/eviware/soapui/resources/conf/soapui-actions.xml
+===================================================================
+--- src/java/com/eviware/soapui/resources/conf/soapui-actions.xml	(wersja 12883)
++++ src/java/com/eviware/soapui/resources/conf/soapui-actions.xml	(wersja 12885)
+@@ -58,6 +58,7 @@
+ 	<tns:action id="UpdateInterfaceAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.UpdateInterfaceAction"/>
+ 	<tns:action id="ExportDefinitionAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.ExportDefinitionAction"/>
+ 	<tns:action id="RemoveInterfaceAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.RemoveInterfaceAction"/>
++	<tns:action id="RenameInterfaceAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.RenameInterfaceAction"/>
+ 	<tns:action id="WSIAnalyzeAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.tools.wsi.WSIAnalyzeAction"/>
+ 	<tns:action id="CloneInterfaceAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.CloneInterfaceAction"/>
+ 	<tns:action id="CreateWsdlDocumentationAction" actionClass="com.eviware.soapui.impl.wsdl.actions.iface.CreateWsdlDocumentationAction"/>
+@@ -307,6 +308,7 @@
+ 	 	<tns:actionMapping actionId="UpdateInterfaceAction" keyStroke="F5" iconPath="/updateDefinition.gif"/>
+ 	 	<tns:actionMapping actionId="ExportDefinitionAction" keyStroke="menu P" iconPath="/exportDefinition.gif"/>
+ 	 	<tns:actionMapping actionId="SeperatorAction"/>
++		<tns:actionMapping actionId="RenameInterfaceAction" keyStroke="F2"/>
+ 	 	<tns:actionMapping actionId="CloneInterfaceAction" keyStroke="F9"/>
+ 	 	<tns:actionMapping actionId="RemoveInterfaceAction" keyStroke="DELETE"/>
+ 	 	<tns:actionMapping actionId="SeperatorAction"/>
