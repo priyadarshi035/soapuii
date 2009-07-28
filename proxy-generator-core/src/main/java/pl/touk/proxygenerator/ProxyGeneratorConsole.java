@@ -16,12 +16,18 @@ import org.apache.commons.cli.*;
 public class ProxyGeneratorConsole
 {
 	protected static Options options = null;
-	private static final String listenUriCmd = "listenuri";
-	private static final String outputUriCmd = "outputuri";
-	private static final String outputCmd = "output";
-	private static final String propertiesCmd = "properties";
-	private static final String nozipCmd = "nozip";
-	private static final String ziponlyCmd = "ziponly";
+	private static final String listenUriCmd = "luri";
+	private static final String outputUriCmd = "ouri";
+	private static final String outputCmd = "o";
+	private static final String propertiesCmd = "p";
+	private static final String nozipCmd = "nz";
+	private static final String ziponlyCmd = "z";
+	private static final String longListenUriCmd = "listenuri";
+	private static final String longOutputUriCmd = "outputuri";
+	private static final String longOutputCmd = "output";
+	private static final String longPropertiesCmd = "properties";
+	private static final String longNozipCmd = "nozip";
+	private static final String longZiponlyCmd = "ziponly";
 
 	protected static void fail(String msg)
 	{
@@ -64,22 +70,25 @@ spakowanie przygotowanej paczki
 					.create("D");*/
 			Option output = OptionBuilder.withArgName("NAME")
 					.hasArg()
+					.withLongOpt(longOutputCmd)
 					.withDescription("output file (will be \"NAME.zip\") or folder name").create(outputCmd);
 			Option listenUri = OptionBuilder.withArgName("URI")
 					.hasArg()
+					.withLongOpt(longOutputCmd)
 					.withDescription("default listening URI for proxy server").create(listenUriCmd);
 			Option outputUri = OptionBuilder.withArgName("URI")
 					.hasArg()
+					.withLongOpt(longOutputCmd)
 					.withDescription("default output URI for proxy server").create(outputUriCmd);
 			Option properties = OptionBuilder.withArgName("PATH")
 					.hasArg()
+					.withLongOpt(longOutputCmd)
 					.withDescription("path to properties file").create(propertiesCmd);
-			Option dnozip = OptionBuilder.withArgName("BOOL")
-					.hasArg()
+			Option dnozip = OptionBuilder
+					.withLongOpt(longOutputCmd)
 					.withDescription("if true, output will be left as uncompressed package").create(nozipCmd);
-			Option dziponly = OptionBuilder.withArgName("BOOL")
-					.hasArg()
-					.withLongOpt()
+			Option dziponly = OptionBuilder
+					.withLongOpt(longOutputCmd)
 					.withDescription("if true, only pre-made package will be compressed (without creating this package)").create(ziponlyCmd);
 			
 						
