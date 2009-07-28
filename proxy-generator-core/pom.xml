@@ -2,7 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>touk</groupId>
+
+	<parent>
+		<groupId>pl.touk</groupId>
+		<artifactId>soapuii</artifactId>
+		<version>0.1</version>
+		<relativePath>../</relativePath>
+	</parent>
+
+	<groupId>pl.touk</groupId>
 	<artifactId>proxy-generator-core</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
@@ -10,22 +18,6 @@
 	<url>http://maven.apache.org</url>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>pl.touk.proxygenerator.ProxyGeneratorConsole</mainClass>
-							
-						</manifest>
-						<manifestEntries>
-							<mode>development</mode>
-							<url>${pom.url}</url>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -35,6 +27,40 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<defaultGoal>assembly:assembly</defaultGoal>
+				<plugins>
+
+					<plugin>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+									<classpathPrefix>lib</classpathPrefix>
+									<mainClass>pl.touk.proxygenerator.ProxyGeneratorConsole</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<descriptor>src/main/assemblies/release.xml</descriptor>
+							<finalName>proxy-generator-${version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>

@@ -5,6 +5,7 @@
 
 package pl.touk.proxygenerator.wsdlmap;
 
+import pl.touk.proxygenerator.wsdlmap.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.*;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.xml.sax.SAXException;
+import pl.touk.proxygenerator.support.BasicNamespaceContext;
 
 /**
  *
@@ -78,31 +80,6 @@ public class WsdlMapFactory implements WsdlMapFactoryInterface
 			return name.endsWith(ext);
 		}	
 	}
-
-	private class BasicNamespaceContext implements NamespaceContext
-	{
-		private HashMap<String, String> namespacesMap = new HashMap();
-		
-		public void setNemaspace(String prefix, String namespace)
-		{
-			namespacesMap.put(prefix, namespace);
-		}
-		public String getNamespaceURI(String prefix)
-		{
-			return namespacesMap.get(prefix);
-		}
-
-		public String getPrefix(String uri)
-		{
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-		public Iterator getPrefixes(String uri)
-		{
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-
-	};
 
 	public Map<MultiKey, String> createWsdlMap(String path) throws WsdlMapException
 	{

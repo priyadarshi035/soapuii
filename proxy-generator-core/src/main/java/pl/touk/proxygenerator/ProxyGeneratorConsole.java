@@ -16,10 +16,16 @@ import org.apache.commons.cli.*;
 public class ProxyGeneratorConsole
 {
 	protected static Options options = null;
+	private static final String listenUriCmd = "listenuri";
+	private static final String outputUriCmd = "outputuri";
+	private static final String outputCmd = "output";
+	private static final String propertiesCmd = "properties";
+	private static final String nozipCmd = "nozip";
+	private static final String ziponlyCmd = "ziponly";
 
 	protected static void fail(String msg)
 	{
-		System.out.println(msg);
+		System.err.println(msg);
 		System.exit(1);
 	}
 
@@ -47,19 +53,52 @@ spakowanie przygotowanej paczki
 		{
 			options = new Options();
 
-			Option property = OptionBuilder.withArgName("property=value")
+			/*Option property = OptionBuilder.withArgName("property=value")
 					.hasArgs(2).withValueSeparator()
-					.withDescription("use value for given property")
-					.create("D");
+					.withDescription("-D " + outputCmd + "=NAME        output file (will be \"NAME.zip\") or folder name\n" +
+						"-D " + listenUriCmd + "=URI     default listening URI for proxy server\n" +
+						"-D " + outputUriCmd + "=URI     default output URI for proxy server\n" +
+						"-D " + propertiesCmd + "=PATH    path to properties file\n" +
+						"-D " + nozipCmd + "=BOOL         if true, output will be left as uncompressed package\n" +
+						"-D " + ziponlyCmd + "=BOOL       if true, only pre-made package will be compressed (without creating this package)\n")
+					.create("D");*/
+			Option output = OptionBuilder.withArgName("NAME")
+					.hasArg()
+					.withDescription("output file (will be \"NAME.zip\") or folder name").create(outputCmd);
+			Option listenUri = OptionBuilder.withArgName("URI")
+					.hasArg()
+					.withDescription("default listening URI for proxy server").create(listenUriCmd);
+			Option outputUri = OptionBuilder.withArgName("URI")
+					.hasArg()
+					.withDescription("default output URI for proxy server").create(outputUriCmd);
+			Option properties = OptionBuilder.withArgName("PATH")
+					.hasArg()
+					.withDescription("path to properties file").create(propertiesCmd);
+			Option dnozip = OptionBuilder.withArgName("BOOL")
+					.hasArg()
+					.withDescription("if true, output will be left as uncompressed package").create(nozipCmd);
+			Option dziponly = OptionBuilder.withArgName("BOOL")
+					.hasArg()
+					.withLongOpt()
+					.withDescription("if true, only pre-made package will be compressed (without creating this package)").create(ziponlyCmd);
+			
+						
+					
 			Option help = new Option( "help", "print this message" );
-			Option nozip = new Option( "nozip", "same as -Dnozip=true" );
-			Option ziponly = new Option( "ziponly", "same as -Dziponly=true" );
+			//Option nozip = new Option( "nozip", "same as -Dnozip=true" );
+			//Option ziponly = new Option( "ziponly", "same as -Dziponly=true" );
 			
 			options.addOption("testwsdlmap", false, "test argument");
-			options.addOption(property);
+			options.addOption(output);
+			options.addOption(listenUri);
+			options.addOption(outputUri);
+			options.addOption(properties);
+			options.addOption(dnozip);
+			options.addOption(dziponly);
+			
 			options.addOption(help);
-			options.addOption(nozip);
-			options.addOption(ziponly);
+			//options.addOption(nozip);
+			//options.addOption(ziponly);
 		}
 		return options;
 	}
@@ -73,7 +112,7 @@ spakowanie przygotowanej paczki
 			cmd = parser.parse(getCmdOptions(), args);
 		} catch (ParseException ex)
 		{
-			System.err.println( "Parsing failed.  Reason: " + ex.getMessage() );
+			fail( "Parsing failed.  Reason: " + ex.getMessage() );
 		}
 
 		/*WsdlMapFactory instance = new WsdlMapFactory();
@@ -85,7 +124,7 @@ spakowanie przygotowanej paczki
 			System.out.println(pairs.getKey() + " = " + pairs.getValue());
 		}*/
 
-		if (cmd.hasOption("help"))
+		if (cmd.hasOption("help") || cmd.getArgList().isEmpty())
 		{
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("proxy-generator", options);
@@ -93,14 +132,19 @@ spakowanie przygotowanej paczki
 		else
 		{
 			Properties properties = cmd.getOptionProperties("D");
-			String output = properties.getProperty("output");
+			String output = properties.getProperty(outputCmd);
 			if (output == null)
 				output = System.getProperty("user.dir");
-			String listenuri = properties.getProperty("listen-uri");
-			String outputuri = properties.getProperty("output-uri");
-			String propertiesfile = properties.getProperty("properties");
+			String listenuri = properties.getProperty(listenUriCmd);
+			String outputuri = properties.getProperty(outputUriCmd);
+			String propertiesfile = properties.getProperty(propertiesCmd);
 			if (propertiesfile == null)
 				propertiesfile = "http.uri.properties";
+
+			boolean ziponly = cmd.hasOption(ziponlyCmd) || "true".equals(properties.getProperty(ziponlyCmd));
+			boolean nozip = cmd.hasOption(nozipCmd) || "true".equals(properties.getProperty(nozipCmd));
+			if (ziponly && nozip)
+				fail(ziponlyCmd + " and " + nozipCmd + " flags cannot be set simultaneously");
 
 			System.out.println("out: " + output);
 			System.out.println("listen: " + listenuri);
