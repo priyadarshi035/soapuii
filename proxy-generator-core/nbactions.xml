@@ -7,7 +7,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.1.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole</exec.args>
+                <exec.args>-classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole /path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -18,7 +18,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.1.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole /path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz</exec.args>
                 <jpda.listen>true</jpda.listen>
                 <exec.executable>java</exec.executable>
             </properties>
@@ -30,7 +30,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.1.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>${profiler.args} -classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole</exec.args>
+                <exec.args>${profiler.args} -classpath %classpath pl.touk.proxygenerator.ProxyGeneratorConsole /path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz</exec.args>
                 <profiler.action>profile</profiler.action>
                 <exec.executable>${profiler.java}</exec.executable>
             </properties>

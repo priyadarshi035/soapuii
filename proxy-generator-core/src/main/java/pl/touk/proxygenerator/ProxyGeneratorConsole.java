@@ -48,7 +48,7 @@ public class ProxyGeneratorConsole
 albo
 
 przygotowanie paczki:
-./proxy-generator /path/to/wsdls/and/bpels -Doutput=sample_sa -Dlisten-uri=http://0.0.0.0:1234/ala -Doutput-uri=http://0.0.0.1:12345/kot -Dproperties=some.file.proprties -Dno-zip=true
+./proxy-generator /path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz
 
 teraz mozliwa reczna edytacja paczki
 
@@ -74,21 +74,21 @@ spakowanie przygotowanej paczki
 					.withDescription("output file (will be \"NAME.zip\") or folder name").create(outputCmd);
 			Option listenUri = OptionBuilder.withArgName("URI")
 					.hasArg()
-					.withLongOpt(longOutputCmd)
+					.withLongOpt(longListenUriCmd)
 					.withDescription("default listening URI for proxy server").create(listenUriCmd);
 			Option outputUri = OptionBuilder.withArgName("URI")
 					.hasArg()
-					.withLongOpt(longOutputCmd)
+					.withLongOpt(longOutputUriCmd)
 					.withDescription("default output URI for proxy server").create(outputUriCmd);
 			Option properties = OptionBuilder.withArgName("PATH")
 					.hasArg()
-					.withLongOpt(longOutputCmd)
+					.withLongOpt(longPropertiesCmd)
 					.withDescription("path to properties file").create(propertiesCmd);
 			Option dnozip = OptionBuilder
-					.withLongOpt(longOutputCmd)
+					.withLongOpt(longNozipCmd)
 					.withDescription("if true, output will be left as uncompressed package").create(nozipCmd);
 			Option dziponly = OptionBuilder
-					.withLongOpt(longOutputCmd)
+					.withLongOpt(longZiponlyCmd)
 					.withDescription("if true, only pre-made package will be compressed (without creating this package)").create(ziponlyCmd);
 			
 						
@@ -97,7 +97,6 @@ spakowanie przygotowanej paczki
 			//Option nozip = new Option( "nozip", "same as -Dnozip=true" );
 			//Option ziponly = new Option( "ziponly", "same as -Dziponly=true" );
 			
-			options.addOption("testwsdlmap", false, "test argument");
 			options.addOption(output);
 			options.addOption(listenUri);
 			options.addOption(outputUri);
@@ -140,7 +139,7 @@ spakowanie przygotowanej paczki
 		}
 		else
 		{
-			Properties properties = cmd.getOptionProperties("D");
+/*			Properties properties = cmd.getOptionProperties("D");
 			String output = properties.getProperty(outputCmd);
 			if (output == null)
 				output = System.getProperty("user.dir");
@@ -148,10 +147,14 @@ spakowanie przygotowanej paczki
 			String outputuri = properties.getProperty(outputUriCmd);
 			String propertiesfile = properties.getProperty(propertiesCmd);
 			if (propertiesfile == null)
-				propertiesfile = "http.uri.properties";
+				propertiesfile = "http.uri.properties";*/
+			String output = cmd.getOptionValue(outputCmd, System.getProperty("user.dir"));
+			String listenuri = cmd.getOptionValue(listenUriCmd);
+			String outputuri = cmd.getOptionValue(outputUriCmd);
+			String propertiesfile = cmd.getOptionValue(propertiesCmd, "http.uri.properties");
 
-			boolean ziponly = cmd.hasOption(ziponlyCmd) || "true".equals(properties.getProperty(ziponlyCmd));
-			boolean nozip = cmd.hasOption(nozipCmd) || "true".equals(properties.getProperty(nozipCmd));
+			boolean ziponly = cmd.hasOption(ziponlyCmd);
+			boolean nozip = cmd.hasOption(nozipCmd);
 			if (ziponly && nozip)
 				fail(ziponlyCmd + " and " + nozipCmd + " flags cannot be set simultaneously");
 
