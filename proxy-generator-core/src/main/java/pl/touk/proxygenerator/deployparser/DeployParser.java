@@ -4,15 +4,28 @@
  */
 
 package pl.touk.proxygenerator.deployparser;
+
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
 
 /**
  *
@@ -22,30 +35,168 @@ public class DeployParser implements DeployParserInterface
 {
 	private final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
 	private final static String deployFileName = "deploy.xml";
+	private final static String xbeanFileName = "xbean.xml";
+	private File deployFile;
+	private File xbeanFile;
+	private Beans beans;
+	private WsdlMapFactory wsdlMapFactory;
+	private Map<MultiKey, String> wsdlMap;
+
 	private final static Logger log = Logger.getLogger(DeployParser.class.getName());
+
 	private DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder domBuilder;
 	private Document dom;
+	private List endpointData;
 
 	private XPathFactory factory = XPathFactory.newInstance();
+
+
 
 	public DeployParser() throws ParserConfigurationException
 	{
 		domBuilderFactory.setNamespaceAware(true);
 		domBuilderFactory.setIgnoringComments(true);
 		domBuilder = domBuilderFactory.newDocumentBuilder();
+		org.apache.log4j.BasicConfigurator.configure();
+		endpointData = new ArrayList();
 	};
 
-	public void ParseXML(File newFile) throws SAXException
+	public File parseDeployXml(File fileToParse, Map<MultiKey, String> wsdlMap) throws Exception
 	{
+		File result = null;
+		Document doc;
+
 		try {
-			dom = domBuilder.parse(newFile);
-//		Document doc = docBuilder.parse (new File("test.xml"));
+			dom = domBuilder.parse(fileToParse);
+			dom.getDocumentElement().normalize();
 		} catch (IOException ex) {
 			Logger.getLogger(DeployParser.class.getName()).log(Level.SEVERE, null, ex);
 		}
-//		Document doc = docBuilder.parse (new File("test.xml"));
+
+		doc = generateDOMTree(dom, wsdlMap);
+
+		result = createXBeanFile(doc);
+		return result;
 	}
 
 
+	public Document generateDOMTree(Document dom, Map<MultiKey,String> wsdlMap)
+	{
+		Document result = null;
+		
+		try {
+			result = domBuilder.newDocument();	
+		}catch(Exception pce) {
+			  System.out.println("Error while trying to instantiate DocumentBuilder " + pce);
+			  System.exit(1);
+		}
+
+		Element domRoot = null;
+
+		NodeList domList = dom.getChildNodes();
+		for	(int i = 0; i < domList.getLength(); i++)
+		{
+			if (domList.item(i) instanceof Element)
+			{
+				domRoot = (Element) domList.item(i);
+				break;
+			}
+		}
+
+		domRoot = dom.getDocumentElement();
+
+		Element rootElement = result.createElement("beans");
+
+		Comment provides = result.createComment("provides");
+		Comment caseProcess = result.createComment("CaseProcess");
+		Comment utilitiesProvider = result.createComment("UtilitiesProvider");
+		Comment customerNotifier = result.createComment("CustomerNotifier");
+		Comment standardContractProcess = result.createComment("StandardContractProcess");
+		Comment oneVisitContractProcess	= result.createComment("OneVisitContractProcess");
+		Comment invoke = result.createComment("Invoke");
+
+
+		rootElement.setAttribute("xmlns:http", beans.getHttp());
+		rootElement.setAttribute("xmlns:atm", beans.getAtm());
+		rootElement.setAttribute("xmlns:dh", beans.getDh());
+		rootElement.setAttribute("xmlns:qmm", beans.getQmm());
+		rootElement.setAttribute("xmlns:mwk", beans.getMwk());
+		rootElement.setAttribute("xmlns:ws", beans.getWs());
+
+		result.appendChild(rootElement);
+
+
+		endpointData.add(new Endpoint("default", "http://0.0.0.0:8667/process/mnpm/portln/Caserunner-1/ ", "consumer", "ws:CaseRunner-1", "true", "1,1", "classpath:Caserunner.wsdl") );
+
+		Iterator it = endpointData.iterator();
+		while(it.hasNext())
+		{
+			Endpoint endpoint = (Endpoint)it.next();
+			Element endpointElement = createEndpointElement(endpoint);
+			rootElement.appendChild(endpointElement);
+		}
+
+		return result;
+				
+	}
+
+	private Element createEndpointElement( Endpoint endpoint)
+	{
+       Element endpointElement = dom.createElement("http:endpoint");
+//       endpointElement.setAttribute("endpoint", endpoint.getEndpoint());
+//	   endpointElement.setAttribute("locationURI", endpoint.getLocationURI());
+//	   endpointElement.setAttribute("role", endpoint.getRole());
+//	   endpointElement.setAttribute("service", endpoint.getService());
+//	   endpointElement.setAttribute("soap", endpoint.getSoap());
+//	   endpointElement.setAttribute("soapVerstion", endpoint.getSoapVersion());
+//	   endpointElement.setAttribute("wsdlResource", endpoint.getWsdlResource());
+
+	   return endpointElement;
+	}
+
+	public File createXBeanFile(Document doc) throws DeployParserException
+	{
+		File temp = null;
+		Document localDoc = null;
+
+		printToFile(localDoc);
+		return temp;
+	}
+
+	 private void printToFile(Document localDoc)
+	 {
+		try
+		{
+			 OutputFormat format = new OutputFormat(localDoc);
+			  format.setIndenting(true);
+		   //to generate output to console use this serializer
+		  //XMLSerializer serializer = new XMLSerializer(System.out, format);
+		 //to generate a file output use fileoutputstream instead of system.out
+			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(new File("xbean.xml")), format);
+			  serializer.serialize(dom);
+		} catch(IOException ie) {
+		   ie.printStackTrace();
+		}
+	  }
+
+	 public static void main(String [] args) throws ParserConfigurationException, Exception
+	{
+		DeployParser dp = new DeployParser();
+		File deploy = new File("deploy.xml");
+
+		Map<MultiKey, String> wsdlMap = dp.wsdlMapFactory.createWsdlMap("src/test/resources/bpel/HelloWorld2/");
+		Beans beans
+
+		File xbean = dp.parseDeployXml(deploy, wsdlMap);
+
+//		Beans beans = new Beans("http://servicemix.apache.org/http/1.0",
+//								"http://playmobile.pl/adapter/atmosfera",
+//								"http://playmobile.pl/adapter/dh",
+//								"http://playmobile.pl/service/mnpm",
+//								"http://playmobile.pl/adapter/mwk",
+//								"http://playmobile.pl/process/mnpm/portIn");
+//		dp.createDOMTree(beans);
+//		xg.printToFile();
+	}
 }
