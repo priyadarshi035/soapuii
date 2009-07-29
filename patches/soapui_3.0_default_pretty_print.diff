@@ -1,0 +1,11 @@
+Index: src/java/com/eviware/soapui/DefaultSoapUICore.java
+--- src/java/com/eviware/soapui/DefaultSoapUICore.java Base (BASE)
++++ src/java/com/eviware/soapui/DefaultSoapUICore.java Locally Modified (Based On LOCAL)
+@@ -273,6 +273,7 @@
+ 		setIfNotSet( UISettings.GC_INTERVAL, "60" );
+ 		setIfNotSet( WsdlSettings.CACHE_WSDLS, true );
+ 		setIfNotSet( WsdlSettings.PRETTY_PRINT_RESPONSE_MESSAGES, true );
++		setIfNotSet( WsdlSettings.PRETTY_PRINT_PROJECT_FILES, true );
+ 		setIfNotSet( HttpSettings.RESPONSE_COMPRESSION, true );
+ 		setIfNotSet( HttpSettings.INCLUDE_REQUEST_IN_TIME_TAKEN, true );
+ 		setIfNotSet( HttpSettings.INCLUDE_RESPONSE_IN_TIME_TAKEN, true );
