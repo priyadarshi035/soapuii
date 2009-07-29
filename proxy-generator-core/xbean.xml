@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:http="http://www.apache.org/ode/schemas/dd/2007/03"
+    xmlns:pns="http://ode/bpel/unit-test" xmlns:wns="http://ode/bpel/unit-test.wsdl">
+    <http:endpoint endpoint="default"
+        locationURI="http://0.0.0.0:8667/process/mnpm/portIn/HelloService/"
+        role="consumer" service="wns:HelloService" soap="true"
+        soapVersion="1.1" wsdlResource="src/test/resources/bpel/HelloWorld2/HelloWorld2.wsdl"/>
+</beans>
