@@ -20,8 +20,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * Goal which touches a timestamp file.
@@ -30,62 +28,15 @@ import java.io.IOException;
  * 
  * @phase process-sources
  */
-public class generate
-    extends AbstractMojo
+public class Generate
+    extends AbstractProxyGenerateGoal
 {
-    /**
-     * Location of the file.
-     * @parameter expression="${project.build.sourceDirectory}"
-     * @required
-     */
-    private File sources;
-
-    /**
-     * Output's name.
-     * @parameter expression="${generate.output}"
-	 * @required
-     */
-	private	String output;
-
-	/**
-     * Proxy default listen uri
-     * @parameter expression="${generate.listenuri}"
-     * @required
-     */
-	private String listenuri;
-
-    /**
-     * Location of the file.
-     * @parameter expression="${generate.outputuri}"
-	 * @required
-     */
-	private String outputuri;
-
-    /**
-     * Location of the file.
-     * @parameter expression="${generate.propertiesfile}" default-value="http.uri.properties"
-     */
-	private String propertiesfile;
-
-    /**
-     * Location of the file.
-     * @parameter expression="${generate.ziponly}" default-value=false
-     */
-	private boolean ziponly;
-
-    /**
-     * Location of the file.
-     * @parameter expression="${generate.nozip}" default-value=false
-     */
-	private boolean nozip;
-
+	final protected boolean ziponly = false;
+	final protected boolean nozip = false;
 
     public void execute()
         throws MojoExecutionException
     {
-		if (ziponly && nozip)
-			throw new MojoExecutionException("nozip and zipolny cannot be set simultaneously");
-
 		getLog().info("out: " + output);
 		getLog().info("listen: " + listenuri);
 		getLog().info("output uri: " + outputuri);
@@ -93,5 +44,6 @@ public class generate
 		getLog().info("nozip: " + nozip);
 		getLog().info("ziponly: " + ziponly);
 		getLog().info("sources dir: " + sources);
+		getLog().info("target dir: " + target);
     }
 }
