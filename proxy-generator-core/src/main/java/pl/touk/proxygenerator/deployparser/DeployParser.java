@@ -28,7 +28,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
+import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 
 /**
  *
@@ -43,7 +43,7 @@ public class DeployParser implements DeployParserInterface
 	private File xbeanFile;
 	private Beans beans;
 	private Document dom = null;
-	private WsdlMapFactory wsdlMapFactory;
+	private WsdlMapFactoryImpl wsdlMapFactory;
 	private Map<MultiKey, String> wsdlMap;
 
 	private final static Logger log = Logger.getLogger(DeployParser.class.getName());
@@ -56,7 +56,7 @@ public class DeployParser implements DeployParserInterface
 	public DeployParser() throws ParserConfigurationException
 	{
 		org.apache.log4j.BasicConfigurator.configure();
-		wsdlMapFactory = new WsdlMapFactory();
+		wsdlMapFactory = new WsdlMapFactoryImpl();
 		endpointData = new ArrayList();
 	};
 

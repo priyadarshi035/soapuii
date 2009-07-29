@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
+import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 import org.apache.commons.cli.*;
 
 /**

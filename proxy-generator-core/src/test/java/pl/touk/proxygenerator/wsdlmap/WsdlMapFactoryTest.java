@@ -40,16 +40,13 @@ public class WsdlMapFactoryTest extends TestCase
 		try 
 		{
 			System.out.println("createWsdlMap");
-			WsdlMapFactory instance = new WsdlMapFactory();
-			MultiKey key = new MultiKey("HelloWorld2", "helloPartnerLink", WsdlMapFactory.MYROLE);
+			WsdlMapFactoryImpl instance = new WsdlMapFactoryImpl();
+			MultiKey key = new MultiKey("HelloWorld2", "helloPartnerLink", WsdlMapFactoryImpl.MYROLE);
 			Map<MultiKey, String> result = instance.createWsdlMap("src/test/resources/bpel/HelloWorld2/");
 			String path = result.get(key);
 			assertTrue(path != null);
-			URI absUri = new URI(path);
 			URI expectedUri = new URI("src/test/resources/bpel/HelloWorld2/HelloWorld2.wsdl");
-			URI userDir = new URI(System.getProperty("user.dir"));
-			URI endResult = userDir.relativize(absUri);
-			assertTrue(endResult.equals(expectedUri));
+			assertTrue(path.equals(expectedUri.toString()));
 		}
 		catch (Exception ex)
 		{
