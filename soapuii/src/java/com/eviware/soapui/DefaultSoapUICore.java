@@ -273,6 +273,7 @@ public class DefaultSoapUICore implements SoapUICore
 		setIfNotSet( UISettings.GC_INTERVAL, "60" );
 		setIfNotSet( WsdlSettings.CACHE_WSDLS, true );
 		setIfNotSet( WsdlSettings.PRETTY_PRINT_RESPONSE_MESSAGES, true );
+		setIfNotSet( WsdlSettings.PRETTY_PRINT_PROJECT_FILES, true );
 		setIfNotSet( HttpSettings.RESPONSE_COMPRESSION, true );
 		setIfNotSet( HttpSettings.INCLUDE_REQUEST_IN_TIME_TAKEN, true );
 		setIfNotSet( HttpSettings.INCLUDE_RESPONSE_IN_TIME_TAKEN, true );
