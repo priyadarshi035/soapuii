@@ -29,6 +29,10 @@ public class ProxyGeneratorConsole
 	private static final String longNozipCmd = "nozip";
 	private static final String longZiponlyCmd = "ziponly";
 
+	private static final String usageMsg = "proxy-generator [sources_directory]";
+	private static final String headerMsg = "sources_directory is a path to a directory with sources (deploy.xml, bpel files, wsdl files, scheme files)";
+
+
 	protected static void fail(String msg)
 	{
 		System.err.println(msg);
@@ -48,7 +52,7 @@ public class ProxyGeneratorConsole
 albo
 
 przygotowanie paczki:
-./proxy-generator /path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz
+/path/to/wsdls/and/bpels -o sample_sa -luri http://0.0.0.0:1234/ala -ouri http://0.0.0.1:12345/kot -p some.file.proprties -nz
 
 teraz mozliwa reczna edytacja paczki
 
@@ -59,15 +63,6 @@ spakowanie przygotowanej paczki
 		{
 			options = new Options();
 
-			/*Option property = OptionBuilder.withArgName("property=value")
-					.hasArgs(2).withValueSeparator()
-					.withDescription("-D " + outputCmd + "=NAME        output file (will be \"NAME.zip\") or folder name\n" +
-						"-D " + listenUriCmd + "=URI     default listening URI for proxy server\n" +
-						"-D " + outputUriCmd + "=URI     default output URI for proxy server\n" +
-						"-D " + propertiesCmd + "=PATH    path to properties file\n" +
-						"-D " + nozipCmd + "=BOOL         if true, output will be left as uncompressed package\n" +
-						"-D " + ziponlyCmd + "=BOOL       if true, only pre-made package will be compressed (without creating this package)\n")
-					.create("D");*/
 			Option output = OptionBuilder.withArgName("NAME")
 					.hasArg()
 					.withLongOpt(longOutputCmd)
@@ -80,23 +75,21 @@ spakowanie przygotowanej paczki
 					.hasArg()
 					.withLongOpt(longOutputUriCmd)
 					.withDescription("default output URI for proxy server").create(outputUriCmd);
-			Option properties = OptionBuilder.withArgName("PATH")
+			Option properties = OptionBuilder.withArgName("NAME")
 					.hasArg()
 					.withLongOpt(longPropertiesCmd)
-					.withDescription("path to properties file").create(propertiesCmd);
+					.withDescription("name of properties file, in which services " +
+					"addresses will be defined (default http.uri.properties)").create(propertiesCmd);
 			Option dnozip = OptionBuilder
 					.withLongOpt(longNozipCmd)
 					.withDescription("if true, output will be left as uncompressed package").create(nozipCmd);
 			Option dziponly = OptionBuilder
 					.withLongOpt(longZiponlyCmd)
 					.withDescription("if true, only pre-made package will be compressed (without creating this package)").create(ziponlyCmd);
-			
-						
 					
 			Option help = new Option( "help", "print this message" );
 			//Option nozip = new Option( "nozip", "same as -Dnozip=true" );
 			//Option ziponly = new Option( "ziponly", "same as -Dziponly=true" );
-			
 			options.addOption(output);
 			options.addOption(listenUri);
 			options.addOption(outputUri);
@@ -135,7 +128,8 @@ spakowanie przygotowanej paczki
 		if (cmd.hasOption("help") || cmd.getArgList().isEmpty())
 		{
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("proxy-generator", options);
+			formatter.printHelp(usageMsg, headerMsg, options, null, true);
+			//formatter.printHelp("proxy-generator [options] [target [target2 [target3] ...]]", options);
 		}
 		else
 		{
@@ -163,12 +157,11 @@ spakowanie przygotowanej paczki
 			System.out.println("output uri: " + outputuri);
 			System.out.println("properties: " + propertiesfile);
 			List sourceList = cmd.getArgList();
-			for (Iterator i = sourceList.iterator(); i.hasNext();)
-			{
-				String source = (String) i.next();
-				System.out.println(source);
-				//doTarget(target);
-			}
+			if (sourceList.size() != 1)
+				fail("Missing (or too much) sources_directory argument: " + sourceList);
+			System.out.println(sourceList.get(0));
+
+			//doTarget(target);
 		}
     }
 }
