@@ -147,7 +147,7 @@ public class DeployParserTest extends TestCase {
 		Document resDoc = (Document)result.getKey(0);
 //		resDoc.normalize();
 
-		printDocToFile(resDoc,"bigXbean.xml");
+//		printDocToFile(resDoc,"bigXbean.xml");
 
 		assertTrue(true);
 	}
