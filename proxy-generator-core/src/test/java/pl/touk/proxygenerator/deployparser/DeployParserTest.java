@@ -5,12 +5,9 @@
 
 package pl.touk.proxygenerator.deployparser;
 
-import java.io.File;
-import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import junit.framework.TestCase;
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.w3c.dom.Document;
 
 /**
  *
@@ -35,43 +32,18 @@ public class DeployParserTest extends TestCase {
 	/**
 	 * Test of parseDeployXml method, of class DeployParser.
 	 */
-	public void testParseDeployXml() throws Exception {
-		/*System.out.println("parseDeployXml");
-		File fileToParse = null;
-		String path = "";
+	public void testParseDeployXml() throws DeployParserException, ParserConfigurationException, Exception {
+		System.out.println("parseDeployXml");
+		
+		//path insert by the user of the test
+		String sourcesPath = "src/test/resources/bpel/przykladowy_proces/";
+
 		DeployParserImpl instance = new DeployParserImpl();
-		File expResult = null;
-		File result = instance.parseDeployXml(fileToParse, path);
+		MultiKey expResult = null;
+		MultiKey result = instance.parseDeployXml(sourcesPath);
 		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");*/
+		fail("The test case is a prototype.");
 	}
-
-	/**
-	 * Test of generateDOMTree method, of class DeployParser.
-	 */
-	public void testGenerateDOMTree() throws Exception {
-		/*System.out.println("generateDOMTree");
-		Document dom = null;
-		Map<MultiKey, String> wsdlMap = null;
-		DeployParserImpl instance = new DeployParserImpl();
-		Document expResult = null;
-		Document result = instance.generateDOMTree(dom, wsdlMap);
-		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");*/
-	}
-
-	/**
-	 * Test of setLuri method, of class DeployParser.
-	 */
-	public void testSetLuri() throws ParserConfigurationException {
-		/*System.out.println("setLuri");
-		String luri = "";
-		DeployParserImpl instance = new DeployParserImpl();
-		instance.setLuri(luri);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");*/
-	}
-
 }
+

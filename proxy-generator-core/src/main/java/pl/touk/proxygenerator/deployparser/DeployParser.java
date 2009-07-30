@@ -12,8 +12,6 @@ import org.apache.commons.collections.keyvalue.MultiKey;
  */
 public interface DeployParser
 {
-	boolean MYROLE = true;
-	boolean PARTNERROLE = false;
 
 /**
 	 * Creates xbean file
