@@ -9,7 +9,7 @@ package pl.touk.proxygenerator;
  *
  * @author pnw
  */
-class ProxyGeneratorException extends Exception
+public class ProxyGeneratorException extends Exception
 {
 
 	public ProxyGeneratorException(String message)

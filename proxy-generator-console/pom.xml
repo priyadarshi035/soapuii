@@ -13,7 +13,7 @@
 	<groupId>pl.touk</groupId>
 	<artifactId>proxy-generator-console</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1-SNAPSHOT</version>
 	<name>proxy-generator-console</name>
 	<url>http://maven.apache.org</url>
 
@@ -43,7 +43,7 @@
 								<manifest>
 									<addClasspath>true</addClasspath>
 									<classpathPrefix>lib</classpathPrefix>
-									<mainClass>pl.touk.proxygenerator.ProxyGeneratorConsole</mainClass>
+									<mainClass>pl.touk.proxygeneratorconsole.Console</mainClass>
 								</manifest>
 							</archive>
 						</configuration>

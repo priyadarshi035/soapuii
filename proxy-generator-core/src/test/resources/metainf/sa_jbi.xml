@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jbi version="1.0" xmlns="http://java.sun.com/xml/ns/jbi">
+    <service-assembly>
+        <identification>
+            <name>przykladowy_proces-sa</name>
+            <description>przykladowy_proces Service Assembly</description>
+        </identification>
+        <service-unit>
+            <identification>
+                <name>przykladowy_proces-http-su</name>
+                <description>przykladowy_proces HTTP Service Unit</description>
+            </identification>
+            <target>
+                <artifacts-zip>przykladowy_proces-http-su.zip</artifacts-zip>
+                <component-name>servicemix-http</component-name>
+            </target>
+        </service-unit>
+    </service-assembly>
+</jbi>

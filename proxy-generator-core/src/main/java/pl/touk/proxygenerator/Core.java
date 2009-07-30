@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.io.FileUtils;
@@ -21,7 +22,7 @@ import org.w3c.dom.Document;
 import pl.touk.proxygenerator.deployparser.DeployParser;
 import pl.touk.proxygenerator.deployparser.DeployParserImpl;
 import pl.touk.proxygenerator.metainf.MetaInfFactory;
-import pl.touk.proxygenerator.metainf.MetaInfFactoryImplr;
+import pl.touk.proxygenerator.metainf.MetaInfFactoryImpl;
 import pl.touk.proxygenerator.properties.PropertiesGenerator;
 import pl.touk.proxygenerator.properties.PropertiesGeneratorImpl;
 import pl.touk.proxygenerator.support.CopyFileTraversal;
@@ -39,22 +40,38 @@ public class Core
 	protected PropertiesGenerator propertiesGenerator;
 	protected MetaInfFactory metaInfFactory;
 
-	public Core(Config config) throws ParserConfigurationException
+	public Core(Config config) throws ProxyGeneratorException
 	{
-		deployParser = new DeployParserImpl();
-		propertiesGenerator = new PropertiesGeneratorImpl();
-		metaInfFactory = new MetaInfFactoryImplr();
-		this.config = config;
+		try
+		{
+			deployParser = new DeployParserImpl();
+			propertiesGenerator = new PropertiesGeneratorImpl();
+			metaInfFactory = new MetaInfFactoryImpl();
+			this.config = config;
+		} catch (ParserConfigurationException ex)
+		{
+			throw new ProxyGeneratorException("Couldn't create deployParser: " + ex);
+		}
 	}
 
-	public void generateZip()
+	public void run()
+	{
+		if (config.getNoZip())
+			generatePackage();
+		else if (config.getZipOnly())
+			zipPackage();
+		else
+			generateZip();
+	}
+
+	protected void generateZip()
 	{
 		log.info("Generating full zipped package");
 		generatePackage();
 		zipPackage();
 	}
 
-	public void generatePackage()
+	protected void generatePackage()
 	{
 		try
 		{
@@ -79,11 +96,11 @@ public class Core
 
 			printToFile(xmlbean, outputSUDir, "xbean.xml");
 
-			log.info("Generating default properties file");
-			Properties properties = propertiesGenerator.generatePropertiesFile(
-					provideProperties, invokeProperties, config.getListenUri(), config.getOutputUri());
+			log.info("Generating default properties file (not supported yet! :( )");
+			//Properties properties = propertiesGenerator.generatePropertiesFile(
+					//provideProperties, invokeProperties, config.getListenUri(), config.getOutputUri());
 
-			printToFile(properties, outputSUDir, "default.properties");
+			//printToFile(properties, outputSUDir, "default.properties");
 
 			log.info("Coping wsdl and xsd files");
 			FileUtils.copyDirectory(sourcesDir, outputSUDir, new ExtFileFilter(".wsdl"));
@@ -109,7 +126,7 @@ public class Core
 		}
 	}
 
-	public void zipPackage()
+	protected void zipPackage()
 	{
 		log.info("Zipping package (not supported yet)");
 	}

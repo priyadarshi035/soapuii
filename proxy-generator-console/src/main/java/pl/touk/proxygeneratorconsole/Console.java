@@ -1,13 +1,13 @@
 package pl.touk.proxygeneratorconsole;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 import org.apache.commons.cli.*;
+import pl.touk.proxygenerator.Config;
+import pl.touk.proxygenerator.Core;
+import pl.touk.proxygenerator.ProxyGeneratorConfigException;
+import pl.touk.proxygenerator.ProxyGeneratorException;
 
 /**
  * ./proxy-generator /path/to/wsdls/and/bpels -Doutput=sample_sa -Dlisten-uri=http://0.0.0.0:1234/ala -Doutput-uri=http://0.0.0.1:12345/kot -Dproperties=some.file.proprties
@@ -22,9 +22,9 @@ import org.apache.commons.cli.*;
  * spakowanie przygotowanej paczki
  * ./proxy-generator /path/to/sample/sa -Doutput=sample_sa -Dzip-only=true
  */
-public class Console
+final public class Console
 {
-	protected static Options options = null;
+	private static Options options = null;
 	private static final String listenUriCmd = "luri";
 	private static final String outputUriCmd = "ouri";
 	private static final String outputCmd = "o";
@@ -41,8 +41,7 @@ public class Console
 	private static final String usageMsg = "proxy-generator [sources_directory]";
 	private static final String headerMsg = "sources_directory is a path to a directory with sources (deploy.xml, bpel files, wsdl files, scheme files)";
 
-
-	protected static void fail(String msg)
+	private static void fail(String msg)
 	{
 		System.err.println(msg);
 		System.exit(1);
@@ -127,16 +126,25 @@ public class Console
 			if (ziponly && nozip)
 				fail(ziponlyCmd + " and " + nozipCmd + " flags cannot be set simultaneously");
 
-			System.out.println("out: " + output);
-			System.out.println("listen: " + listenuri);
-			System.out.println("output uri: " + outputuri);
-			System.out.println("properties: " + propertiesfile);
-			List sourceList = cmd.getArgList();
+			List<String> sourceList = cmd.getArgList();
 			if (sourceList.size() != 1)
 				fail("Missing (or too much) sources_directory argument: " + sourceList);
-			System.out.println(sourceList.get(0));
 
-			//doTarget(target);
+			try
+			{
+				Config config = new Config(output, listenuri, outputuri, propertiesfile, ziponly, nozip, sourceList.get(0));
+				Core core = new Core(config);
+				core.run();
+			} 
+			catch (ProxyGeneratorException ex)
+			{
+				Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
+				fail("Proxy generator error: " + ex);
+			} catch (ProxyGeneratorConfigException ex)
+			{
+				Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
+				fail("Configuration error: " + ex);
+			}
 		}
     }
 }
