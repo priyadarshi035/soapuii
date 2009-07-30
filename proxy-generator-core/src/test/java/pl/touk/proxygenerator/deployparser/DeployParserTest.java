@@ -48,29 +48,25 @@ public class DeployParserTest extends TestCase {
         super.tearDown();
     }
 
-	/**
-	 * Test of parseDeployXml method, of class DeployParser.
-	 */
-	public void testParseDeployXml() throws DeployParserException, ParserConfigurationException, Exception {
-		System.out.println("parseDeployXml");
-
-		Document expDoc = null;
+	public Document createDoc() throws ParserConfigurationException
+	{
+		Document result = null;
 		DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder domBuilder = domBuilderFactory.newDocumentBuilder();
-		expDoc = domBuilder.newDocument();
+		result = domBuilder.newDocument();
 
-		Element outDomRoot = expDoc.createElement("beans");
+		Element outDomRoot = result.createElement("beans");
 		outDomRoot.setAttribute("xmlns:http", "http://www.apache.org/ode/schemas/dd/2007/03");
 		outDomRoot.setAttribute("xmlns:pns", "http://ode/bpel/unit-test");
 		outDomRoot.setAttribute("xmlns:wns", "http://ode/bpel/unit-test.wsdl");
 
-		Comment provides = expDoc.createComment("PROVIDES");
-		Comment invoke = expDoc.createComment("INVOKES");
-		Comment hello = expDoc.createComment("HelloWorld2");
+		Comment provides = result.createComment("PROVIDES");
+		Comment invoke = result.createComment("INVOKES");
+		Comment hello = result.createComment("HelloWorld2");
 		outDomRoot.appendChild(provides);
-		outDomRoot.appendChild(expDoc.createComment("HelloWorld2"));
+		outDomRoot.appendChild(result.createComment("HelloWorld2"));
 				
-		Element endpointElement = expDoc.createElement("http:endpoint");
+		Element endpointElement = result.createElement("http:endpoint");
 		endpointElement.setAttribute("endpoint", "default");
 		endpointElement.setAttribute("role", "consumer");
 		endpointElement.setAttribute("locationURI", "${pl.ode.bpel.unit-test.wsdl.HelloService}");
@@ -81,28 +77,39 @@ public class DeployParserTest extends TestCase {
 		outDomRoot.appendChild(endpointElement);
 		outDomRoot.appendChild(invoke);
 		outDomRoot.appendChild(hello);
-		expDoc.appendChild(outDomRoot);
+		result.appendChild(outDomRoot);
 		
-		expDoc.normalize();
-
-		File xbean_exp = new File("xbean_utest_exp.xml");
+//		result.normalize();
+		return result;
+	}
+	
+	public void printDocToFile(Document docToPrint, String fileName)
+	{
+		File xbean_exp = new File(fileName);
 		try
 		{
-			 OutputFormat format = new OutputFormat(expDoc);
+			 OutputFormat format = new OutputFormat(docToPrint);
 			  format.setIndenting(true);
 
 			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(xbean_exp), format);
-			  serializer.serialize(expDoc);
+			  serializer.serialize(docToPrint);
 		} catch(IOException ie) {
 		   ie.printStackTrace();
 		}
+	}
 
-//		DeployParserImpl temp = new DeployParserImpl();
-//
-//		WsdlMapFactoryImpl wsdlMapFactoryImpl = new WsdlMapFactoryImpl();
-//		Map<MultiKey, String> wsdlMap = wsdlMapFactoryImpl.createWsdlMap("src/test/resources/bpel/HelloWorld2/");
-//		Document expDoc = temp.generateDOMTree(dom, wsdlMap);
+	/**
+	 * Test of parseDeployXml method, of class DeployParser.
+	 */
 
+
+	public void testParseDeployXml() throws DeployParserException, ParserConfigurationException, Exception {
+
+		System.out.println("parseDeployXml");
+
+		Document expDoc = createDoc();
+		printDocToFile(expDoc, "xbean_utest_exp.xml");
+		
 
 		ArrayList<String> expProvidesList = new ArrayList<String>();
 		ArrayList<String> expConsumerList = new ArrayList<String>();
@@ -116,22 +123,13 @@ public class DeployParserTest extends TestCase {
 
 		MultiKey result = instance.parseDeployXml(sourcesPath, additionalProperitesFileName);
 		Document resDoc = (Document)result.getKey(0);
-		resDoc.normalize();
-		File xbean_got = new File("xbean_utest_got.xml");
-		try
-		{
-			 OutputFormat format = new OutputFormat((Document)result.getKey(0));
-			  format.setIndenting(true);
-
-			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(xbean_got), format);
-			  serializer.serialize((Document)result.getKey(0));
-		} catch(IOException ie) {
-		   ie.printStackTrace();
-		}
-
+//		resDoc.normalize();
+		
+		printDocToFile(resDoc,"xbean_utest_got.xml");
+		
 		assertEquals(expResult.getKey(2) , result.getKey(2));
 		assertEquals(expResult.getKey(1) , result.getKey(1));
-		assertTrue(expDoc.isEqualNode(resDoc));
+		assertTrue(expDoc.isEqualNode((Document)result.getKey(0)));
 //		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		//fail("The test case is a prototype.");

@@ -110,7 +110,7 @@ public class DeployParserImpl implements DeployParser
 
 		key = new MultiKey(doc, consumerList, providerList);
 
-		result = printToFile(doc);
+//		result = printToFile(doc);
 		return key;
 		}
 
