@@ -74,7 +74,9 @@ public class DeployParserImpl implements DeployParser
 	 * @param sourcesPath	Path to sources root folder
 	 * @return Multikey		MultiKey<Document, List<String>, List<String>>, <xbean.xml, provide properties, invoke properties>
 	 */
-	public MultiKey parseDeployXml(String sourcesPath) throws Exception
+
+
+	public MultiKey parseDeployXml(String sourcesPath, String additionalPropertiesFileName) throws Exception
 	{
 //	public File parseDeployXml(File fileToParse, String path) throws Exception
 //	{
@@ -428,12 +430,12 @@ public class DeployParserImpl implements DeployParser
 		return xbean;
 	  }
 
-	public static void main(String [] args) throws ParserConfigurationException, Exception
-	{
-		DeployParserImpl dp = new DeployParserImpl();
-
-		String path = "src/test/resources/bpel/przykladowy_proces/";
-
-		dp.parseDeployXml(path);
-	}
+//	public static void main(String [] args) throws ParserConfigurationException, Exception
+//	{
+//		DeployParserImpl dp = new DeployParserImpl();
+//
+//		String path = "src/test/resources/bpel/przykladowy_proces/";
+//
+//		dp.parseDeployXml(path);
+//	}
 }
