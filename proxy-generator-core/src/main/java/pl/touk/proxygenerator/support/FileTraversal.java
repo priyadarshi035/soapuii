@@ -20,12 +20,12 @@ import java.util.List;
  */
 public class FileTraversal
 {
-	public final List<File> traverse(final File f)
+	public final List<File> traverse(final File f) throws IOException
 	{
 		return traverse(f, null);
 	}
 	
-	public final List<File> traverse(final File f, FileFilter filter)
+	public final List<File> traverse(final File f, FileFilter filter) throws IOException
 	{
 		ArrayList<File> files = new ArrayList();
 
@@ -39,19 +39,21 @@ public class FileTraversal
 			else
 				childs = f.listFiles();
 
+			for (File child : childs)
+				if (child.isFile())
+					onFile(child);
+
 			files.addAll(Arrays.asList(childs));
 			childs = f.listFiles();
 			
 			for (File child : childs)
 				files.addAll(traverse(child, filter));
 		}
-		else
-			onFile(f);
 		
 		return files;
 	}
 
 	public void onDirectory(final File d) {}
 
-	public void onFile(final File f) {}
+	public void onFile(final File f) throws IOException {}
 }

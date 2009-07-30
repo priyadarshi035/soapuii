@@ -34,6 +34,10 @@ public class Config
 		this.sources = sources;
 	}
 
+	public String getSUMetaInf() { return getSUDir() + "/META-INF"; }
+	public String getSAMetaInf() { return getSADir() + "/META-INF"; }
+	public String getSADir() { return output + "-sa"; }
+	public String getSUDir() { return getSADir() + "/" + output + "http-su"; }
 	public String getOutput() { return output; }
 	public String getListenUri() { return listenUri; }
 	public String getOutputUri() { return outputUri; }

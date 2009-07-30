@@ -64,21 +64,22 @@ public class WsdlMapFactoryImpl implements WsdlMapFactory
 			throw new WsdlMapException(path + " is not a directory.");
 
 		//File[] files = dir.listFiles(new ExtFileFilter(".bpel"));
-		List<File> files = new FileTraversal().traverse(dir, new ExtFileFilter(".bpel"));
-		log.info("found *.bpel: " + files.size());
-		ArrayList<InputStream> streams = new ArrayList();
-
-		for(File file : files)
-			try
-			{
-				streams.add(new FileInputStream(file));
-			} catch (FileNotFoundException ex) //should never happen
-			{
-				throw new WsdlMapException("File: [" + file + "] not found. " + ex);
-			}
-
 		try
 		{
+			List<File> files = new FileTraversal().traverse(dir, new ExtFileFilter(".bpel"));
+			log.info("found *.bpel: " + files.size());
+			ArrayList<InputStream> streams = new ArrayList();
+
+			for(File file : files)
+				try
+				{
+					streams.add(new FileInputStream(file));
+				} catch (FileNotFoundException ex) //should never happen
+				{
+					throw new WsdlMapException("File: [" + file + "] not found. " + ex);
+				}
+
+
 			Map<MultiKey, MultiKey> bpelsPartnerLinks = cacheBpels(streams);
 
 /*			Iterator it = bpelsPartnerLinks.entrySet().iterator();
