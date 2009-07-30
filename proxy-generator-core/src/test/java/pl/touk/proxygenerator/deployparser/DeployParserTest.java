@@ -108,7 +108,7 @@ public class DeployParserTest extends TestCase {
 		System.out.println("parseDeployXml");
 
 		Document expDoc = createDoc();
-		printDocToFile(expDoc, "xbean_utest_exp.xml");
+//		printDocToFile(expDoc, "xbean_utest_exp.xml");
 		
 
 		ArrayList<String> expProvidesList = new ArrayList<String>();
@@ -125,7 +125,7 @@ public class DeployParserTest extends TestCase {
 		Document resDoc = (Document)result.getKey(0);
 //		resDoc.normalize();
 		
-		printDocToFile(resDoc,"xbean_utest_got.xml");
+//		printDocToFile(resDoc,"xbean_utest_got.xml");
 		
 		assertEquals(expResult.getKey(2) , result.getKey(2));
 		assertEquals(expResult.getKey(1) , result.getKey(1));
@@ -133,6 +133,23 @@ public class DeployParserTest extends TestCase {
 //		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		//fail("The test case is a prototype.");
+	}
+
+	public void testParseBigDeployXml() throws DeployParserException, ParserConfigurationException, Exception {
+
+		System.out.println("parseBigDeployXml");
+
+		DeployParserImpl instance = new DeployParserImpl();
+		String sourcesPath = "src/test/resources/bpel/przykladowy_proces/";
+		String additionalProperitesFileName = "src/test/resources/bpel/przykladowy_proces/";
+
+		MultiKey result = instance.parseDeployXml(sourcesPath, additionalProperitesFileName);
+		Document resDoc = (Document)result.getKey(0);
+//		resDoc.normalize();
+
+		printDocToFile(resDoc,"bigXbean.xml");
+
+		assertTrue(true);
 	}
 }
 

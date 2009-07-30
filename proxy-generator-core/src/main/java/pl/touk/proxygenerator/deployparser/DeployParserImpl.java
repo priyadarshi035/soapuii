@@ -8,12 +8,12 @@ package pl.touk.proxygenerator.deployparser;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.File;
-import java.io.FileFilter;
+//import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+//import java.util.Iterator;
+//import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,11 +29,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+//import org.xml.sax.SAXException;
 
 import pl.touk.proxygenerator.support.BasicNamespaceContext;
 import pl.touk.proxygenerator.support.FilenameFilterClass;
-import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
+//import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
 
 import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 
@@ -44,13 +44,6 @@ import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 public class DeployParserImpl implements DeployParser
 {
 	private final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
-//	private final static String deployFileName = "deploy.xml";
-//	private final static String xbeanFileName = "xbean.xml";
-//	private String luri;
-//	private File deployFile;
-//	private File xbeanFile;
-//	private Beans beans;
-//	private Map<MultiKey, String> wsdlMap;
 	private Document dom = null;
 	private WsdlMapFactoryImpl wsdlMapFactory = null;
 	private boolean useNsPrefix = false;
@@ -78,10 +71,7 @@ public class DeployParserImpl implements DeployParser
 
 	public MultiKey parseDeployXml(String sourcesPath, String additionalPropertiesFileName) throws Exception
 	{
-//	public File parseDeployXml(File fileToParse, String path) throws Exception
-//	{
 		MultiKey key = null;
-		File result = null;
 		File fileToParse = null;
 		Document doc = null;
 
@@ -110,7 +100,6 @@ public class DeployParserImpl implements DeployParser
 
 		key = new MultiKey(doc, consumerList, providerList);
 
-//		result = printToFile(doc);
 		return key;
 		}
 
@@ -133,8 +122,6 @@ public class DeployParserImpl implements DeployParser
 			inDomRootName = inDomRootNameMatcher.group(2);
 		}
 
-//		System.out.println("Root element namespace of the doc is " + inDomRootNamespace);
-//		System.out.println ("Root element of the doc is "  + inDomRootName);
 		XPath xpath = factory.newXPath();
 		BasicNamespaceContext namespaceContext = new BasicNamespaceContext();
 		
@@ -174,6 +161,7 @@ public class DeployParserImpl implements DeployParser
 			  System.exit(1);
 		}
 		
+
 		Element outDomRoot = result.createElement("beans");
 
 		//attach attributes to documentRoot
@@ -182,7 +170,6 @@ public class DeployParserImpl implements DeployParser
 			Attr attr = (Attr)domInAttrs.item(i);
 			String attrName = attr.getNodeName();
 			String attrValue = attr.getNodeValue();
-
 			outDomRoot.setAttribute(attrName, attrValue);
 		}
 
@@ -214,7 +201,9 @@ public class DeployParserImpl implements DeployParser
 			if(useNsPrefix == true)
 			{
 				xpathProvide.setNamespaceContext(namespaceContext);
-				xpathProvideExpr = "/dd:deploy/dd:process[@name='" +processName+"']/dd:provide";
+//				xpathProvideExpr = "/dd:deploy/dd:process[@name='" +processName+"']/dd:provide";
+				xpathProvideExpr =  "/" + inDomRootNamespacePrefix + ":deploy/" + inDomRootNamespacePrefix + ":process[@name='" +processName+"']/" + inDomRootNamespacePrefix +":provide";
+				System.out.println(xpathProvideExpr);
 	//			xpathProvideExpr = "/" + inDomRootNamespacePrefix + ":deploy/" + inDomRootNamespacePrefix + ":process/" + inDomRootNamespacePrefix +":provide";
 			}else
 				xpathProvideExpr = "/deploy/process[@name='"+processName+"']/provide";
@@ -248,7 +237,8 @@ public class DeployParserImpl implements DeployParser
 				if (useNsPrefix == true)
 				{
 					xpathService.setNamespaceContext(namespaceContext);
-					xpathServiceExpr = "/dd:deploy/dd:process/dd:provide[@partnerLink='"+partnerLink+"']/dd:service";
+//					xpathServiceExpr = "/dd:deploy/dd:process/dd:provide[@partnerLink='"+partnerLink+"']/dd:service";
+					xpathServiceExpr =  "/" + inDomRootNamespacePrefix + ":deploy/" + inDomRootNamespacePrefix + ":process/" +inDomRootNamespacePrefix + ":provide[@partnerLink='" +partnerLink+"']/" + inDomRootNamespacePrefix +":service";
 				}else
 					xpathServiceExpr = "/deploy/process/provide[@partnerLink='"+partnerLink+"']/service";
 
