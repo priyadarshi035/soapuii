@@ -154,7 +154,7 @@ public class DeployParserImpl implements DeployParser
 
 //		System.out.println("xpathExpr: " + xpathExpr);
 		NodeList processList = (NodeList) xpath.evaluate(xpathExpr, inDomRoot, XPathConstants.NODESET);
-		logger.info("MARK1: number of processes " + processList.getLength() );
+//		logger.info("MARK1: number of processes " + processList.getLength() );
 //		System.out.println("MARK1: Number of processes " + processList.getLength());
 
 		NamedNodeMap domInAttrs = inDomRoot.getAttributes();
@@ -206,7 +206,7 @@ public class DeployParserImpl implements DeployParser
 //				processNameNamespace = inDomRoot.getAttributes().getNamedItem("xmlns:" + matcher.group(1)).getNodeValue();
 				processNamePart = processNameMatcher.group(2);
 			}
-			System.out.println("MARK2: Process -> " + processNamePart);
+//			System.out.println("MARK2: Process -> " + processNamePart);
 
 			XPath xpathProvide = factory.newXPath();
 			String xpathProvideExpr = null;
@@ -219,10 +219,10 @@ public class DeployParserImpl implements DeployParser
 			}else
 				xpathProvideExpr = "/deploy/process[@name='"+processName+"']/provide";
 
-			System.out.println("MARK11: xpathProvideExpr " + xpathProvideExpr);
+//			System.out.println("MARK11: xpathProvideExpr " + xpathProvideExpr);
 
 			NodeList provideList = (NodeList) xpathProvide.evaluate(xpathProvideExpr, process, XPathConstants.NODESET);
-			System.out.println("MARK3: Number of provides " + provideList.getLength());
+//			System.out.println("MARK3: Number of provides " + provideList.getLength());
 
 //			String a= "a:adf-1";
 //			a = a.substring(a.indexOf(:), a.length());
@@ -236,12 +236,12 @@ public class DeployParserImpl implements DeployParser
 			
 				Node provide = provideList.item(j);
 				String partnerLink = provide.getAttributes().getNamedItem("partnerLink").getNodeValue();
-				System.out.println("MARK5: PartnerLinkName:-> " + partnerLink);
+//				System.out.println("MARK5: PartnerLinkName:-> " + partnerLink);
 
 				Boolean role = wsdlMapFactory.MYROLE;
 				MultiKey key = new MultiKey(processNamePart, partnerLink, role);
 				String	mapPath = wsdlMap.get(key);
-				System.out.println("MARK6: ReturnedPathFromMap:-> " + mapPath);
+//				System.out.println("MARK6: ReturnedPathFromMap:-> " + mapPath);
 
 				XPath xpathService = factory.newXPath();
 				String xpathServiceExpr = null;
@@ -255,11 +255,11 @@ public class DeployParserImpl implements DeployParser
 
 				
 				NodeList serviceList = (NodeList)xpathService.evaluate(xpathServiceExpr, provide, XPathConstants.NODESET);
-				System.out.println("MARK4: Number of services " + serviceList.getLength());
+//				System.out.println("MARK4: Number of services " + serviceList.getLength());
 
 				Node service = serviceList.item(0);
 				String serviceName = service.getAttributes().getNamedItem("name").getNodeValue();
-				System.out.println("MARK7: Service->" + serviceName);
+//				System.out.println("MARK7: Service->" + serviceName);
 
 				String serviceNamespacePrefix = null;
 				String serviceNamePart = null;
@@ -281,7 +281,7 @@ public class DeployParserImpl implements DeployParser
 					locationURITemp = locationURITemp.replace("http://", "${pl.");
 					locationURITemp = locationURITemp.replace('/', '.');
 					locationURI = locationURITemp.concat("."+serviceNamePart+"}");
-					System.out.println("locationURI: " + locationURI);
+//					System.out.println("locationURI: " + locationURI);
 				}else
 					locationURI = "location uri failure";
 
@@ -316,7 +316,7 @@ public class DeployParserImpl implements DeployParser
 //				processNameNamespace = inDomRoot.getAttributes().getNamedItem("xmlns:" + matcher.group(1)).getNodeValue();
 				processNamePart = processNameMatcher.group(2);
 			}
-			System.out.println("MARK2: Process -> " + processNamePart);
+//			System.out.println("MARK2: Process -> " + processNamePart);
 
 			XPath xpathProvide = factory.newXPath();
 			String xpathProvideExpr = null;
@@ -329,10 +329,10 @@ public class DeployParserImpl implements DeployParser
 			}else
 				xpathProvideExpr = "/deploy/process[@name='"+processName+"']/invoke";
 
-			System.out.println("MARK11: xpathProvideExpr " + xpathProvideExpr);
+//			System.out.println("MARK11: xpathProvideExpr " + xpathProvideExpr);
 
 			NodeList invokeList = (NodeList) xpathProvide.evaluate(xpathProvideExpr, process, XPathConstants.NODESET);
-			System.out.println("MARK3: Number of invokers " + invokeList.getLength());
+//			System.out.println("MARK3: Number of invokers " + invokeList.getLength());
 
 //			String a= "a:adf-1";
 //			a = a.substring(a.indexOf(:), a.length());
@@ -346,12 +346,12 @@ public class DeployParserImpl implements DeployParser
 
 				Node invokeNode = invokeList.item(j);
 				String partnerLink = invokeNode.getAttributes().getNamedItem("partnerLink").getNodeValue();
-				System.out.println("MARK5: PartnerLinkName:-> " + partnerLink);
+//				System.out.println("MARK5: PartnerLinkName:-> " + partnerLink);
 
 				Boolean role = wsdlMapFactory.PARTNERROLE;
 				MultiKey key = new MultiKey(processNamePart, partnerLink, role);
 				String	mapPath = wsdlMap.get(key);
-				System.out.println("MARK6: ReturnedPathFromMap:-> " + mapPath);
+//				System.out.println("MARK6: ReturnedPathFromMap:-> " + mapPath);
 
 				XPath xpathService = factory.newXPath();
 				String xpathServiceExpr = null;
@@ -365,11 +365,11 @@ public class DeployParserImpl implements DeployParser
 
 
 				NodeList serviceList = (NodeList)xpathService.evaluate(xpathServiceExpr, invokeNode, XPathConstants.NODESET);
-				System.out.println("MARK4: Number of services " + serviceList.getLength());
+//				System.out.println("MARK4: Number of services " + serviceList.getLength());
 
 				Node service = serviceList.item(0);
 				String serviceName = service.getAttributes().getNamedItem("name").getNodeValue();
-				System.out.println("MARK7: Service->" + serviceName);
+//				System.out.println("MARK7: Service->" + serviceName);
 
 				String serviceNamespacePrefix = null;
 				String serviceNamePart = null;
@@ -391,7 +391,7 @@ public class DeployParserImpl implements DeployParser
 					locationURITemp = locationURITemp.replace("http://", "${pl.");
 					locationURITemp = locationURITemp.replace('/', '.');
 					locationURI = locationURITemp.concat("."+serviceNamePart+"}");
-					System.out.println("locationURI: " + locationURI);
+//					System.out.println("locationURI: " + locationURI);
 				}else
 					locationURI = "location uri failure";
 

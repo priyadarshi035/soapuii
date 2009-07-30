@@ -5,7 +5,10 @@
 
 package pl.touk.proxygenerator.deployparser;
 
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import pl.touk.proxygenerator.wsdlmap.WsdlMapFactory;
 import pl.touk.proxygenerator.wsdlmap.WsdlMapFactoryImpl;
 
@@ -64,8 +68,8 @@ public class DeployParserTest extends TestCase {
 		Comment invoke = expDoc.createComment("INVOKES");
 		Comment hello = expDoc.createComment("HelloWorld2");
 		outDomRoot.appendChild(provides);
-		outDomRoot.appendChild(hello);
-
+		outDomRoot.appendChild(expDoc.createComment("HelloWorld2"));
+				
 		Element endpointElement = expDoc.createElement("http:endpoint");
 		endpointElement.setAttribute("endpoint", "default");
 		endpointElement.setAttribute("role", "consumer");
@@ -75,7 +79,23 @@ public class DeployParserTest extends TestCase {
 		endpointElement.setAttribute("soapVersion", "1.1");
 		endpointElement.setAttribute("wsdlResource","src/test/resources/bpel/HelloWorld2/HelloWorld2.wsdl");
 		outDomRoot.appendChild(endpointElement);
+		outDomRoot.appendChild(invoke);
+		outDomRoot.appendChild(hello);
 		expDoc.appendChild(outDomRoot);
+		
+		expDoc.normalize();
+
+		File xbean_exp = new File("xbean_utest_exp.xml");
+		try
+		{
+			 OutputFormat format = new OutputFormat(expDoc);
+			  format.setIndenting(true);
+
+			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(xbean_exp), format);
+			  serializer.serialize(expDoc);
+		} catch(IOException ie) {
+		   ie.printStackTrace();
+		}
 
 //		DeployParserImpl temp = new DeployParserImpl();
 //
@@ -95,12 +115,23 @@ public class DeployParserTest extends TestCase {
 		String additionalProperitesFileName = "src/test/resources/bpel/HelloWorld2/";
 
 		MultiKey result = instance.parseDeployXml(sourcesPath, additionalProperitesFileName);
-		System.out.println(expResult.toString());
-		System.out.println(result.toString());
-//		System.out.println(outDomRoot.equals(result.getKey(0)));
+		Document resDoc = (Document)result.getKey(0);
+		resDoc.normalize();
+		File xbean_got = new File("xbean_utest_got.xml");
+		try
+		{
+			 OutputFormat format = new OutputFormat((Document)result.getKey(0));
+			  format.setIndenting(true);
+
+			  XMLSerializer serializer = new XMLSerializer(new FileOutputStream(xbean_got), format);
+			  serializer.serialize((Document)result.getKey(0));
+		} catch(IOException ie) {
+		   ie.printStackTrace();
+		}
+
 		assertEquals(expResult.getKey(2) , result.getKey(2));
 		assertEquals(expResult.getKey(1) , result.getKey(1));
-//		assertEquals(expResult.getKey(0) , result.getKey(0));
+		assertTrue(expDoc.isEqualNode(resDoc));
 //		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		//fail("The test case is a prototype.");
