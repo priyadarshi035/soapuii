@@ -32,6 +32,7 @@ import org.w3c.dom.*;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.xml.sax.SAXException;
 import pl.touk.proxygenerator.support.BasicNamespaceContext;
+import pl.touk.proxygenerator.support.ExtFileFilter;
 import pl.touk.proxygenerator.support.FileTraversal;
 
 /**
@@ -53,37 +54,6 @@ public class WsdlMapFactoryImpl implements WsdlMapFactory
 		builder = domFactory.newDocumentBuilder();
 		org.apache.log4j.BasicConfigurator.configure();
 	};
-
-	private class FilenameFilterClass implements FileFilter
-	{
-		private String filename;
-		public FilenameFilterClass(String filename)
-		{
-			this.filename = filename;
-		}
-
-		public boolean accept(File path)
-		{
-			return path.getName().equals(filename) && path.isFile();
-		}
-	}
-
-	private class ExtFileFilter implements FileFilter
-	{
-		private String ext;
-
-		public ExtFileFilter(String ext)
-		{
-			this.ext = ext;
-			if (!ext.startsWith("."))
-				ext = new String("." + ext);
-		}
-
-		public boolean accept(File path)
-		{
-			return path.getName().endsWith(ext) && path.isFile();
-		}	
-	}
 
 	public Map<MultiKey, String> createWsdlMap(String path) throws WsdlMapException
 	{
