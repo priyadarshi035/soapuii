@@ -18,9 +18,8 @@ public interface DeployParser
 /**
 	 * Creates xbean file
 	 *
-	 * @param fileToParse	file to be parsed into xbean file. By default it is deploy.xml
-	 * @param wsdlMap		map of WsdlMap. key  - MultiKey<processName, partnerLinkName, role (bool)>
-	 * @return Multikey		MultiKey<Document, List<String>, List<String>>
+	 * @param sourcesPath	Path to sources root folder
+	 * @return Multikey		MultiKey<Document, List<String>, List<String>>, <xbean.xml, provide properties, invoke properties>
 	 */
 	MultiKey parseDeployXml(String sourcesPath) throws Exception;
 }
