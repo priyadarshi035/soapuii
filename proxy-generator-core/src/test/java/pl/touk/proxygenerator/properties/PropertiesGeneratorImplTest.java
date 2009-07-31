@@ -89,7 +89,7 @@ public class PropertiesGeneratorImplTest extends TestCase {
 		String dOU = "http://0.0.0.0:wymyslmyjakisportinnynizwyzej/nazwaplikuzpunktu2";
 
 		Properties tempP = instance.generatePropertiesFile(provideProperties, invokeProperties, dLU, dOU);
-		printToFile(tempP);
+//		printToFile(tempP);
 		Properties expResult = generateExpProperty();
 
 		assertEquals(expResult, tempP);
