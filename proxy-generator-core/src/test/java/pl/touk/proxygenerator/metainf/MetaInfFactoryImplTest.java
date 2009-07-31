@@ -21,6 +21,9 @@ import org.w3c.dom.Document;
 public class MetaInfFactoryImplTest extends XMLTestCase {
     public MetaInfFactoryImplTest(String testName) {
         super(testName);
+		XMLUnit.setIgnoreWhitespace(true);
+		XMLUnit.setIgnoreComments(true);
+		XMLUnit.setIgnoreAttributeOrder(true);
     }
 
     @Override
@@ -32,23 +35,12 @@ public class MetaInfFactoryImplTest extends XMLTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-	
-	public class MyXmlPrettyPrinter {
 
-		public void serialize(Document doc, OutputStream out) throws Exception {
-			OutputFormat format = new OutputFormat(doc);
-			format.setLineWidth(65);
-			format.setIndenting(true);
-			format.setIndent(2);
-			XMLSerializer serializer = new XMLSerializer(out, format);
-			serializer.serialize(doc);
-		}
-	}
 	/**
 	 * Test of createServiceAssemblyMetaInf method, of class MetaInfFactoryImpl.
 	 */
 	public void testCreateServiceAssemblyMetaInf() throws Exception {
-		/*System.out.println("createServiceAssemblyMetaInf");
+		System.out.println("createServiceAssemblyMetaInf");
 		String projectName = "przykladowy_proces";
 		MetaInfFactoryImpl instance = new MetaInfFactoryImpl();
 
@@ -56,11 +48,7 @@ public class MetaInfFactoryImplTest extends XMLTestCase {
 		DocumentBuilder domBuilder = domBuilderFactory.newDocumentBuilder();
 		Document expResult = domBuilder.parse(new File("src/test/resources/metainf/sa_jbi.xml"));
 		Document result = instance.createServiceAssemblyMetaInf(projectName);
-		new MyXmlPrettyPrinter().serialize(expResult, System.out);
-		System.out.println("2nd xml");
-		new MyXmlPrettyPrinter().serialize(result, System.out);
-		//assertTrue(expResult.isEqualNode(result));
-		assertXMLEqual(expResult, result);*/
+		assertXMLEqual(expResult, result);
 		
 	}
 
@@ -68,7 +56,7 @@ public class MetaInfFactoryImplTest extends XMLTestCase {
 	 * Test of createServiceUnitMetaInf method, of class MetaInfFactoryImpl.
 	 */
 	public void testCreateServiceUnitMetaInf() throws Exception {
-		/*System.out.println("createServiceUnitMetaInf");
+		System.out.println("createServiceUnitMetaInf");
 		String projectName = "przykladowy_proces";
 		MetaInfFactoryImpl instance = new MetaInfFactoryImpl();
 
@@ -76,7 +64,7 @@ public class MetaInfFactoryImplTest extends XMLTestCase {
 		DocumentBuilder domBuilder = domBuilderFactory.newDocumentBuilder();
 		Document expResult = domBuilder.parse(new File("src/test/resources/metainf/su_jbi.xml"));
 		Document result = instance.createServiceUnitMetaInf(projectName);
-		assertXMLEqual(expResult, result);*/
+		assertXMLEqual(expResult, result);
 	}
 
 }

@@ -52,7 +52,6 @@ public class WsdlMapFactoryImpl implements WsdlMapFactory
 		domFactory.setNamespaceAware(true);
 		domFactory.setIgnoringComments(true);
 		builder = domFactory.newDocumentBuilder();
-		org.apache.log4j.BasicConfigurator.configure();
 	};
 
 	public Map<MultiKey, String> createWsdlMap(String path) throws WsdlMapException

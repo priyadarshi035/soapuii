@@ -1,5 +1,7 @@
 package pl.touk.proxygeneratorconsole;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,13 +32,13 @@ final public class Console
 	private static final String outputCmd = "o";
 	private static final String propertiesCmd = "p";
 	private static final String nozipCmd = "nz";
-	private static final String ziponlyCmd = "z";
+	private static final String nopackageCmd = "np";
 	private static final String longListenUriCmd = "listenuri";
 	private static final String longOutputUriCmd = "outputuri";
 	private static final String longOutputCmd = "output";
 	private static final String longPropertiesCmd = "properties";
 	private static final String longNozipCmd = "nozip";
-	private static final String longZiponlyCmd = "ziponly";
+	private static final String longNopackageCmd = "nopackage";
 
 	private static final String usageMsg = "proxy-generator [sources_directory]";
 	private static final String headerMsg = "sources_directory is a path to a directory with sources (deploy.xml, bpel files, wsdl files, scheme files)";
@@ -80,8 +82,8 @@ final public class Console
 					.withLongOpt(longNozipCmd)
 					.withDescription("if true, output will be left as uncompressed package").create(nozipCmd);
 			Option dziponly = OptionBuilder
-					.withLongOpt(longZiponlyCmd)
-					.withDescription("if true, only pre-made package will be compressed (without creating this package)").create(ziponlyCmd);
+					.withLongOpt(longNopackageCmd)
+					.withDescription("if true, pre-made package will be used (without creating this package)").create(nopackageCmd);
 
 			Option help = new Option( "help", "print this message" );
 
@@ -121,10 +123,8 @@ final public class Console
 			String outputuri = cmd.getOptionValue(outputUriCmd);
 			String propertiesfile = cmd.getOptionValue(propertiesCmd, "http.uri.properties");
 
-			boolean ziponly = cmd.hasOption(ziponlyCmd);
+			boolean nopackage = cmd.hasOption(nopackageCmd);
 			boolean nozip = cmd.hasOption(nozipCmd);
-			if (ziponly && nozip)
-				fail(ziponlyCmd + " and " + nozipCmd + " flags cannot be set simultaneously");
 
 			List<String> sourceList = cmd.getArgList();
 			if (sourceList.size() != 1)
@@ -132,7 +132,7 @@ final public class Console
 
 			try
 			{
-				Config config = new Config(output, listenuri, outputuri, propertiesfile, ziponly, nozip, sourceList.get(0));
+				Config config = new Config(output, listenuri, outputuri, propertiesfile, nopackage, nozip, sourceList.get(0));
 				Core core = new Core(config);
 				core.run();
 			} 
@@ -140,10 +140,6 @@ final public class Console
 			{
 				Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
 				fail("Proxy generator error: " + ex);
-			} catch (ProxyGeneratorConfigException ex)
-			{
-				Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
-				fail("Configuration error: " + ex);
 			}
 		}
     }

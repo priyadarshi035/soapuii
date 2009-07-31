@@ -20,6 +20,18 @@
 	<build>
 		<plugins>
 			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib</classpathPrefix>
+							<mainClass>pl.touk.proxygeneratorconsole.Console</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>1.5</source>
@@ -37,8 +49,11 @@
 				<plugins>
 
 					<plugin>
-						<artifactId>maven-jar-plugin</artifactId>
+						<artifactId>maven-assembly-plugin</artifactId>
 						<configuration>
+							<descriptor>src/main/assemblies/release.xml</descriptor>
+							<finalName>proxy-generator-${version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
 							<archive>
 								<manifest>
 									<addClasspath>true</addClasspath>
@@ -46,15 +61,6 @@
 									<mainClass>pl.touk.proxygeneratorconsole.Console</mainClass>
 								</manifest>
 							</archive>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<configuration>
-							<descriptor>src/main/assemblies/release.xml</descriptor>
-							<finalName>proxy-generator-${version}</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
 					</plugin>
 

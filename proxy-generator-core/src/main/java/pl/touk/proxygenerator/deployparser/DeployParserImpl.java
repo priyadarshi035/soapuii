@@ -55,7 +55,7 @@ public class DeployParserImpl implements DeployParser
 
 	public DeployParserImpl() throws ParserConfigurationException
 	{
-		org.apache.log4j.BasicConfigurator.configure();
+		//org.apache.log4j.BasicConfigurator.configure();
 		wsdlMapFactory = new WsdlMapFactoryImpl();
 		consumerList = new ArrayList<String>();
 		providerList = new ArrayList<String>();

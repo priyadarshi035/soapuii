@@ -8,11 +8,17 @@ package pl.touk.proxygenerator;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
+import org.apache.commons.compress.archivers.*;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +31,6 @@ import pl.touk.proxygenerator.metainf.MetaInfFactory;
 import pl.touk.proxygenerator.metainf.MetaInfFactoryImpl;
 import pl.touk.proxygenerator.properties.PropertiesGenerator;
 import pl.touk.proxygenerator.properties.PropertiesGeneratorImpl;
-import pl.touk.proxygenerator.support.CopyFileTraversal;
 import pl.touk.proxygenerator.support.ExtFileFilter;
 
 /**
@@ -54,33 +59,26 @@ public class Core
 		}
 	}
 
-	public void run()
+	public void run() throws ProxyGeneratorException
 	{
-		if (config.getNoZip())
-			generatePackage();
-		else if (config.getZipOnly())
-			zipPackage();
-		else
-			generateZip();
-	}
-
-	protected void generateZip()
-	{
-		log.info("Generating full zipped package");
+		log.info("Proxy generator started");
 		generatePackage();
 		zipPackage();
+		log.info("Proxy generator finished");
 	}
 
-	protected void generatePackage()
+	protected void generatePackage() throws ProxyGeneratorException
 	{
+		if (config.getNoPackage())
+			return;
 		try
 		{
 			log.info("Generating package");
 			log.info("Creating output directory: " + config.getOutput());
-			File outputSUDir = new File(config.getSUDir());
-			if (outputSUDir.exists())
-				if (!outputSUDir.delete())
-					throw new ProxyGeneratorException("Output directory " + config.getSUDir() + " already exists and couldn't be deleted");
+			File outputSUDir = new File(config.getSUPath());
+			File outputSADir = new File(config.getSAPath());
+			if (outputSADir.exists())
+				FileUtils.deleteDirectory(outputSADir);
 
 			outputSUDir.mkdirs();
 
@@ -109,12 +107,12 @@ public class Core
 			//new CopyFileTraversal(sourcesDir, outputSUDir).traverse(sourcesDir, new ExtFileFilter(".xsd"));
 
 			log.info("Creating META-INF");
-			File SAMetaInfDir = new File(config.getSAMetaInf());
-			File SUMetaInfDir = new File(config.getSUMetaInf());
+			File SAMetaInfDir = new File(config.getSAMetaInfPath());
+			File SUMetaInfDir = new File(config.getSUMetaInfPath());
 			if (!SAMetaInfDir.mkdir())
-				throw new ProxyGeneratorException("Failed to create Service Assembly META-INF directory: " + config.getSAMetaInf());
+				throw new ProxyGeneratorException("Failed to create Service Assembly META-INF directory: " + config.getSAMetaInfPath());
 			if (!SUMetaInfDir.mkdir())
-				throw new ProxyGeneratorException("Failed to create Servoce Unit META-INF directory: " + config.getSUMetaInf());
+				throw new ProxyGeneratorException("Failed to create Servoce Unit META-INF directory: " + config.getSUMetaInfPath());
 
 			Document SAJbi = metaInfFactory.createServiceAssemblyMetaInf(config.getOutput());
 			Document SUJbi = metaInfFactory.createServiceUnitMetaInf(config.getOutput());
@@ -122,13 +120,56 @@ public class Core
 			printToFile(SUJbi, SUMetaInfDir, "jbi.xml");
 		} catch (Exception ex)
 		{
-			log.error(ex);
+			throw new ProxyGeneratorException(ex.toString());
 		}
 	}
 
-	protected void zipPackage()
+	protected void zipPackage() throws ProxyGeneratorException
 	{
-		log.info("Zipping package (not supported yet)");
+		if (config.getNoZip())
+			return;
+		log.info("Zipping package");
+		
+		try
+		{
+			File inputSA = new File(config.getSAPath());
+			log.info("Creating temporary directory");
+			File tmpBuild = new File("proxy-generator-build-tmp/" + config.getSAPath());
+			tmpBuild.deleteOnExit();
+			tmpBuild.mkdir();
+			String tmpPath = "proxy-generator-build-tmp/";
+
+			FileUtils.copyDirectory(inputSA, tmpBuild);
+
+			log.info("Zipping HTTP Service Unit");
+			String tmpSUPath = tmpPath + config.getSUPath();
+			File inputTmpSU = new File(tmpSUPath);
+			
+			SimpleZip.makeZip(tmpSUPath, tmpSUPath + ".zip", tmpSUPath);
+			
+			log.info("Removing HTTP Service Unit directory");
+			FileUtils.deleteDirectory(inputTmpSU);
+
+
+			log.info("Zipping Service Assembly");
+			String tmpSAPath = tmpPath + config.getSAPath();
+
+			SimpleZip.makeZip(tmpSAPath, config.getSAPath() + ".zip", tmpSAPath);
+			
+			log.info("Removing temporary directory");
+			FileUtils.deleteDirectory(tmpBuild);
+		}
+		catch (URISyntaxException ex)
+		{
+			throw new ProxyGeneratorException("URI Error: " + ex);
+		}
+		catch (FileNotFoundException ex)
+		{
+			throw new ProxyGeneratorException("File not found: " + ex);
+		} catch (IOException ex)
+		{
+			throw new ProxyGeneratorException("IOException: " + ex);
+		}
 	}
 
 	protected void printToFile(Properties properties, File outputDir, String fileName) throws ProxyGeneratorException
