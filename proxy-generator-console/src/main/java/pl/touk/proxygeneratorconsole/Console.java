@@ -3,9 +3,8 @@ package pl.touk.proxygeneratorconsole;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.cli.*;
+import org.apache.log4j.Logger;
 import pl.touk.proxygenerator.Config;
 import pl.touk.proxygenerator.Core;
 import pl.touk.proxygenerator.ProxyGeneratorConfigException;
@@ -26,6 +25,7 @@ import pl.touk.proxygenerator.ProxyGeneratorException;
  */
 final public class Console
 {
+	private final static Logger log = Logger.getLogger(Console.class);
 	private static Options options = null;
 	private static final String listenUriCmd = "luri";
 	private static final String outputUriCmd = "ouri";
@@ -138,7 +138,7 @@ final public class Console
 			} 
 			catch (ProxyGeneratorException ex)
 			{
-				Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
+				log.error(ex.toString(), ex);
 				fail("Proxy generator error: " + ex);
 			}
 		}

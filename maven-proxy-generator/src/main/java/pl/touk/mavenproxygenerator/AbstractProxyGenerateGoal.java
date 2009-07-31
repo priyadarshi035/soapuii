@@ -17,13 +17,16 @@ package pl.touk.mavenproxygenerator;
  */
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
+import org.apache.log4j.Logger;
+import org.apache.maven.plugin.MojoFailureException;
+import pl.touk.proxygenerator.*;
 
 abstract public class AbstractProxyGenerateGoal
     extends AbstractMojo
 {
+	private final static Logger log = Logger.getLogger(AbstractProxyGenerateGoal.class);
     /**
      * Location of the file.
      * @parameter expression="${project.build.directory}"
@@ -65,7 +68,22 @@ abstract public class AbstractProxyGenerateGoal
      */
 	protected String propertiesfile;
 
-    abstract public void execute()
-        throws MojoExecutionException;
+	abstract public boolean getNoZip();
+	abstract public boolean getNoPackage();
+
+    public void execute()
+        throws MojoFailureException
+    {
+		try
+		{
+			Config config = new Config(output, listenuri, outputuri, propertiesfile, getNoPackage(), getNoZip(), sources.getPath());
+			Core core = new Core(config);
+			core.run();
+		} catch (ProxyGeneratorException ex)
+		{
+			log.error(ex.toString(), ex);
+			throw new MojoFailureException(ex.getMessage());
+		}
+    }
 
 }

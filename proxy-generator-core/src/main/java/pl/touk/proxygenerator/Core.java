@@ -61,7 +61,7 @@ public class Core
 
 	public void run() throws ProxyGeneratorException
 	{
-		log.info("Proxy generator started");
+		log.info("Proxy generator started. Sources directory: " + config.getSources());
 		generatePackage();
 		zipPackage();
 		log.info("Proxy generator finished");
@@ -88,6 +88,9 @@ public class Core
 
 			log.info("Starting deploy parser");
 			MultiKey deployResult = deployParser.parseDeployXml(config.getSources(), config.getPropertiesFile());
+			log.info("test");
+			if (deployResult == null || deployResult.size() != 3)
+				throw new ProxyGeneratorException("Deploy parser returned invalid result");
 			Document xmlbean = (Document) deployResult.getKey(0);
 			List<String> provideProperties = (List<String>) deployResult.getKey(1);
 			List<String> invokeProperties = (List<String>) deployResult.getKey(2);
@@ -120,7 +123,7 @@ public class Core
 			printToFile(SUJbi, SUMetaInfDir, "jbi.xml");
 		} catch (Exception ex)
 		{
-			throw new ProxyGeneratorException(ex.toString());
+			throw new ProxyGeneratorException("Failed to generate package", ex);
 		}
 	}
 

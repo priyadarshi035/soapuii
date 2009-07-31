@@ -16,11 +16,6 @@ package pl.touk.mavenproxygenerator;
  * limitations under the License.
  */
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-
-import java.io.File;
-
 /**
  * Goal which touches a timestamp file.
  *
@@ -31,19 +26,9 @@ import java.io.File;
 public class Generate
     extends AbstractProxyGenerateGoal
 {
-	final protected boolean ziponly = false;
+	final protected boolean nopackage = false;
 	final protected boolean nozip = false;
 
-    public void execute()
-        throws MojoExecutionException
-    {
-		getLog().info("out: " + output);
-		getLog().info("listen: " + listenuri);
-		getLog().info("output uri: " + outputuri);
-		getLog().info("properties: " + propertiesfile);
-		getLog().info("nozip: " + nozip);
-		getLog().info("ziponly: " + ziponly);
-		getLog().info("sources dir: " + sources);
-		getLog().info("target dir: " + target);
-    }
+	public boolean getNoZip() { return nozip; }
+	public boolean getNoPackage() { return nopackage; }
 }

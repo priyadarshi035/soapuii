@@ -11,7 +11,10 @@ package pl.touk.proxygenerator;
  */
 public class ProxyGeneratorException extends Exception
 {
-
+	public ProxyGeneratorException(String message, Throwable t)
+	{
+		super(message, t);
+	}
 	public ProxyGeneratorException(String message)
 	{
 		super(message);
