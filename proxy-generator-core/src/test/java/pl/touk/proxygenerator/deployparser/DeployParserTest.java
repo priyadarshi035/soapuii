@@ -128,7 +128,7 @@ public class DeployParserTest extends TestCase {
 	 */
 
 
-	public void testParseDeployXml() throws DeployParserException, ParserConfigurationException, Exception {
+	public void testParseDeployXml() throws ParserConfigurationException, Exception {
 
 		System.out.println("parseDeployXml");
 

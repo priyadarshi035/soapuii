@@ -31,7 +31,7 @@ public class PropertiesGeneratorImpl implements PropertiesGenerator
 {
 	public DeployParser dp = null;
 	private Properties properties = null;
-	
+
 	public PropertiesGeneratorImpl() throws ParserConfigurationException
 	{
 		 dp = new DeployParserImpl();
@@ -41,7 +41,7 @@ public class PropertiesGeneratorImpl implements PropertiesGenerator
 	private void fillInvokeProperties(List<String> iP, String dLU)
 	{
 		for ( int i = 1; i <= iP.size(); i++)
-			properties.put(iP.get((iP.size()-i)), dLU);
+			properties.put(iP.get(iP.size()-i ), dLU);
 	}
 
 	private void fillProvideProperties(List<String> pP, String dOU)
@@ -66,38 +66,14 @@ public class PropertiesGeneratorImpl implements PropertiesGenerator
 
 		return properties;
 	}
-
-	public static void main(String [] args) throws ParserConfigurationException
-	{
-		PropertiesGenerator pg = new PropertiesGeneratorImpl();
-
-		ArrayList<String> provideProperties = new ArrayList<String>();
-		ArrayList<String> invokeProperties = new ArrayList<String>();
-
-		provideProperties.add("playmobile.pl/one");
-		provideProperties.add("playmobile.pl/two");
-		provideProperties.add("playmobile.pl/three");
-		provideProperties.add("playmobile.pl/four");
-
-		invokeProperties.add("First invokeProperty");
-
-		String dLU = "http://0.0.0.0:1234/ala";
-		String dOU = "http://0.0.0.0:wymyslmyjakisportinnynizwyzej/nazwaplikuzpunktu2";
-		
-
-		Properties tempP = pg.generatePropertiesFile(provideProperties, invokeProperties, dLU, dOU);
-		File tempF = new File("default.properties");
-		OutputStream tempO;
-		
-		try {
-			tempO = new FileOutputStream(tempF);
-			tempP.store(tempO, null);
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger(PropertiesGeneratorImpl.class.getName()).log(Level.SEVERE, null, ex);
-			throw new UnsupportedOperationException("Not supported yet.");
-		} catch (IOException ex) {
-			Logger.getLogger(PropertiesGeneratorImpl.class.getName()).log(Level.SEVERE, null, ex);
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-	}
+//
+////getters & setters
+//	public Properties getProperties()
+//	{
+//		return this.properties;
+//	}
+//	public void setProperties(Properties properties)
+//	{
+//		this.properties = properties;
+//	}
 }
