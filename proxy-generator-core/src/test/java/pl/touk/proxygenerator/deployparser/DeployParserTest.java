@@ -77,6 +77,31 @@ public class DeployParserTest extends TestCase {
 		outDomRoot.appendChild(endpointElement);
 		outDomRoot.appendChild(invoke);
 		outDomRoot.appendChild(hello);
+
+		Element singleBean = result.createElement("bean");
+		singleBean.setAttribute("id", "propertyConfigureer");
+		singleBean.setAttribute("class", "org.springframework.beans.factory.config.PropertyPlaceholderConfigurer");
+
+			Element singleProperty = result.createElement("property");
+			singleProperty.setAttribute("name", "locations");
+
+				Element list = result.createElement("list");
+
+					Element value = result.createElement("value");
+					value.setTextContent("classpath:default.properties");
+
+					Element value2 = result.createElement("value");
+					value2.setTextContent("classpath:http.uri.properties");
+
+				list.appendChild(value)	;
+				list.appendChild(value2);
+
+			singleProperty.appendChild(list);
+
+		singleBean.appendChild(singleProperty);
+		outDomRoot.appendChild(singleBean);
+
+
 		result.appendChild(outDomRoot);
 		
 //		result.normalize();
@@ -125,7 +150,7 @@ public class DeployParserTest extends TestCase {
 		Document resDoc = (Document)result.getKey(0);
 //		resDoc.normalize();
 		
-//		printDocToFile(resDoc,"xbean_utest_got.xml");
+		printDocToFile(resDoc,"xbean_utest_got.xml");
 		
 		assertEquals(expResult.getKey(2) , result.getKey(2));
 		assertEquals(expResult.getKey(1) , result.getKey(1));
@@ -147,7 +172,7 @@ public class DeployParserTest extends TestCase {
 		Document resDoc = (Document)result.getKey(0);
 //		resDoc.normalize();
 
-//		printDocToFile(resDoc,"bigXbean.xml");
+		printDocToFile(resDoc,"bigXbean.xml");
 
 		assertTrue(true);
 	}

@@ -399,9 +399,31 @@ public class DeployParserImpl implements DeployParser
 			}
 		}
 
+		Element singleBean = result.createElement("bean");
+		singleBean.setAttribute("id", "propertyConfigureer");
+		singleBean.setAttribute("class", "org.springframework.beans.factory.config.PropertyPlaceholderConfigurer");
+
+			Element singleProperty = result.createElement("property");
+			singleProperty.setAttribute("name", "locations");
+
+				Element list = result.createElement("list");
+
+					Element value = result.createElement("value");
+					value.setTextContent("classpath:default.properties");
+
+					Element value2 = result.createElement("value");
+					value2.setTextContent("classpath:http.uri.properties");
+
+				list.appendChild(value)	;
+				list.appendChild(value2);
+
+			singleProperty.appendChild(list);
+		
+		singleBean.appendChild(singleProperty);
+		outDomRoot.appendChild(singleBean);
+
 		result.appendChild(outDomRoot);
-		return result;
-			
+		return result;			
 	}
 
 	 private File printToFile(Document localDoc)
