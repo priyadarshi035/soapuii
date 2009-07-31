@@ -80,7 +80,12 @@ public class DeployParserImpl implements DeployParser
 			throw new DeployParserException(sourcesPath + " is not a directory.");
 
 		File[] tempFile = dir.listFiles(new FilenameFilterClass("deploy.xml"));
-		fileToParse = tempFile[0];
+		if ((tempFile.length == 0) || (tempFile.length > 1))
+		{
+			throw new DeployParserException("There is no deploy.xml file in the path, or there are more than two xml files: " + sourcesPath);
+		}
+		else
+			fileToParse = tempFile[0];
 
 		try {
 			DocumentBuilderFactory domBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -410,11 +415,10 @@ public class DeployParserImpl implements DeployParser
 
 					Element value = result.createElement("value");
 					value.setTextContent("classpath:default.properties");
-
 					Element value2 = result.createElement("value");
 					value2.setTextContent("classpath:http.uri.properties");
 
-				list.appendChild(value)	;
+				list.appendChild(value);
 				list.appendChild(value2);
 
 			singleProperty.appendChild(list);

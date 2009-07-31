@@ -16,4 +16,8 @@ public class DeployParserException extends Exception
 	{
 		super(message);
 	}
+
+	DeployParserException() {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
 }
