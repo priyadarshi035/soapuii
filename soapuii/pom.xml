@@ -11,7 +11,7 @@
 	<groupId>eviware</groupId>
 	<artifactId>soapui-core</artifactId>
 	<name>soapUI - Core 3.0</name>
-	<version>3.0-touk4</version>
+	<version>3.0-touk5-SNAPSHOT</version>
 	<url>http://www.soapui.org</url>
 	<description>Core soapUI project that implements the Swing UI and all the functionality.</description>
 	
@@ -111,7 +111,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://top.touk.pl/svn/soapuii/tags/sprint4</connection>
+		<connection>scm:svn:https://top.touk.pl/svn/soapuii/trunk</connection>
 	</scm>
 	<organization>
 		<name>eviware.com</name>
