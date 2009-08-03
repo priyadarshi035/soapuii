@@ -132,7 +132,7 @@ final public class Console
 
 			try
 			{
-				Config config = new Config(output, listenuri, outputuri, propertiesfile, nopackage, nozip, sourceList.get(0));
+				Config config = new Config(output, ".", listenuri, outputuri, propertiesfile, nopackage, nozip, sourceList.get(0));
 				Core core = new Core(config);
 				core.run();
 			} 

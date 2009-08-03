@@ -8,21 +8,15 @@ package pl.touk.proxygenerator;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import org.apache.commons.compress.archivers.*;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import pl.touk.proxygenerator.deployparser.DeployParser;
@@ -61,7 +55,9 @@ public class Core
 
 	public void run() throws ProxyGeneratorException
 	{
-		log.info("Proxy generator started. Sources directory: " + config.getSources());
+		log.info("Proxy generator started");
+		log.info("Sources directory: " + config.getSources());
+		log.info("Output directory: " + config.getOutput());
 		generatePackage();
 		zipPackage();
 		log.info("Proxy generator finished");
@@ -97,17 +93,15 @@ public class Core
 
 			printToFile(xmlbean, outputSUDir, "xbean.xml");
 
-			log.info("Generating default properties file (not supported yet! :( )");
-			//Properties properties = propertiesGenerator.generatePropertiesFile(
-					//provideProperties, invokeProperties, config.getListenUri(), config.getOutputUri());
+			log.info("Generating default properties file");
+			Properties properties = propertiesGenerator.generatePropertiesFile(
+					provideProperties, invokeProperties, config.getListenUri(), config.getOutputUri());
 
-			//printToFile(properties, outputSUDir, "default.properties");
+			printToFile(properties, outputSUDir, "default.properties");
 
 			log.info("Coping wsdl and xsd files");
 			FileUtils.copyDirectory(sourcesDir, outputSUDir, new ExtFileFilter(".wsdl"));
 			FileUtils.copyDirectory(sourcesDir, outputSUDir, new ExtFileFilter(".xsd"));
-			//new CopyFileTraversal(sourcesDir, outputSUDir).traverse(sourcesDir, new ExtFileFilter(".wsdl"));
-			//new CopyFileTraversal(sourcesDir, outputSUDir).traverse(sourcesDir, new ExtFileFilter(".xsd"));
 
 			log.info("Creating META-INF");
 			File SAMetaInfDir = new File(config.getSAMetaInfPath());
@@ -137,25 +131,30 @@ public class Core
 		{
 			File inputSA = new File(config.getSAPath());
 			log.info("Creating temporary directory");
-			File tmpBuild = new File("proxy-generator-build-tmp/" + config.getSAPath());
+			File tmpBuild = new File(config.getTmpPath(), config.getSAName());
 			tmpBuild.deleteOnExit();
 			tmpBuild.mkdir();
-			String tmpPath = "proxy-generator-build-tmp/";
+			String tmpPath = config.getTmpPath();
+			//config.getTarget() + "/proxy-generator-build-tmp/";
 
+			//copy package to tmp directory
 			FileUtils.copyDirectory(inputSA, tmpBuild);
 
 			log.info("Zipping HTTP Service Unit");
-			String tmpSUPath = tmpPath + config.getSUPath();
+			String tmpSAPath = tmpPath + File.separatorChar + config.getSAName();
+			String tmpSUPath = tmpSAPath + File.separatorChar + config.getSUName();
 			File inputTmpSU = new File(tmpSUPath);
 			
 			SimpleZip.makeZip(tmpSUPath, tmpSUPath + ".zip", tmpSUPath);
-			
+
+			//cleaning tmp, for second zip step
 			log.info("Removing HTTP Service Unit directory");
 			FileUtils.deleteDirectory(inputTmpSU);
 
 
+			//second zip step
 			log.info("Zipping Service Assembly");
-			String tmpSAPath = tmpPath + config.getSAPath();
+			
 
 			SimpleZip.makeZip(tmpSAPath, config.getSAPath() + ".zip", tmpSAPath);
 			

@@ -43,10 +43,10 @@ abstract public class AbstractProxyGenerateGoal
 
     /**
      * Output's name.
-     * @parameter expression="${generate.output}"
+     * @parameter expression="${project.build.outputDirectory}"
 	 * @required
      */
-	protected	String output;
+	protected String output;
 
 	/**
      * Proxy default listen uri
@@ -76,7 +76,7 @@ abstract public class AbstractProxyGenerateGoal
     {
 		try
 		{
-			Config config = new Config(output, listenuri, outputuri, propertiesfile, getNoPackage(), getNoZip(), sources.getPath());
+			Config config = new Config(output, target.getPath(), listenuri, outputuri, propertiesfile, getNoPackage(), getNoZip(), sources.getPath());
 			Core core = new Core(config);
 			core.run();
 		} catch (ProxyGeneratorException ex)
@@ -85,5 +85,4 @@ abstract public class AbstractProxyGenerateGoal
 			throw new MojoFailureException(ex.getMessage());
 		}
     }
-
 }
