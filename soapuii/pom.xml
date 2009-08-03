@@ -643,7 +643,7 @@
 			<snapshots>
 			</snapshots>
 		</repository>
-		<!--repository>
+		<repository>
 			<id>TouK Snapshot Repository</id>
 			<url>https://nexus.touk.pl/nexus/content/repositories/touk-repository-snapshots/</url>
 			<snapshots>
@@ -659,7 +659,7 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</repository-->
+		</repository>
 		<repository>
 			<id>eviware.com</id>
 			<url>http://www.eviware.com/repository/maven2</url>
