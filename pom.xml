@@ -7,6 +7,6 @@
 	<version>0.1</version>
 	<name>soapuii-build</name>
   <modules>
-    <module>proxy-generator-maven</module>
+    <module>soapuii</module>
   </modules>
 </project>
