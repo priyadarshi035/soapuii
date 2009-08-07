@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="minimal" resourceRoot="" soapui-version="3.0" xmlns:con="http://eviware.com/soapui/config">
+  <con:settings/>
+  <con:properties/>
+  <con:wssContainer/>
+</con:soapui-project>
