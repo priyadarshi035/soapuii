@@ -8,5 +8,6 @@
 	<name>soapuii-build</name>
   <modules>
     <module>soapuii</module>
+    <module>test-generator</module>
   </modules>
 </project>

@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Before;
 import static org.junit.Assert.*;
 import org.custommonkey.xmlunit.*;
@@ -22,6 +23,7 @@ import org.w3c.dom.Document;
  *
  * @author pnw
  */
+
 public class ProjectTestCase extends XMLTestCase
 {
 	protected boolean quiet = true;
@@ -29,7 +31,7 @@ public class ProjectTestCase extends XMLTestCase
 
 	protected String xpathExist = "/soapui-project/settings";
 	protected String expXpathResult = "minimal";
-	protected String xpath = "/soapui-project/@name";
+	protected String xpathResult = "/soapui-project/@name";
 	protected Document expProjectResult = null, result = null;
 
 	public ProjectTestCase(String testName) throws Exception
@@ -44,6 +46,12 @@ public class ProjectTestCase extends XMLTestCase
 
 		project = new WsdlProject( str );
 	}
+
+	public void setQuite(boolean quiet) { this.quiet = quiet; }
+	public void setXpathExist(String xpath) { this.xpathExist = xpath; }
+	public void setExpXpathResult(String xpath) { this.expXpathResult = xpath; }
+	public void setXpathResult(String xpath) { this.xpathResult = xpath; }
+	public void setExpProjectResult(Document result) { this.expProjectResult = result; }
 
 	@Before
 	public void setUp() throws Exception
@@ -61,7 +69,8 @@ public class ProjectTestCase extends XMLTestCase
 		super.tearDown();
 	}
 
-	public void testProject() throws Exception
+	@Ignore
+	public void performAsserts() throws Exception
 	{
 		if (!quiet)
 			System.out.println("testProject");
@@ -94,7 +103,7 @@ public class ProjectTestCase extends XMLTestCase
 		{
 			if (!quiet)
 				System.out.println("Testing expected xpath result");
-			assertXpathEvaluatesTo(expXpathResult, xpath, result);
+			assertXpathEvaluatesTo(expXpathResult, xpathResult, result);
 		}
 		if (expProjectResult != null)
 		{

@@ -144,6 +144,23 @@
 			</testResource>
 		</testResources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>ext</outputDirectory>
+							<includeArtifactIds>test-generator</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!--
 				lint4j reports not used <plugin> <groupId>lint4j</groupId>
 				<artifactId>jutils-lint4j-plugin</artifactId>
@@ -631,7 +648,11 @@
 			<optional>true</optional>
 		</dependency-->
 		<!-- end of commons-vfs -->
-
+			<dependency>
+				<groupId>pl.touk</groupId>
+				<artifactId>test-generator</artifactId>
+				<version>0.1-SNAPSHOT</version>
+			</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
