@@ -9,6 +9,7 @@
 	</parent>
 
 	<groupId>eviware</groupId>
+	<artifactId>soapui-core</artifactId>
 	<name>soapUI - Core 3.0</name>
 	<version>3.0-touk5-SNAPSHOT</version>
 	<url>http://www.soapui.org</url>
