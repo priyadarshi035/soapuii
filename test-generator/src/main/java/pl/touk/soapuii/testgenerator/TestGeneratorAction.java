@@ -17,6 +17,17 @@ import com.eviware.x.form.support.AField;
 import com.eviware.x.form.support.AForm;
 import com.eviware.x.form.support.AField.AFieldType;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import pl.touk.proxygeneratorapi.Defaults;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
 
@@ -29,11 +40,25 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
 	public static final String SOAPUI_ACTION_ID = "GenerateTestsAction";
 	private XFormDialog dialog;
 
+	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+	private DocumentBuilder builder;
+	private XPathFactory factory = XPathFactory.newInstance();
+
 	public static final MessageSupport messages = MessageSupport.getMessages( TestGeneratorAction.class );
 
 	public TestGeneratorAction()
 	{
 		super( "Generate Tests", "Generates tests form getCommunication dumps" );
+		try
+		{
+			domFactory.setNamespaceAware(false);
+			domFactory.setIgnoringComments(true);
+			builder = domFactory.newDocumentBuilder();
+		}
+		catch (ParserConfigurationException ex)
+		{
+			UISupport.showErrorMessage( ex );
+		}
 	}
 
 	public void perform( WsdlProject project, Object param )
@@ -91,12 +116,24 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
 		suite.setPropertyValue("listenURI", dialog.getValue( Form.LISTENURI ));
 		suite.setPropertyValue("outputURI", dialog.getValue( Form.OUTPUTURI ));
 
+		Map bindingMap = createBindingMap(dir);
+
 		WsdlTestCase[] results = null;
 		for( File file : dir.listFiles(new ExtFileFilter(".xml")) )
 		{
 			WsdlTestCase testCase = suite.addNewTestCase(file.getName());
 
-			parseSingleGetCommunication(testCase, file);
+			Document doc;
+			try
+			{
+				doc = builder.parse(new FileInputStream(file));
+				parseSingleGetCommunication(testCase, doc);
+			}
+			catch (Exception ex)
+			{
+				UISupport.showErrorMessage("Parsing [" + file.getName() + "] failed: " + ex);
+			}
+			
 			
 			UISupport.select( testCase );
 
@@ -106,7 +143,12 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
 		}
 	}
 
-	private void parseSingleGetCommunication(WsdlTestCase testCase, File file)
+	private void parseSingleGetCommunication(WsdlTestCase testCase, Document doc)
+	{
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	private Map createBindingMap(File dir)
 	{
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
