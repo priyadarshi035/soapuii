@@ -33,6 +33,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>pl.touk</groupId>
+			<artifactId>proxy-generator-api</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>eviware</groupId>
 			<artifactId>soapui-core</artifactId>
 			<version>3.0-touk4</version>
