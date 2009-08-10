@@ -4,7 +4,9 @@ import com.eviware.soapui.impl.wsdl.support.PathUtils;
 import com.eviware.soapui.support.Tools;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
+@Ignore
 public class ResolveContextTest extends TestCase
 {
 	public void testRelativizePath()

@@ -18,7 +18,9 @@ import com.eviware.soapui.model.testsuite.TestCaseRunner;
 import com.eviware.soapui.model.testsuite.TestRunner.Status;
 import com.eviware.soapui.support.TestCaseWithJetty;
 import com.eviware.soapui.support.types.StringToObjectMap;
+import org.junit.Ignore;
 
+@Ignore
 public class MockResponseStepTestCase extends TestCaseWithJetty
 {
    @Override

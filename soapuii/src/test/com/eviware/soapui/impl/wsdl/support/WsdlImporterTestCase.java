@@ -25,45 +25,47 @@ import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlImporter;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlUtils;
 import com.eviware.soapui.model.iface.Submit;
 import com.eviware.soapui.support.TestCaseWithJetty;
+import org.junit.Ignore;
 
+@Ignore
 public class WsdlImporterTestCase extends TestCaseWithJetty
 {
 	public void testOneWayOperationImport() throws Exception
-   {
-   	WsdlProject project = new WsdlProject();
-   	WsdlInterface[] wsdls = WsdlImporter.importWsdl( 
-   			project, "http://localhost:8082/testonewayop/TestService.wsdl");
-   	
-   	assertEquals( 1, wsdls.length );
-   	
-   	WsdlInterface iface = wsdls[0];
-   	
-   	assertNotNull( iface );
-   	assertEquals( 2, iface.getOperationCount() );
+	{
+		WsdlProject project = new WsdlProject();
+		WsdlInterface[] wsdls = WsdlImporter.importWsdl(
+			project, "http://localhost:8082/testonewayop/TestService.wsdl");
 
-   	WsdlOperation operation = (WsdlOperation) iface.getOperationAt( 0 );
-   	
-   	assertNotNull( operation );
-   	assertEquals( "GetDefaultPageData", operation.getName() );
-   	
-   	Definition definition = WsdlUtils.readDefinition( "http://localhost:8082/testonewayop/TestService.wsdl" );
-   	
-   	BindingOperation bindingOperation = operation.findBindingOperation( definition );
-   	assertNotNull( bindingOperation );
-   	assertEquals( bindingOperation.getName(), operation.getBindingOperationName() );
-   	
-   	assertNull( operation.getOutputName() );
-   	
-   	WsdlRequest request = operation.addNewRequest( "TestRequest" );
-   	assertNotNull( request );
+		assertEquals( 1, wsdls.length );
 
-   	String requestXml = operation.createRequest( true );
-   	assertNotNull( requestXml );
-   	
-   	request.setRequestContent( requestXml );
-   	
-   	Submit submit = request.submit( new WsdlSubmitContext( null ), false );
-   	
-   	assertTrue( submit.getResponse().getContentAsString().indexOf( "Error 404 NOT_FOUND" ) > 0 );
-   }
+		WsdlInterface iface = wsdls[0];
+
+		assertNotNull( iface );
+		assertEquals( 2, iface.getOperationCount() );
+
+		WsdlOperation operation = (WsdlOperation) iface.getOperationAt( 0 );
+
+		assertNotNull( operation );
+		assertEquals( "GetDefaultPageData", operation.getName() );
+
+		Definition definition = WsdlUtils.readDefinition( "http://localhost:8082/testonewayop/TestService.wsdl" );
+
+		BindingOperation bindingOperation = operation.findBindingOperation( definition );
+		assertNotNull( bindingOperation );
+		assertEquals( bindingOperation.getName(), operation.getBindingOperationName() );
+
+		assertNull( operation.getOutputName() );
+
+		WsdlRequest request = operation.addNewRequest( "TestRequest" );
+		assertNotNull( request );
+
+		String requestXml = operation.createRequest( true );
+		assertNotNull( requestXml );
+
+		request.setRequestContent( requestXml );
+
+		Submit submit = request.submit( new WsdlSubmitContext( null ), false );
+
+		assertTrue( submit.getResponse().getContentAsString().indexOf( "Error 404 NOT_FOUND" ) > 0 );
+	}
 }

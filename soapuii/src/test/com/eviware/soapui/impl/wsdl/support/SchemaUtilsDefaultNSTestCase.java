@@ -24,7 +24,7 @@ public class SchemaUtilsDefaultNSTestCase extends TestCase
 	public void testLoadNS() throws Exception
 	{
 		SoapUI.initDefaultCore();
-		File file = new File( "src\\test-resources\\chameleon\\chameleon.wsdl");
+		File file = new File( "src//test-resources//chameleon//chameleon.wsdl");
 		SchemaUtils.loadSchemaTypes( file.toURL().toString(),	new UrlWsdlLoader(file.toURL().toString()) );
 	}
 }

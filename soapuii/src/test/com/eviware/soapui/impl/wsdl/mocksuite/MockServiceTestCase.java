@@ -23,7 +23,9 @@ import com.eviware.soapui.impl.wsdl.mock.WsdlMockResponse;
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockService;
 import com.eviware.soapui.model.iface.Response;
 import com.eviware.soapui.support.TestCaseWithJetty;
+import org.junit.Ignore;
 
+@Ignore
 public class MockServiceTestCase extends TestCaseWithJetty
 {
 	public void testMockOperation() throws Exception

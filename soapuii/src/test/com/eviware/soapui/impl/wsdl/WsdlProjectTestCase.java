@@ -15,7 +15,9 @@ package com.eviware.soapui.impl.wsdl;
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlImporter;
 import com.eviware.soapui.support.TestCaseWithJetty;
+import org.junit.Ignore;
 
+@Ignore
 public class WsdlProjectTestCase extends TestCaseWithJetty
 {
 	public void testComplexLoad() throws Exception
