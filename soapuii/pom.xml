@@ -9,7 +9,6 @@
 	</parent>
 
 	<groupId>eviware</groupId>
-	<artifactId>soapui-core</artifactId>
 	<name>soapUI - Core 3.0</name>
 	<version>3.0-touk5-SNAPSHOT</version>
 	<url>http://www.soapui.org</url>
@@ -144,7 +143,9 @@
 			</testResource>
 		</testResources>
 		<plugins>
-			<plugin>
+
+
+			<!--plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
@@ -155,12 +156,12 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>ext</outputDirectory>
+							<outputDirectory>${project.build.directory}/dist/ext</outputDirectory>
 							<includeArtifactIds>test-generator</includeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 			<!--
 				lint4j reports not used <plugin> <groupId>lint4j</groupId>
 				<artifactId>jutils-lint4j-plugin</artifactId>
