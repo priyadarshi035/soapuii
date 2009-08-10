@@ -8,8 +8,8 @@
 		<version>0.1</version>
 	</parent>
 
-	<groupId>eviware</groupId>
-	<artifactId>soapui-core</artifactId>
+	<groupId>pl.touk</groupId>
+	<artifactId>soapuii-core</artifactId>
 	<name>soapUI - Core 3.0</name>
 	<version>3.0-touk5-SNAPSHOT</version>
 	<url>http://www.soapui.org</url>
@@ -145,24 +145,75 @@
 		</testResources>
 		<plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+                    <execution>
+                        <id>unpack-actions</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>pl.touk</groupId>
+                                    <artifactId>test-generator</artifactId>
+                                    <!--version>0.1-SNAPSHOT</version-->
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/dist/bin/</outputDirectory>
+                                    <includes>actions/*.xml</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+					</executions>
+					</plugin>
 
 			<!--plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist/</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/src/dist/bin</directory>
+								</resource>
+								<resource>
+									<directory>${project.basedir}/src/dist/bin</directory>
+								</resource>
+							</resources>  
+						</configuration>
+					</execution>
+				</executions>
+			</plugin-->
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>install</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/dist/ext</outputDirectory>
+							<outputDirectory>${project.build.directory}/dist/bin/ext</outputDirectory>
 							<includeArtifactIds>test-generator</includeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin-->
+			</plugin>
 			<!--
 				lint4j reports not used <plugin> <groupId>lint4j</groupId>
 				<artifactId>jutils-lint4j-plugin</artifactId>
@@ -181,16 +232,6 @@
 					<maxmemory>1024m</maxmemory>
 				</configuration>
 			</plugin>
-			<!-- ASSEMBLY -->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<!--descriptorId>distribution</descriptorId-->
-					<descriptor>src/assemble/distribution.xml</descriptor>
-                    <finalName>soapui-${version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -199,16 +240,52 @@
 					<skipTests>false</skipTests>
 				</configuration>
 			</plugin>
-			<!-- EOASSEMBLY -->
 		</plugins>
 	</build>
-	<dependencies>
+	<profiles>
+		<profile>
+			<id>withGenerator</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<descriptor>src/assemble/distribution-testgenerator.xml</descriptor>
+							<finalName>soapui-${version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>noGenerator</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>				
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<descriptor>src/assemble/distribution.xml</descriptor>
+							<finalName>soapui-${version}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
+	<dependencies>
 		<dependency>
 			<groupId>activation</groupId>
 			<artifactId>activation</artifactId>
 			<version>1.1</version>
-
 		</dependency>
 		<dependency>
 			<groupId>javamail</groupId>
