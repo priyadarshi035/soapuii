@@ -127,7 +127,7 @@ public class GetCommunicationParser
 //		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
-	private void createTestCase(WsdlTestSuite suite, File singleFile)
+	protected void createTestCase(WsdlTestSuite suite, File singleFile)
 	{
 		WsdlTestCase testCase = suite.addNewTestCase(singleFile.getName());
 

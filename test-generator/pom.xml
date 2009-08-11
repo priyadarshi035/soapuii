@@ -3,14 +3,13 @@
 	<parent>
 		<artifactId>soapuii</artifactId>
 		<groupId>pl.touk</groupId>
-		<version>0.1</version>
+		<version>3.0-touk5-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.touk</groupId>
 	<artifactId>test-generator</artifactId>
 	<name>test-generator</name>
-	<version>0.1-SNAPSHOT</version>
 	<url>http://maven.apache.org</url>
 
 	<build>
@@ -38,9 +37,12 @@
 			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>eviware</groupId>
+			<groupId>pl.touk</groupId>
+			<artifactId>soapuii-core</artifactId>
+			<version>${project.version}</version>
+			<!--groupId>eviware</groupId>
 			<artifactId>soapui-core</artifactId>
-			<version>3.0-touk4</version>
+			<version>3.0-touk4</version-->
 		</dependency>
 	</dependencies>
 </project>
