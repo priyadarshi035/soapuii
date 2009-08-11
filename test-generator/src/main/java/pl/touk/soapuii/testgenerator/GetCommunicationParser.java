@@ -36,36 +36,40 @@ public class GetCommunicationParser
 		builder = domFactory.newDocumentBuilder();		
 	}
 
-	public void parseGetCommunications( WsdlProject project, File dir, String listenURI, String outputURI, Map bindingMap)
+	public void parseGetCommunications( WsdlProject project, File file, String listenURI, String outputURI, Map bindingMap)
 	{
-		WsdlTestSuite suite = project.addNewTestSuite(dir.getName());
+		WsdlTestSuite suite = project.addNewTestSuite(file.getName());
 
 		suite.setPropertyValue("listenURI", listenURI);
 		suite.setPropertyValue("outputURI", outputURI);
 
-		for( File file : dir.listFiles(new ExtFileFilter(".xml")) )
-		{
-			WsdlTestCase testCase = suite.addNewTestCase(file.getName());
-
-			Document doc;
-			try
-			{
-				doc = builder.parse(new FileInputStream(file));
-				parseSingleGetCommunication(testCase, doc);
-			}
-			//Exception should be fine, at least if we dont want to handle some errors other way
-			catch (Exception ex)
-			{
-				UISupport.showErrorMessage("Parsing [" + file.getName() + "] failed: " + ex);
-			}
-
-
-			UISupport.select( testCase );
-		}
+		if (file.isDirectory())
+			for( File singleFile : file.listFiles(new ExtFileFilter(".xml")) )
+				createTestCase(suite, singleFile);
+		else
+			createTestCase(suite, file);
 	}
 
 	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc)
 	{
 		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	private void createTestCase(WsdlTestSuite suite, File singleFile)
+	{
+		WsdlTestCase testCase = suite.addNewTestCase(singleFile.getName());
+
+		Document doc;
+		try
+		{
+			doc = builder.parse(new FileInputStream(singleFile));
+			parseSingleGetCommunication(testCase, doc);
+		} //Exception should be fine, at least if we dont want to handle some errors other way
+		catch (Exception ex)
+		{
+			UISupport.showErrorMessage("Parsing [" + singleFile.getName() + "] failed: " + ex);
+		}
+
+		UISupport.select(testCase);
 	}
 }
