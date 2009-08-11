@@ -11,23 +11,32 @@ import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.support.UISupport;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
 
 /**
  *
- * @author pnw
+ * @author pnw & azl
  */
 public class GetCommunicationParser
 {
 	protected DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 	protected DocumentBuilder builder;
 	protected XPathFactory factory = XPathFactory.newInstance();
+	protected ArrayList exchangeList = null;
 	
 	public GetCommunicationParser() throws ParserConfigurationException
 	{
@@ -50,9 +59,51 @@ public class GetCommunicationParser
 			createTestCase(suite, file);
 	}
 
+	/*
+	 *  parses single getCommunication.xml file to single TestCase. Particular TestSteps are exchanges operation, parsed from getCommunication file. 
+	 */
 	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc)
 	{
-		throw new UnsupportedOperationException("Not yet implemented");
+		exchangeList = new ArrayList();
+		Node inDomRoot = null;
+		inDomRoot = getComDoc.getFirstChild();
+		String inDomRootName = inDomRoot.getNodeName();
+
+		XPath xpath = factory.newXPath();
+		String xpathExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange";
+		NodeList exchangeOperationList = null;
+		try
+		{
+			exchangeOperationList = (NodeList) xpath.evaluate(xpathExpr, getComDoc, XPathConstants.NODESET);
+		} catch (XPathExpressionException ex)
+		{
+			throw new UnsupportedOperationException("Not yet implemented");
+		}
+
+		int length = exchangeOperationList.getLength();
+		for( int i = 0; i < length; i++)
+		{
+			System.out.println(exchangeOperationList.item(i).toString());
+			exchangeList.add(exchangeOperationList.item(i));
+		}
+		for (int i = 0; i < exchangeList.size(); i ++)
+		{
+			Node exchange = (Node) exchangeList.get(i);
+			XPath operationXpath = factory.newXPath();
+			String xpathOperationExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange/operation";
+			NodeList operationList = null;
+			try
+			{
+				operationList = (NodeList) xpath.evaluate(xpathOperationExpr, exchange, XPathConstants.NODESET);
+				int operationListLength = operationList.getLength();
+				System.out.println(operationList.item(0).getNodeName());
+			} catch (XPathExpressionException ex)
+			{
+				throw new UnsupportedOperationException("Not yet implemented");
+			}
+		}
+
+//		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	private void createTestCase(WsdlTestSuite suite, File singleFile)

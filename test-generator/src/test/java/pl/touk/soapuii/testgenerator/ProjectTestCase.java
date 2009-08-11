@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.eviware.soapui.impl.wsdl;
+package pl.touk.soapuii.testgenerator;
 
+import com.eviware.soapui.impl.wsdl.*;
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
@@ -23,7 +24,7 @@ import org.w3c.dom.Document;
  *
  * @author pnw
  */
-@Ignore 
+
 public class ProjectTestCase extends XMLTestCase
 {
 	protected boolean quiet = true;
@@ -42,7 +43,7 @@ public class ProjectTestCase extends XMLTestCase
 		XMLUnit.setIgnoreComments(true);
 		XMLUnit.setIgnoreAttributeOrder(true);
 		
-		String str = SoapUI.class.getResource( "/minimal-soapui-project.xml" ).toURI().toString();
+		String str = "src/test/resources/testFiles/minimal-soapui-project.xml";
 
 		project = new WsdlProject( str );
 	}

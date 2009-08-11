@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.eviware.soapui.impl.wsdl;
+package pl.touk.soapuii.testgenerator;
 
+import com.eviware.soapui.impl.wsdl.*;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 
 /**

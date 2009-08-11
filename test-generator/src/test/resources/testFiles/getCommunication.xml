@@ -1,0 +1,402 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+   <soap:Body>
+      <getCommunicationResponse xmlns:axis2ns3="http://www.apache.org/ode/pmapi" xmlns="http://www.apache.org/ode/pmapi">
+         <getCommunicationResponse xmlns="">
+            <restoreInstance xmlns:ns="http://www.apache.org/ode/pmapi/types/2006/08/02/" xmlns="http://www.apache.org/ode/pmapi/types/2006/08/02/">
+               <processType xmlns:bpel="http://playmobile.pl/process/mnpm/portIn/bpel">bpel:CaseProcess</processType>
+               <exchange>
+                  <type>M</type>
+                  <createTime>2009-07-21T17:01:47.670+02:00</createTime>
+                  <service xmlns:por="http://playmobile.pl/process/mnpm/portIn">por:CaseRunner-1</service>
+                  <operation>createCase</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <createCase usageMode="normal" xmlns:sch="http://playmobile.pl/common/mnpm/schema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <systemName>NASA</systemName>
+                              <userName>NASAUser</userName>
+                              <caseId>006-100002001075</caseId>
+                              <msisdn>48605400163</msisdn>
+                              <document1Id>006-100002001075</document1Id>
+                              <operator>003</operator>
+                              <serviceType>1</serviceType>
+                              <commission>true</commission>
+                              <accountCategory>INDIVIDUAL</accountCategory>
+                              <clientData>
+                                 <firstName>Jan</firstName>
+                                 <lastName>Kowalski</lastName>
+                                 <pesel>75010100000</pesel>
+                                 <identificationType>IDENTITYCARD</identificationType>
+                                 <identificationNumber>ABC000000</identificationNumber>
+                                 <identificationExpiryDate>2010-01-01</identificationExpiryDate>
+                                 <birthDate>1975-01-01</birthDate>
+                                 <foreigner>false</foreigner>
+                                 <email>esb@localhost</email>
+                                 <stationaryPhone>0221234567</stationaryPhone>
+                                 <mobilePhone>123456789</mobilePhone>
+                                 <address>
+                                    <street>Mazowiecka</street>
+                                    <houseNumber>1</houseNumber>
+                                    <apartmentNumber>21</apartmentNumber>
+                                    <city>Warszawa</city>
+                                    <postalCode>00000</postalCode>
+                                    <province>Mazowieckie</province>
+                                 </address>
+                              </clientData>
+                           </createCase>
+                        </parameters>
+                     </message>
+                  </in>
+                  <out>
+                     <message xmlns="">
+                        <parameters>
+                           <createCaseResponse xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <caseId>006-100002001075</caseId>
+                              <msisdn>48605400163</msisdn>
+                           </createCaseResponse>
+                        </parameters>
+                     </message>
+                  </out>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:01:48.014+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:Utilities</service>
+                  <operation>isCaseCreationAllowed</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <isCaseCreationAllowed usageMode="test" xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <systemName>NASA</systemName>
+                              <userName>NASAUser</userName>
+                              <msisdn>48605400163</msisdn>
+                           </isCaseCreationAllowed>
+                        </parameters>
+                     </message>
+                  </in>
+                  <out>
+                     <message xmlns="">
+                        <parameters>
+                           <isCaseCreationAllowedResponse xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <msisdn>48605400163</msisdn>
+                              <allowCaseWithNewContract>true</allowCaseWithNewContract>
+                              <allowCaseWithExistingContract>false</allowCaseWithExistingContract>
+                              <businessError code="NO_OPEN_CONTRACTS_EXIST"/>
+                              <description/>
+                           </isCaseCreationAllowedResponse>
+                        </parameters>
+                     </message>
+                  </out>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:01:51.719+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:MwkAdapter</service>
+                  <operation>sendExx</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <request xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <event-E03>
+                                 <request-portout-list>
+                                    <request-portout-list-element>
+                                       <event-id>006-100002047517</event-id>
+                                       <event-date>2009-07-21T15:01:49.854Z</event-date>
+                                       <case-id>006-100002001075</case-id>
+                                       <dirnum>605400163</dirnum>
+                                       <login>P4</login>
+                                       <recipient>006</recipient>
+                                       <donor>003</donor>
+                                       <case-document-1-id>006-100002001075</case-document-1-id>
+                                       <case-document-1-date>2009-07-21T13:01:47.067Z</case-document-1-date>
+                                       <case-document-1-expiration-date>2009-08-11T15:01:49.854Z</case-document-1-expiration-date>
+                                       <case-pending-activation-date>2009-07-21T15:01:49.854Z</case-pending-activation-date>
+                                       <operation>INSERT</operation>
+                                       <process-type>1</process-type>
+                                       <attorney>true</attorney>
+                                       <name>Jan Kowalski</name>
+                                       <identifier-type>PES</identifier-type>
+                                       <identifier-value>75010100000</identifier-value>
+                                    </request-portout-list-element>
+                                 </request-portout-list>
+                              </event-E03>
+                              <Signature xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                           </request>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:01:51.770+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:CustomerNotifier</service>
+                  <operation>notifyCustomer</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <notifyCustomer xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <caseId xmlns:sch="http://playmobile.pl/common/mnpm/schema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">006-100002001075</caseId>
+                              <msisdn xmlns:sch="http://playmobile.pl/common/mnpm/schema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">48605400163</msisdn>
+                              <processState>CaseStarted</processState>
+                           </notifyCustomer>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:01:52.034+02:00</createTime>
+                  <service xmlns:mnp="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">mnp:MNPIntegrationSoap</service>
+                  <operation>RegisterMNPRequest</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <RegisterMNPRequest xmlns:atm="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0" xmlns="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">
+                              <rq>
+                                 <MSISDN>48605400163</MSISDN>
+                                 <MNPId>006-100002001075</MNPId>
+                                 <Operator>Orange</Operator>
+                                 <Attorney>true</Attorney>
+                                 <OperatorAccountType>POSTPAID</OperatorAccountType>
+                                 <FirstName>Jan</FirstName>
+                                 <LastName>Kowalski</LastName>
+                                 <Name/>
+                                 <PESEL>75010100000</PESEL>
+                                 <NIP/>
+                                 <REGON/>
+                                 <BirthDate>1975-01-01</BirthDate>
+                                 <Email>esb@localhost</Email>
+                                 <ContactPhone>0221234567</ContactPhone>
+                                 <RequestDate>2009-07-21T15:01:49.854Z</RequestDate>
+                                 <LegalStatus/>
+                                 <SID>NASAUser</SID>
+                                 <AccountId/>
+                                 <CustomerType>Residential</CustomerType>
+                              </rq>
+                           </RegisterMNPRequest>
+                        </parameters>
+                     </message>
+                  </in>
+                  <out>
+                     <message xmlns="">
+                        <parameters>
+                           <RegisterMNPRequestResponse xmlns="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">
+                              <RegisterMNPRequestResult xmlns:atm="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">OK</RegisterMNPRequestResult>
+                           </RegisterMNPRequestResponse>
+                        </parameters>
+                     </message>
+                  </out>
+               </exchange>
+               <exchange>
+                  <type>M</type>
+                  <createTime>2009-07-21T17:02:31.893+02:00</createTime>
+                  <service xmlns:por="http://playmobile.pl/process/mnpm/portIn">por:ExxHandlerUNF</service>
+                  <operation>handleE06</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <request xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <event-E06>
+                                 <promise-portout-list>
+                                    <promise-portout-list-element>
+                                       <event-id>006-100002001071</event-id>
+                                       <event-date>2009-07-21T17:02:24</event-date>
+                                       <case-id>006-100002001075</case-id>
+                                       <dirnum>605400163</dirnum>
+                                       <login>xQSlz9.scCXbiK4u2J_</login>
+                                       <case-termination-date>2008-07-26T12:58:09</case-termination-date>
+                                       <identifier-type>DUR</identifier-type>
+                                       <identifier-value>jt7SNwVWsNosEDmIAR6-Wk</identifier-value>
+                                       <recipient>006</recipient>
+                                       <donor>003</donor>
+                                       <case-document-2-id>Vaha_pjO</case-document-2-id>
+                                       <case-document-2-date>2008-10-19T12:58:09</case-document-2-date>
+                                       <operation>INSERT</operation>
+                                    </promise-portout-list-element>
+                                 </promise-portout-list>
+                              </event-E06>
+                              <Signature xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                           </request>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>M</type>
+                  <createTime>2009-07-21T17:02:58.721+02:00</createTime>
+                  <service xmlns:por="http://playmobile.pl/process/mnpm/portIn">por:ContractObserver</service>
+                  <operation>noticeContractSigned</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <noticeContractSigned xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <contractId>0-6392</contractId>
+                              <caseId>006-100002001075</caseId>
+                              <msisdn>48605400163</msisdn>
+                              <contractDate>2009-01-10</contractDate>
+                              <mixData>
+                                 <contractDate xmlns:sch="http://playmobile.pl/common/mnpm/schema">2009-01-10</contractDate>
+                                 <contractNumber xmlns:sch="http://playmobile.pl/common/mnpm/schema">48605400163</contractNumber>
+                                 <tariff xmlns:sch="http://playmobile.pl/common/mnpm/schema">taryfa</tariff>
+                                 <components xmlns:sch="http://playmobile.pl/common/mnpm/schema">komponenty</components>
+                                 <sim xmlns:sch="http://playmobile.pl/common/mnpm/schema">sim</sim>
+                                 <sid xmlns:sch="http://playmobile.pl/common/mnpm/schema">sid</sid>
+                                 <phoneModel xmlns:sch="http://playmobile.pl/common/mnpm/schema">modelTelefonu</phoneModel>
+                                 <imei xmlns:sch="http://playmobile.pl/common/mnpm/schema">imei</imei>
+                                 <agreements xmlns:sch="http://playmobile.pl/common/mnpm/schema">false</agreements>
+                                 <amount xmlns:sch="http://playmobile.pl/common/mnpm/schema">wielkosc</amount>
+                                 <expirationDate xmlns:sch="http://playmobile.pl/common/mnpm/schema">2009-02-10</expirationDate>
+                                 <password xmlns:sch="http://playmobile.pl/common/mnpm/schema">tajne_haslo</password>
+                              </mixData>
+                              <msisdnTemporary>987654321</msisdnTemporary>
+                              <ccbsAccountId>123</ccbsAccountId>
+                           </noticeContractSigned>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:02:59.620+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:CustomerNotifier</service>
+                  <operation>notifyCustomer</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <notifyCustomer xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <caseId xmlns:sch="http://playmobile.pl/common/mnpm/schema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">006-100002001075</caseId>
+                              <msisdn xmlns:sch="http://playmobile.pl/common/mnpm/schema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">48605400163</msisdn>
+                              <processState>ActivationReminder</processState>
+                           </notifyCustomer>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:02:59.813+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:MwkAdapter</service>
+                  <operation>sendExx</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <request xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <event-E12>
+                                 <contract-list>
+                                    <contract-list-element>
+                                       <event-id>006-100002047519</event-id>
+                                       <event-date>2009-07-21T15:02:58.721Z</event-date>
+                                       <case-id>006-100002001075</case-id>
+                                       <dirnum>605400163</dirnum>
+                                       <login>P4</login>
+                                       <case-pending-activation-date>2009-07-21T15:03:58.721Z</case-pending-activation-date>
+                                       <recipient>006</recipient>
+                                       <donor>003</donor>
+                                       <routing-number>C0106</routing-number>
+                                       <operation>INSERT</operation>
+                                    </contract-list-element>
+                                 </contract-list>
+                              </event-E12>
+                              <Signature xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                           </request>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:03:00.112+02:00</createTime>
+                  <service xmlns:mnp="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">mnp:MNPIntegrationSoap</service>
+                  <operation>RegisterMNPMessage</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <RegisterMNPMessage xmlns:atm="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0" xmlns="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">
+                              <msg xsi:type="K7A" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                 <MNPId>006-100002001075</MNPId>
+                                 <TimeStamp>2009-07-21T15:02:58.721Z</TimeStamp>
+                                 <ContractDate>2009-01-10</ContractDate>
+                                 <ContractNumber>48605400163</ContractNumber>
+                                 <Tariff>taryfa</Tariff>
+                                 <Components>komponenty</Components>
+                                 <SIM>sim</SIM>
+                                 <SID>sid</SID>
+                                 <PhoneModel>modelTelefonu</PhoneModel>
+                                 <IMEI>imei</IMEI>
+                                 <Agreements>false</Agreements>
+                                 <Amount>wielkosc</Amount>
+                                 <ExpirationDate>2009-02-10</ExpirationDate>
+                                 <Password>tajne_haslo</Password>
+                                 <ProcessType>PortInStandard</ProcessType>
+                                 <NewAccountId>123</NewAccountId>
+                                 <TemporaryNumber>987654321</TemporaryNumber>
+                                 <PlayAccountType>Mix</PlayAccountType>
+                              </msg>
+                           </RegisterMNPMessage>
+                        </parameters>
+                     </message>
+                  </in>
+                  <out>
+                     <message xmlns="">
+                        <parameters>
+                           <RegisterMNPMessageResponse xmlns="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">
+                              <RegisterMNPMessageResult xmlns:atm="http://www.atm.com.pl/Atmosfera_P4/MNPIntegration_2_0">OK</RegisterMNPMessageResult>
+                           </RegisterMNPMessageResponse>
+                        </parameters>
+                     </message>
+                  </out>
+               </exchange>
+               <exchange>
+                  <type>M</type>
+                  <createTime>2009-07-21T17:03:30.574+02:00</createTime>
+                  <service xmlns:por="http://playmobile.pl/process/mnpm/portIn">por:ExxHandlerUNF</service>
+                  <operation>handleE13</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <request xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <event-E13>
+                                 <case-extract-list>
+                                    <case-extract-list-element>
+                                       <event-id>006-100002001072</event-id>
+                                       <event-date>2009-07-21T17:03:21</event-date>
+                                       <porting-date>2010-12-15T12:58:09</porting-date>
+                                       <login>DYjTp9EnnN0UD5Kzoc</login>
+                                       <case-id>006-100002001075</case-id>
+                                       <dirnum>605400163</dirnum>
+                                       <recipient>006</recipient>
+                                       <donor>003</donor>
+                                       <routing-number>C0106</routing-number>
+                                       <operation>INSERT</operation>
+                                    </case-extract-list-element>
+                                 </case-extract-list>
+                              </event-E13>
+                              <Signature xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                           </request>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+               <exchange>
+                  <type>P</type>
+                  <createTime>2009-07-21T17:03:30.997+02:00</createTime>
+                  <service xmlns:mnpm="http://playmobile.pl/common/mnpm">mnpm:CaseObserver</service>
+                  <operation>noticeNumberPorted</operation>
+                  <in>
+                     <message xmlns="">
+                        <parameters>
+                           <noticeNumberPorted xmlns:mnps="http://playmobile.pl/common/mnpm/schema" xmlns="http://playmobile.pl/common/mnpm/schema">
+                              <contractId>0-6392</contractId>
+                              <caseId>006-100002001075</caseId>
+                              <msisdn>48605400163</msisdn>
+                              <portingDate>2010-12-15T11:58:09Z</portingDate>
+                           </noticeNumberPorted>
+                        </parameters>
+                     </message>
+                  </in>
+               </exchange>
+            </restoreInstance>
+         </getCommunicationResponse>
+      </getCommunicationResponse>
+   </soap:Body>
+</soap:Envelope>
