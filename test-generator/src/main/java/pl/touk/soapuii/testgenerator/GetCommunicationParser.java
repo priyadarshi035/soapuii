@@ -86,22 +86,22 @@ public class GetCommunicationParser
 			System.out.println(exchangeOperationList.item(i).toString());
 			exchangeList.add(exchangeOperationList.item(i));
 		}
-		for (int i = 0; i < exchangeList.size(); i ++)
-		{
-			Node exchange = (Node) exchangeList.get(i);
-			XPath operationXpath = factory.newXPath();
-			String xpathOperationExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange/operation";
-			NodeList operationList = null;
-			try
-			{
-				operationList = (NodeList) xpath.evaluate(xpathOperationExpr, exchange, XPathConstants.NODESET);
-				int operationListLength = operationList.getLength();
-				System.out.println(operationList.item(0).getNodeName());
-			} catch (XPathExpressionException ex)
-			{
-				throw new UnsupportedOperationException("Not yet implemented");
-			}
-		}
+//		for (int i = 0; i < exchangeList.size(); i ++)
+//		{
+//			Node exchange = (Node) exchangeList.get(i);
+//			XPath operationXpath = factory.newXPath();
+//			String xpathOperationExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange/operation";
+//			NodeList operationList = null;
+//			try
+//			{
+//				operationList = (NodeList) xpath.evaluate(xpathOperationExpr, getComDoc, XPathConstants.NODESET);
+//				int operationListLength = operationList.getLength();
+//				System.out.println(operationList.item(0).getNodeName());
+//			} catch (XPathExpressionException ex)
+//			{
+//				throw new UnsupportedOperationException("Not yet implemented");
+//			}
+//		}
 
 //		throw new UnsupportedOperationException("Not yet implemented");
 	}
