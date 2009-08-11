@@ -9,8 +9,8 @@
 	</parent>
 
 	<groupId>pl.touk</groupId>
-	<artifactId>soapuii-core-tg</artifactId>
-	<name>soapUI - Core 3.0</name>
+	<artifactId>soapuii-tg</artifactId>
+	<name>soapUI - Core 3.0 + TG</name>
 	<url>http://www.soapui.org</url>
 	<build>
 		<plugins>
