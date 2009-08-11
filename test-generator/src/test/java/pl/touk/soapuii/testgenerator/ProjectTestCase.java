@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
  *
  * @author pnw
  */
-@Ignore
+
 public class ProjectTestCase extends XMLTestCase
 {
 	protected boolean quiet = true;

@@ -83,9 +83,30 @@ public class GetCommunicationParser
 		int length = exchangeOperationList.getLength();
 		for( int i = 0; i < length; i++)
 		{
-			System.out.println(exchangeOperationList.item(i).toString());
+			Node exchange = exchangeOperationList.item(i);
+
+			XPath xpathOperation = factory.newXPath();
+			String xpathOperationExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange/operation";
+			NodeList operationList = null;
+			try
+			{
+				operationList = (NodeList) xpathOperation.evaluate(xpathOperationExpr, exchange, XPathConstants.NODESET);
+			} catch (XPathExpressionException ex)
+			{
+				throw new UnsupportedOperationException("Not yet implemented");
+			}
+
+			int operationListLength = operationList.getLength();
+			Node operation = operationList.item(i);
+			String operationContent = operation.getTextContent();
+//			System.out.println(operationContent);
+
+
+//			System.out.println(exchangeOperationList.item(i).toString());
 			exchangeList.add(exchangeOperationList.item(i));
 		}
+
+
 //		for (int i = 0; i < exchangeList.size(); i ++)
 //		{
 //			Node exchange = (Node) exchangeList.get(i);
