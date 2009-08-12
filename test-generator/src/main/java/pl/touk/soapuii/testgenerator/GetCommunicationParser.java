@@ -35,18 +35,20 @@ public class GetCommunicationParser
 	{
 	}
 
-	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<QName, WsdlInterface> bindingMap)
+	public void parseGetCommunications( WsdlTestSuite testSuite, File dir, String listenURI, String outputURI, Map<QName, WsdlInterface> bindingMap)
 	{
 		//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
 		testSuite.setPropertyValue("listenURI", listenURI);
 		testSuite.setPropertyValue("outputURI", outputURI);
 
-		if (file.isDirectory())
-			for( File singleFile : file.listFiles(new ExtFileFilter(".xml")) )
+		if (dir.isDirectory())
+		{
+			for( File singleFile : dir.listFiles(new ExtFileFilter(".xml")) )
 				if (validGetCommunication(singleFile))
 					createTestCase(testSuite, singleFile, bindingMap);
+		}
 		else
-			createTestCase(testSuite, file, bindingMap);
+			createTestCase(testSuite, dir, bindingMap);
 	}
 
 	/*
