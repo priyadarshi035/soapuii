@@ -45,18 +45,17 @@ public class GetCommunicationParser
 		builder = domFactory.newDocumentBuilder();		
 	}
 
-	public void parseGetCommunications( WsdlProject project, File file, String listenURI, String outputURI, Map bindingMap)
+	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map bindingMap)
 	{
-		WsdlTestSuite suite = project.addNewTestSuite(file.getName());
-
-		suite.setPropertyValue("listenURI", listenURI);
-		suite.setPropertyValue("outputURI", outputURI);
+		//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
+		testSuite.setPropertyValue("listenURI", listenURI);
+		testSuite.setPropertyValue("outputURI", outputURI);
 
 		if (file.isDirectory())
 			for( File singleFile : file.listFiles(new ExtFileFilter(".xml")) )
-				createTestCase(suite, singleFile);
+				createTestCase(testSuite, singleFile);
 		else
-			createTestCase(suite, file);
+			createTestCase(testSuite, file);
 	}
 
 	/*

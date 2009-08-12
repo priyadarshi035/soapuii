@@ -12,7 +12,7 @@ import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
  *
  * @author pnw
  */
-public class NewTestCaseTestCase extends ProjectTestCase
+public class NewTestCaseTestCase extends AbstractProjectTestCase
 {
 	public NewTestCaseTestCase(String testName) throws Exception
 	{

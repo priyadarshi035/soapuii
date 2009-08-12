@@ -7,12 +7,18 @@ package pl.touk.soapuii.testgenerator.wsdlbinding;
 
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.iface.Interface;
-import com.eviware.soapui.model.iface.Operation;
+import com.eviware.soapui.model.iface.Request;
+import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.SwingConfigurationDialogImpl;
 import com.eviware.soapui.support.types.StringToStringMap;
+import com.eviware.x.form.XForm;
+import com.eviware.x.form.XFormDialog;
+import com.eviware.x.form.XFormDialogBuilder;
+import com.eviware.x.form.XFormFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -31,8 +37,9 @@ import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
 public class WsdlBindingMapFactory
 {
 	protected final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
+	protected XFormDialog dialog;
 
-	public Map createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
+	public Map<String, Interface> createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
 	{
 		List<String> services = new ArrayList();
 		if (dir.isDirectory())
@@ -41,7 +48,7 @@ public class WsdlBindingMapFactory
 		else
 			services.addAll(parseGetCommunication(project, dir));
 
-		Map result = matchBindings(project.getInterfaceList(), services);
+		Map result = matchBindings(project, services);
 
 		return result;
 	}
@@ -91,22 +98,55 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected Map matchBindings(List<Interface> interfaceList, List<String> services)
+	protected Map<String, Interface> matchBindings(WsdlProject project, List<String> services)
 	{
-		Map result = new HashMap();
-		SwingConfigurationDialogImpl dialog = new SwingConfigurationDialogImpl("Match bindings", null, null, null);
+		List<Interface> interfaceList = project.getInterfaceList();
+		Map<String, Interface> result = new HashMap();
+		//SwingConfigurationDialogImpl dialog = new SwingConfigurationDialogImpl("Match bindings", null, null, null);
 
 		List<PrettyInterface> bindings = new ArrayList();
 		for (Interface binding : interfaceList)
 			//for (Operation operation : binding.getOperationList
 				//operations.add(new PrettyInterface(operation));
 			bindings.add(new PrettyInterface(binding));
-		for(String service : services)
-			dialog.addComboBox(service, bindings.toArray(), "Select binding");
 
-		while (dialog.show(new StringToStringMap()))
+		StringToStringMap values = buildDialog(services, bindings);
+
+		values = dialog.show(values);
+		if( dialog.getReturnValue() == XFormDialog.OK_OPTION )
 		{
+			//Map<String, String> tmpMap = new HashMap();
+
+			Iterator it = values.keySet().iterator();
+			while (it.hasNext())
+			{
+				String key = it.next().toString();
+				String val = values.get(key);
+				result.put(key, project.getInterfaceByName(val));
+			}
 		}
 		return result;
+	}
+
+	protected StringToStringMap buildDialog(List<String> services, List<PrettyInterface> bindings)
+	{
+		StringToStringMap values = new StringToStringMap();
+
+		XFormDialogBuilder builder = XFormFactory.createDialogBuilder( "Match bindings" );
+		XForm form = builder.createForm( "Basic" );
+
+		dialog = builder.buildDialog( builder.buildOkCancelActions(),
+				"Select matching bindings to services", UISupport.OPTIONS_ICON );
+
+		for(String service : services)
+		{
+			form.addComboBox(service, new String[0], "Select binding");
+			values.put( service, bindings.get(0).toString() );
+
+			dialog.setOptions(service, bindings.toArray());
+//			dialog.addComboBox(service, bindings.toArray(), "Select binding");
+//			values.put( service, bindings.get(1).toString() );
+		}
+		return values;
 	}
 }

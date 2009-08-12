@@ -2,6 +2,7 @@ package pl.touk.soapuii.testgenerator;
 
 import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.support.HelpUrls;
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
 import com.eviware.soapui.support.MessageSupport;
@@ -26,7 +27,7 @@ import pl.touk.proxygeneratorapi.Defaults;
  * 
  *
  */
-public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
+public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 {
 	public static final String SOAPUI_ACTION_ID = "GenerateTestsAction";
 	private XFormDialog dialog;
@@ -39,7 +40,7 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
 		super( "Generate Tests", "Generates tests form getCommunication dumps" );
 	}
 
-	public void perform( WsdlProject project, Object param )
+	public void perform( WsdlTestSuite testSuite, Object param )
 	{
 		if( dialog == null )
 		{
@@ -70,16 +71,19 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlProject>
 				String url = dialog.getValue( Form.INITIALCOMMUNICATION ).trim();
 				if( StringUtils.hasContent( url ) )
 				{
-					String expUrl = PathUtils.expandPath( url, project );
+					String expUrl = PathUtils.expandPath( url, testSuite.getProject() );
 					File file = new File (expUrl);
 
 					if( file.exists() )
 					{
 						try
 						{
-							Map bindingMap = new WsdlBindingMapFactory().createBindingMap(project, file);
+							Map bindingMap = new WsdlBindingMapFactory().createBindingMap(testSuite.getProject(), file);
+							if (bindingMap.isEmpty())
+								throw new TestGeneratorException("Empty binding map. Generation failed.");
+							
 							new GetCommunicationParser().parseGetCommunications(
-									project, file, dialog.getValue(Form.LISTENURI),
+									testSuite, file, dialog.getValue(Form.LISTENURI),
 									dialog.getValue(Form.OUTPUTURI), bindingMap);
 						}
 						catch (ParserConfigurationException ex)

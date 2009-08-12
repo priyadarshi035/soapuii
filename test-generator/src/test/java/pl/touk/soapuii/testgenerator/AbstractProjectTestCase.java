@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
  * @author pnw
  */
 
-public class ProjectTestCase extends XMLTestCase
+public abstract class AbstractProjectTestCase extends XMLTestCase
 {
 	protected boolean quiet = true;
 	protected WsdlProject project;
@@ -35,7 +35,7 @@ public class ProjectTestCase extends XMLTestCase
 	protected String xpathResult = "/soapui-project/@name";
 	protected Document expProjectResult = null, result = null;
 
-	public ProjectTestCase(String testName) throws Exception
+	public AbstractProjectTestCase(String testName) throws Exception
 	{
 		super(testName);
 
