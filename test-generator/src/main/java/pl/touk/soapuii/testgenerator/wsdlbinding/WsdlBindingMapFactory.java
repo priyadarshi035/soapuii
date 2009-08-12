@@ -9,7 +9,6 @@ import com.eviware.soapui.impl.WsdlInterfaceFactory;
 import com.eviware.soapui.impl.support.AbstractInterface;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
-import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.types.StringToStringMap;
 import com.eviware.x.form.XForm;
@@ -23,14 +22,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import pl.touk.proxygeneratorapi.URIGetter;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
 import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
+import pl.touk.soapuii.testgenerator.support.GetCommunicationCommons;
 
 
 /**
@@ -79,19 +77,8 @@ public class WsdlBindingMapFactory
 			for (int i = 0; i < services.getLength(); i++)
 			{
 				Node service = services.item(i);
-
-				String serviceNamespace = null;
-				String serviceName = URIGetter.getUriEndingKey(service.getTextContent());
-
-				Matcher matcher = namespacePrefixPattern.matcher(serviceName);
-
-				if (matcher.find())
-				{
-					serviceNamespace =
-						service.getAttributes().getNamedItem("xmlns:" + matcher.group(1)).getNodeValue();
-					serviceName = matcher.group(2);
-				}
-				QName key = new QName(serviceNamespace, serviceName);
+				QName key = GetCommunicationCommons.parseServiceNode(service);
+				
 				result.put(key.toString(), key);
 			}
 		}
