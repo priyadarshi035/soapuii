@@ -10,10 +10,7 @@ import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
-import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
-import com.eviware.soapui.impl.wsdl.teststeps.registry.HttpRequestStepFactory;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
-import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.UISupport;
 import java.io.File;
 import java.io.IOException;
@@ -46,35 +43,46 @@ public class GetCommunicationParser
 
 		if (file.isDirectory())
 			for( File singleFile : file.listFiles(new ExtFileFilter(".xml")) )
-				createTestCase(testSuite, singleFile);
+				createTestCase(testSuite, singleFile, bindingMap);
 		else
-			createTestCase(testSuite, file);
+			createTestCase(testSuite, file, bindingMap);
 	}
 
 	/*
 	 *  parses single getCommunication.xml file to single TestCase. Particular TestSteps are exchanges operation, parsed from getCommunication file. 
 	 */
-	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
+	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
 	{
 		NodeList exchangeList = getExchangeList(getComDoc);
-		CreateTestSteps(testCase, exchangeList, getComDoc);
+		CreateTestSteps(testCase, exchangeList, getComDoc, bindingMap);
 	}
 
-	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
+	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
 	{
 		int exchangeListLength = exchangeList.getLength();
 		for (int i = 0; i < exchangeListLength; i++)
 		{
 			Node exchange = exchangeList.item(i);
 			NodeList operationList = getOperationList(getComDoc);
-			int operationListLength = operationList.getLength();
+			NodeList  serviceList = getService(getComDoc);
 
-			for(int j = 0; j < operationListLength; j++)
-			{
-				Node operation = operationList.item(j);
-				String operationName = operation.getTextContent();
-				createWsdlTestRequestStep(testCase, operationName);
-			}
+			int operationListLength = operationList.getLength();
+			int serviceListLength =serviceList.getLength();
+
+//			for(int j = 0; j < operationListLength; j++)
+//			{
+//				Node operation = operationList.item(j);
+//				Node service = operationList.item(j);
+//
+//				String operationName = operation.getNodeValue();
+//				String serviceName = service.getNodeValue();
+//
+//				QName qN = GetCommunicationCommons.parseServiceNode(service);
+//
+//				WsdlInterface iface = bindingMap.get(qN);
+//				WsdlOperation operation = iface.getOperationByName("CaseRunner");
+//				createWsdlTestRequestStep(testCase, operation, "testStepName");
+//			}
 
 		}
 	}
@@ -98,21 +106,30 @@ public class GetCommunicationParser
 
 	protected NodeList getOperationList(Document exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
-		String xpathOperationExpr = "/exchange/operation";
+		String xpathOperationExpr = "//exchange/operation/text()";
 		NodeList operationList = null;		
 		operationList = SimpleXmlParser.evaluate(xpathOperationExpr, exchange, null);
 
 		return operationList;
 	}
 
-	protected void createTestCase(WsdlTestSuite suite, File singleFile)
+	protected NodeList getService(Document comDoc) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
+	{
+		String xpathServiceExpr = "//exchange/service/text()";
+		NodeList serviceList = null;
+		serviceList = SimpleXmlParser.evaluate(xpathServiceExpr, comDoc, null);
+
+		return serviceList;
+	}
+
+	protected void createTestCase(WsdlTestSuite suite, File singleFile, Map<QName, WsdlInterface> bindingMap)
 	{
 		WsdlTestCase testCase = suite.addNewTestCase(singleFile.getName());
 
 		try
 		{
 			Document doc = SimpleXmlParser.parse(singleFile, false);
-			parseSingleGetCommunication(testCase, doc);
+			parseSingleGetCommunication(testCase, doc, bindingMap);
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
 		{

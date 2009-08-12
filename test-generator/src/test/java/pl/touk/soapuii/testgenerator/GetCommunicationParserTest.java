@@ -16,6 +16,7 @@ import org.junit.*;
  *
  * @author pnw
  */
+@Ignore
 public class GetCommunicationParserTest extends AbstractProjectTestCase
 {
 
