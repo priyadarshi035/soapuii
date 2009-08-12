@@ -21,9 +21,9 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 
 	public GetCommunicationParserTest(String testName) throws Exception
 	{
-		super(testName, "src/test/resources/testFiles/feature 6-soapui.xml");
+		super(testName, "src/test/resources/testFiles/getCommunicationTest-soapui-project.xml");
 		setQuite(false);
-		setExpXpathResult("feature 6");
+		setExpXpathResult("getCommunicationTest");
 	}
 
 	/**
@@ -37,8 +37,8 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 
 		WsdlTestCase case1 = project.addNewTestSuite("suite1").addNewTestCase("case1");
 		
-		WsdlInterface iface = (WsdlInterface) project.getInterfaceAt(0);
-		WsdlOperation operation = iface.getOperationAt(0);
+		WsdlInterface iface = (WsdlInterface) project.getInterfaceByName("CaseRunner");
+		WsdlOperation operation = iface.getOperationByName("createCase");
 		TestStepConfig config = WsdlTestRequestStepFactory.createConfig(operation, "teststep1");
 		case1.addTestStep(config);
 

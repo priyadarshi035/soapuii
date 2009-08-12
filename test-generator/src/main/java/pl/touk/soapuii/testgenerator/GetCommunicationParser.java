@@ -7,6 +7,7 @@ package pl.touk.soapuii.testgenerator;
 
 import com.eviware.soapui.config.TestStepConfig;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
+import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
@@ -72,29 +73,18 @@ public class GetCommunicationParser
 			{
 				Node operation = operationList.item(j);
 				String operationName = operation.getTextContent();
-				WsdlTestStep wTS = this.createWsdlTestRequestStep(testCase, operationName);
-				testCase.addTestStep(wTS.getConfig());
+				createWsdlTestRequestStep(testCase, operationName);
 			}
 
 		}
 	}
 
-	protected WsdlTestStep createWsdlTestRequestStep(WsdlTestCase testCase, String operationName)
+	protected void createWsdlTestRequestStep(WsdlTestCase testCase, WsdlOperation operation, String testStepName)
 	{
-		WsdlTestStep wTS = null;
-		WsdlTestRequestStepFactory wTRSF = new WsdlTestRequestStepFactory();
-		TestStepConfig tSC = wTRSF.createNewTestStep(testCase, operationName);
-		wTS = wTRSF.buildTestStep(testCase, tSC, true);
-		return wTS;
-	}
-
-	protected WsdlTestStep createHttpRequestStep(WsdlTestCase testCase, String operationName)
-	{
-		WsdlTestStep wTS = null;
-		HttpRequestStepFactory hRSF = new HttpRequestStepFactory();
-		TestStepConfig tSC = hRSF.createNewTestStep(testCase, operationName);
-		wTS = hRSF.buildTestStep(testCase, tSC, true);
-		return wTS;
+		//WsdlInterface iface = (WsdlInterface) testSuite.getProject().getInterfaceByName("CaseRunner");
+		//WsdlOperation operation = iface.getOperationByName("createCase");
+		TestStepConfig config = WsdlTestRequestStepFactory.createConfig(operation, testStepName);
+		testCase.addTestStep(config);
 	}
 
 	protected NodeList getExchangeList(Document comDoc) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
