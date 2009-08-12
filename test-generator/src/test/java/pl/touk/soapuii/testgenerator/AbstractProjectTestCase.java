@@ -37,15 +37,19 @@ public abstract class AbstractProjectTestCase extends XMLTestCase
 
 	public AbstractProjectTestCase(String testName) throws Exception
 	{
+		this(testName, "src/test/resources/testFiles/minimal-soapui-project.xml");
+	}
+	public AbstractProjectTestCase(String testName, String projectPath) throws Exception
+	{
 		super(testName);
 
 		XMLUnit.setIgnoreWhitespace(true);
 		XMLUnit.setIgnoreComments(true);
 		XMLUnit.setIgnoreAttributeOrder(true);
 		
-		String str = "src/test/resources/testFiles/minimal-soapui-project.xml";
+		//String str = "src/test/resources/testFiles/minimal-soapui-project.xml";
 
-		project = new WsdlProject( str );
+		project = new WsdlProject( projectPath );
 	}
 
 	public void setQuite(boolean quiet) { this.quiet = quiet; }

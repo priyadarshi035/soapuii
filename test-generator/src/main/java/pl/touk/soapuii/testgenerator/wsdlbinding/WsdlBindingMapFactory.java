@@ -7,9 +7,7 @@ package pl.touk.soapuii.testgenerator.wsdlbinding;
 
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.iface.Interface;
-import com.eviware.soapui.model.iface.Request;
 import com.eviware.soapui.support.UISupport;
-import com.eviware.soapui.support.components.SwingConfigurationDialogImpl;
 import com.eviware.soapui.support.types.StringToStringMap;
 import com.eviware.x.form.XForm;
 import com.eviware.x.form.XFormDialog;
@@ -24,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.namespace.QName;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import pl.touk.proxygeneratorapi.URIGetter;
@@ -40,16 +39,16 @@ public class WsdlBindingMapFactory
 	protected final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
 	protected XFormDialog dialog;
 
-	public Map<BindingMapKey, Interface> createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
+	public Map<QName, Interface> createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
 	{
-		Map<String, BindingMapKey> services = new HashMap();
+		Map<String, QName> services = new HashMap();
 		if (dir.isDirectory())
 			for (File file : dir.listFiles(new ExtFileFilter(".xml")))
 				services.putAll(parseGetCommunication(project, file));
 		else
 			services.putAll(parseGetCommunication(project, dir));
 
-		Map<BindingMapKey, Interface> result = matchBindings(project, services);
+		Map<QName, Interface> result = matchBindings(project, services);
 
 		return result;
 	}
@@ -67,9 +66,9 @@ public class WsdlBindingMapFactory
                   <service xmlns:por="http://playmobile.pl/process/mnpm/portIn">por:CaseRunner-1</service>
 						  */
 
-	protected Map<String, BindingMapKey> parseGetCommunication(WsdlProject project, File file) throws WsdlBindingException
+	protected Map<String, QName> parseGetCommunication(WsdlProject project, File file) throws WsdlBindingException
 	{
-		Map<String, BindingMapKey> result = new HashMap();
+		Map<String, QName> result = new HashMap();
 		try
 		{
 			String serviceXpath = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange/service";
@@ -89,7 +88,7 @@ public class WsdlBindingMapFactory
 						service.getAttributes().getNamedItem("xmlns:" + matcher.group(1)).getNodeValue();
 					serviceName = matcher.group(2);
 				}
-				BindingMapKey key = new BindingMapKey(serviceNamespace, serviceName);
+				QName key = new QName(serviceNamespace, serviceName);
 				result.put(key.toString(), key);
 			}
 		}
@@ -100,10 +99,11 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected Map<BindingMapKey, Interface> matchBindings(WsdlProject project, Map<String, BindingMapKey> services)
+	protected Map<QName, Interface> matchBindings(WsdlProject project, Map<String, QName> services)
 	{
+		//WsdlInterfaceFactory.WSDL_TYPE
 		List<Interface> interfaceList = project.getInterfaceList();
-		Map<BindingMapKey, Interface> result = new HashMap();
+		Map<QName, Interface> result = new HashMap();
 		//SwingConfigurationDialogImpl dialog = new SwingConfigurationDialogImpl("Match bindings", null, null, null);
 
 		List<String> bindings = new ArrayList();

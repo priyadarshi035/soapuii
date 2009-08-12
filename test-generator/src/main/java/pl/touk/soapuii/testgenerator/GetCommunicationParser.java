@@ -16,6 +16,7 @@ import com.eviware.soapui.support.UISupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
@@ -24,7 +25,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
 import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
-import pl.touk.soapuii.testgenerator.wsdlbinding.BindingMapKey;
 
 /**
  *
@@ -36,7 +36,7 @@ public class GetCommunicationParser
 	{
 	}
 
-	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<BindingMapKey, Interface> bindingMap)
+	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<QName, Interface> bindingMap)
 	{
 		//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
 		testSuite.setPropertyValue("listenURI", listenURI);
