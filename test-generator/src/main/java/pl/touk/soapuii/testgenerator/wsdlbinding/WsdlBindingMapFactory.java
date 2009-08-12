@@ -104,11 +104,11 @@ public class WsdlBindingMapFactory
 		Map<String, Interface> result = new HashMap();
 		//SwingConfigurationDialogImpl dialog = new SwingConfigurationDialogImpl("Match bindings", null, null, null);
 
-		List<PrettyInterface> bindings = new ArrayList();
+		List<String> bindings = new ArrayList();
 		for (Interface binding : interfaceList)
 			//for (Operation operation : binding.getOperationList
 				//operations.add(new PrettyInterface(operation));
-			bindings.add(new PrettyInterface(binding));
+			bindings.add(binding.getName());
 
 		StringToStringMap values = buildDialog(services, bindings);
 
@@ -128,7 +128,7 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected StringToStringMap buildDialog(List<String> services, List<PrettyInterface> bindings)
+	protected StringToStringMap buildDialog(List<String> services, List<String> bindings)
 	{
 		StringToStringMap values = new StringToStringMap();
 
@@ -141,7 +141,7 @@ public class WsdlBindingMapFactory
 		for(String service : services)
 		{
 			form.addComboBox(service, new String[0], "Select binding");
-			values.put( service, bindings.get(0).toString() );
+			values.put( service, bindings.get(0) );
 
 			dialog.setOptions(service, bindings.toArray());
 //			dialog.addComboBox(service, bindings.toArray(), "Select binding");
