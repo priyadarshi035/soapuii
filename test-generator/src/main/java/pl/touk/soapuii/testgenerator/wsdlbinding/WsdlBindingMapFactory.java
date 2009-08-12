@@ -137,7 +137,7 @@ public class WsdlBindingMapFactory
 			boolean accept = false;
 			if (obj instanceof String)
 				accept = ((String) obj).toLowerCase().startsWith(value) ||
-						 value.toLowerCase().startsWith((String) obj);
+						 value.startsWith(((String) obj).toLowerCase());
 			return accept;
 		}
 	}
