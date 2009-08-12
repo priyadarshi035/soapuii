@@ -17,6 +17,7 @@ import com.eviware.x.form.XFormDialogBuilder;
 import com.eviware.x.form.XFormFactory;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
@@ -103,7 +106,7 @@ public class WsdlBindingMapFactory
 		for (WsdlInterface binding : wsdlInterfacesList)
 			bindings.add(binding.getName());
 
-		StringToStringMap values = buildDialog(services.keySet(), bindings);
+		StringToStringMap values = buildDialog(services.values(), bindings);
 
 		values = dialog.show(values);
 		if( dialog.getReturnValue() == XFormDialog.OK_OPTION )
@@ -119,7 +122,26 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected StringToStringMap buildDialog(Set<String> services, List<String> bindings)
+	protected class BindingPredicate implements Predicate
+	{
+
+		private String value;
+
+		public BindingPredicate(String value)
+		{
+			this.value = value.toLowerCase();
+		}
+
+		public boolean evaluate(Object obj)
+		{
+			boolean accept = false;
+			if (obj instanceof String)
+				accept = ((String) obj).toLowerCase().startsWith(value);
+			return accept;
+		}
+	}
+
+	protected StringToStringMap buildDialog(Collection<QName> services, List<String> bindings)
 	{
 		StringToStringMap values = new StringToStringMap();
 
@@ -129,12 +151,15 @@ public class WsdlBindingMapFactory
 		dialog = builder.buildDialog( builder.buildOkCancelActions(),
 				"Select matching bindings to services", UISupport.OPTIONS_ICON );
 
-		for(String service : services)
+		for(QName service : services)
 		{
-			form.addComboBox(service, new String[0], "Select binding");
-			values.put( service, bindings.get(0) );
+			form.addComboBox(service.toString(), new String[0], "Select binding");
 
-			dialog.setOptions(service, bindings.toArray());
+			String val = (String) CollectionUtils.find(bindings, new BindingPredicate(service.getLocalPart()));
+			val = val == null ? bindings.get(0) : val;
+			values.put( service.toString(),  val);
+
+			dialog.setOptions(service.toString(), bindings.toArray());
 //			dialog.addComboBox(service, bindings.toArray(), "Select binding");
 //			values.put( service, bindings.get(1).toString() );
 		}
