@@ -43,7 +43,8 @@ public class GetCommunicationParser
 
 		if (file.isDirectory())
 			for( File singleFile : file.listFiles(new ExtFileFilter(".xml")) )
-				createTestCase(testSuite, singleFile, bindingMap);
+				if (validGetCommunication(singleFile))
+					createTestCase(testSuite, singleFile, bindingMap);
 		else
 			createTestCase(testSuite, file, bindingMap);
 	}
@@ -136,6 +137,20 @@ public class GetCommunicationParser
 			UISupport.showErrorMessage("Parsing [" + singleFile.getName() + "] failed: " + ex);
 		}
 		UISupport.select(testCase);
+	}
+
+	protected boolean validGetCommunication(File singleFile)
+	{
+		try
+		{
+			String testXpath = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse";
+			NodeList nodes = SimpleXmlParser.evaluate(testXpath, singleFile, null);
+			return nodes.getLength() == 1;
+		}
+		catch(Exception ex)
+		{
+			return false;
+		}
 	}
 
 }
