@@ -7,18 +7,10 @@ package pl.touk.soapuii.testgenerator;
 import com.eviware.soapui.config.TestStepConfig;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
-import com.eviware.soapui.impl.wsdl.WsdlProject;
-import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
-import com.eviware.soapui.model.iface.Interface;
-import com.eviware.soapui.model.iface.Operation;
 import java.io.File;
-import java.util.Map;
 import org.junit.*;
-import static org.junit.Assert.*;
-import org.w3c.dom.Document;
-import pl.touk.soapuii.testgenerator.wsdlbinding.BindingMapKey;
 
 /**
  *

@@ -5,6 +5,9 @@
 
 package pl.touk.soapuii.testgenerator.wsdlbinding;
 
+import com.eviware.soapui.impl.WsdlInterfaceFactory;
+import com.eviware.soapui.impl.support.AbstractInterface;
+import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.UISupport;
@@ -39,7 +42,7 @@ public class WsdlBindingMapFactory
 	protected final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
 	protected XFormDialog dialog;
 
-	public Map<QName, Interface> createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
+	public Map<QName, WsdlInterface> createBindingMap(WsdlProject project, File dir) throws WsdlBindingException
 	{
 		Map<String, QName> services = new HashMap();
 		if (dir.isDirectory())
@@ -48,7 +51,7 @@ public class WsdlBindingMapFactory
 		else
 			services.putAll(parseGetCommunication(project, dir));
 
-		Map<QName, Interface> result = matchBindings(project, services);
+		Map<QName, WsdlInterface> result = matchBindings(project, services);
 
 		return result;
 	}
@@ -99,17 +102,18 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected Map<QName, Interface> matchBindings(WsdlProject project, Map<String, QName> services)
+	protected Map<QName, WsdlInterface> matchBindings(WsdlProject project, Map<String, QName> services)
 	{
 		//WsdlInterfaceFactory.WSDL_TYPE
-		List<Interface> interfaceList = project.getInterfaceList();
-		Map<QName, Interface> result = new HashMap();
-		//SwingConfigurationDialogImpl dialog = new SwingConfigurationDialogImpl("Match bindings", null, null, null);
+		List<AbstractInterface<?>> interfaceList = project.getInterfaces(WsdlInterfaceFactory.WSDL_TYPE);
+		List<WsdlInterface> wsdlInterfacesList = new ArrayList();
+		for(AbstractInterface iface : interfaceList)
+			wsdlInterfacesList.add((WsdlInterface) iface);
+
+		Map<QName, WsdlInterface> result = new HashMap();
 
 		List<String> bindings = new ArrayList();
-		for (Interface binding : interfaceList)
-			//for (Operation operation : binding.getOperationList
-				//operations.add(new PrettyInterface(operation));
+		for (WsdlInterface binding : wsdlInterfacesList)
 			bindings.add(binding.getName());
 
 		StringToStringMap values = buildDialog(services.keySet(), bindings);
@@ -117,14 +121,12 @@ public class WsdlBindingMapFactory
 		values = dialog.show(values);
 		if( dialog.getReturnValue() == XFormDialog.OK_OPTION )
 		{
-			//Map<String, String> tmpMap = new HashMap();
-
 			Iterator it = values.keySet().iterator();
 			while (it.hasNext())
 			{
 				String key = it.next().toString();
 				String val = values.get(key);
-				result.put(services.get(key), project.getInterfaceByName(val));
+				result.put(services.get(key),(WsdlInterface) project.getInterfaceByName(val));
 			}
 		}
 		return result;

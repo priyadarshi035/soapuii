@@ -6,6 +6,7 @@
 package pl.touk.soapuii.testgenerator;
 
 import com.eviware.soapui.config.TestStepConfig;
+import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
@@ -36,7 +37,7 @@ public class GetCommunicationParser
 	{
 	}
 
-	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<QName, Interface> bindingMap)
+	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<QName, WsdlInterface> bindingMap)
 	{
 		//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
 		testSuite.setPropertyValue("listenURI", listenURI);
