@@ -8,6 +8,7 @@ package pl.touk.soapuii.testgenerator;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.UISupport;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
+import pl.touk.soapuii.testgenerator.wsdlbinding.BindingMapKey;
 
 /**
  *
@@ -45,7 +47,7 @@ public class GetCommunicationParser
 		builder = domFactory.newDocumentBuilder();		
 	}
 
-	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map bindingMap)
+	public void parseGetCommunications( WsdlTestSuite testSuite, File file, String listenURI, String outputURI, Map<BindingMapKey, Interface> bindingMap)
 	{
 		//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
 		testSuite.setPropertyValue("listenURI", listenURI);

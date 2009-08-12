@@ -5,6 +5,7 @@ import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.support.HelpUrls;
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
+import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.MessageSupport;
 import com.eviware.soapui.support.StringUtils;
 import com.eviware.soapui.support.UISupport;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import pl.touk.proxygeneratorapi.Defaults;
+import pl.touk.soapuii.testgenerator.wsdlbinding.BindingMapKey;
 
 /**
  * 
@@ -78,7 +80,7 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 					{
 						try
 						{
-							Map bindingMap = new WsdlBindingMapFactory().createBindingMap(testSuite.getProject(), file);
+							Map<BindingMapKey, Interface> bindingMap = new WsdlBindingMapFactory().createBindingMap(testSuite.getProject(), file);
 							if (bindingMap.isEmpty())
 								throw new TestGeneratorException("Empty binding map. Generation failed.");
 							
