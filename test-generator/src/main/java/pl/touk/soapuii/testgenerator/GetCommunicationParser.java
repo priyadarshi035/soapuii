@@ -6,7 +6,6 @@
 package pl.touk.soapuii.testgenerator;
 
 import com.eviware.soapui.config.TestStepConfig;
-import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
@@ -59,7 +58,7 @@ public class GetCommunicationParser
 		CreateTestSteps(testCase, exchangeList, getComDoc);
 	}
 
-	private void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
+	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException
 	{
 		int exchangeListLength = exchangeList.getLength();
 		for (int i = 0; i < exchangeListLength; i++)
@@ -79,7 +78,7 @@ public class GetCommunicationParser
 		}
 	}
 
-	private WsdlTestStep createWsdlTestRequestStep(WsdlTestCase testCase, String operationName)
+	protected WsdlTestStep createWsdlTestRequestStep(WsdlTestCase testCase, String operationName)
 	{
 		WsdlTestStep wTS = null;
 		WsdlTestRequestStepFactory wTRSF = new WsdlTestRequestStepFactory();
@@ -88,7 +87,7 @@ public class GetCommunicationParser
 		return wTS;
 	}
 
-	private WsdlTestStep createHttpRequestStep(WsdlTestCase testCase, String operationName)
+	protected WsdlTestStep createHttpRequestStep(WsdlTestCase testCase, String operationName)
 	{
 		WsdlTestStep wTS = null;
 		HttpRequestStepFactory hRSF = new HttpRequestStepFactory();
@@ -97,7 +96,7 @@ public class GetCommunicationParser
 		return wTS;
 	}
 
-	private NodeList getExchangeList(Document comDoc) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
+	protected NodeList getExchangeList(Document comDoc) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
 		String xpathExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange";
 		NodeList exchangeList = null;
@@ -106,7 +105,7 @@ public class GetCommunicationParser
 		return exchangeList;
 	}
 
-	private NodeList getOperationList(Document exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
+	protected NodeList getOperationList(Document exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
 		String xpathOperationExpr = "/exchange/operation";
 		NodeList operationList = null;		
