@@ -6,9 +6,46 @@
 	<packaging>pom</packaging>
 	<version>3.0-touk5-SNAPSHOT</version>
 	<name>soapuii-build</name>
-  <modules>
-    <module>soapuii-test-generator</module>
-    <module>soapuii</module>
-    <module>test-generator</module>
-  </modules>
+	<modules>
+		<module>soapuii-test-generator</module>
+		<module>soapuii</module>
+		<module>test-generator</module>
+	</modules>
+	<scm>
+		<connection>scm:git:ssh://top.touk.pl/srv/git/soapuii</connection>
+	</scm>
+
+	<repositories>
+		<repository>
+			<id>don-asf-repository</id>
+			<url>http://people.apache.org/~mrdon/repository/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.1-db-1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.1-db-1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
 </project>

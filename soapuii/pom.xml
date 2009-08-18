@@ -109,9 +109,6 @@
 			<distribution>manual</distribution>
 		</license>
 	</licenses>
-	<scm>
-		<connection>scm:svn:https://top.touk.pl/svn/soapuii/trunk</connection>
-	</scm>
 	<organization>
 		<name>eviware.com</name>
 		<url>http://www.eviware.com</url>

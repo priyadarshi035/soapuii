@@ -44,12 +44,12 @@
 		<dependency>
 			<groupId>pl.touk</groupId>
 			<artifactId>proxy-generator-api</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<version>0.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>pl.touk</groupId>
 			<artifactId>soapuii-core</artifactId>
-			<version>3.0-touk5-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<!--groupId>eviware</groupId>
 			<artifactId>soapui-core</artifactId>
 			<version>3.0-touk4</version-->

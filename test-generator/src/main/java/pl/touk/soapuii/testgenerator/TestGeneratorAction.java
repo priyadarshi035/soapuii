@@ -49,8 +49,8 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		{
 			dialog = ADialogBuilder.buildDialog( Form.class );
 			dialog.setValue( Form.SAMPLE, Boolean.toString( true ) );
-			dialog.setValue( Form.OUTPUTURI, Defaults.outputUri );
-			dialog.setValue( Form.LISTENURI, Defaults.listenUri );
+			dialog.setValue( Form.MOCKURI, Defaults.outputUri );
+			dialog.setValue( Form.ODELISTENURI, Defaults.listenUri );
 			dialog.getFormField( Form.INITIALCOMMUNICATION ).addFormFieldListener( new XFormFieldListener()
 			{
 				public void valueChanged( XFormField sourceField, String newValue, String oldValue )
@@ -86,10 +86,10 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 								throw new TestGeneratorException("Empty binding map. Generation failed.");
 							
 							new GetCommunicationParser().parseGetCommunications(
-									testSuite, file, dialog.getValue(Form.LISTENURI),
-									dialog.getValue(Form.OUTPUTURI), bindingMap);
+									testSuite, file, dialog.getValue(Form.ODELISTENURI),
+									dialog.getValue(Form.MOCKURI), bindingMap);
 						}
-						catch (ParserConfigurationException ex)
+						catch (TestGeneratorException ex)
 						{
 							UISupport.showErrorMessage(ex);
 						}
@@ -117,11 +117,11 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		//@AField( description = "Form.GetCommunication.Description", type = AFieldType.FILE )
 		public final static String INITIALCOMMUNICATION = messages.get( "Form.GetCommunication.Label" );
 
-		@AField( description = "Form.ListenUri.Description", type = AFieldType.STRING )
-		public final static String LISTENURI = messages.get( "Form.ListenUri.Label" );
+		@AField( description = "Form.OdeListenUri.Description", type = AFieldType.STRING )
+		public final static String ODELISTENURI = messages.get( "Form.OdeListenUri.Label" );
 
-		@AField( description = "Form.OutputUri.Description", type = AFieldType.STRING )
-		public final static String OUTPUTURI = messages.get( "Form.OutputUri.Label" );
+		@AField( description = "Form.MockUri.Description", type = AFieldType.STRING )
+		public final static String MOCKURI = messages.get( "Form.MockUri.Label" );
 
 		@AField( description = "Form.Sample.Description", type = AFieldType.BOOLEAN, enabled = false )
 		public final static String SAMPLE = messages.get( "Form.Sample.Label" );
