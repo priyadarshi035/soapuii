@@ -25,6 +25,7 @@ import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
  *
  * @author pnw
  */
+@Ignore
 public class GetCommunicationParserTest extends AbstractProjectTestCase
 {
 

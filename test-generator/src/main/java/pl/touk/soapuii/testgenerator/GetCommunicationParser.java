@@ -25,14 +25,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -50,8 +49,9 @@ public class GetCommunicationParser
 
 	private ArrayList<String> operationNamesList;
 	private HashMap<String, Integer> sameOperationNameCounter;
+	private WsdlTestRequestStep lastParsedRequest = null;
 
-	public GetCommunicationParser() throws ParserConfigurationException
+	public GetCommunicationParser()
 	{
 		operationNamesList = new ArrayList<String>();
 		sameOperationNameCounter = new HashMap<String, Integer>();
@@ -62,10 +62,12 @@ public class GetCommunicationParser
 		try
 		{
 			//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
-			testSuite.setPropertyValue("odeListenURI", odeListenURI);
-			testSuite.setPropertyValue("mockURI", mockURI);
-
-			testSuite.setPropertyValue("mockPort", String.valueOf((new URI(mockURI)).getPort()));
+			//we are parsing string to URI and back to string, to check for any parsing errors, that might occured in future
+			testSuite.setPropertyValue("odeListenURI", (new URI(odeListenURI)).toString() );
+			testSuite.setPropertyValue("odeListenAuthority", (new URI(odeListenURI).getAuthority()));
+			
+			testSuite.setPropertyValue("mockURI", (new URI(mockURI)).toString() );
+			//testSuite.setPropertyValue("mockPort", String.valueOf((new URI(mockURI)).getPort()));
 			if (dir.isDirectory())
 			{
 				for( File singleFile : dir.listFiles(new ExtFileFilter(".xml")) )
@@ -84,13 +86,13 @@ public class GetCommunicationParser
 	/*
 	 *  parses single getCommunication.xml file to single TestCase. Particular TestSteps are exchanges operation, parsed from getCommunication file.
 	 */
-	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException, TestGeneratorException, TransformerConfigurationException, TransformerException
+	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
 	{
 		NodeList exchangeList = getExchangeList(getComDoc);
 		CreateTestSteps(testCase, exchangeList, getComDoc, bindingMap);
 	}
 
-	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException, TestGeneratorException, TransformerConfigurationException, TransformerException
+	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
 	{
 		int exchangeListLength = exchangeList.getLength();
 		for (int i = 0; i < exchangeListLength; i++)
@@ -148,14 +150,32 @@ public class GetCommunicationParser
 				strContent = mock.getMockResponse().getResponseContent();
 			}
 
-			System.err.println("STRING CONTENT");
-//			System.err.println(strContent);
+//			System.err.println("STRING CONTENT");
 
 			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), false);
 
-			IOSupport.printDoc(xmlContent, System.err);
+			//adding soap:header to requests
+			if(roleType.equals("M"))
+			{
+//				<soapenv:Header xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+//					<wsa:To>http://playmobile.pl/process/mnpm/portIn/ExxHandlerUNF/default</wsa:To>
+//					<wsa:Action>null/null/handleE13</wsa:Action>
+//				</soapenv:Header>
+				Element header = (Element) SimpleXmlParser.evaluate("/Envelope/Header", xmlContent, null).item(0);
+				header.setAttribute("xmlns:wsa", "http://schemas.xmlsoap.org/ws/2004/08/addressing");
 
-					
+				Element wsaTo = xmlContent.createElement("wsa:To");
+				wsaTo.appendChild( xmlContent.createTextNode(
+						qName.getNamespaceURI() + "/" + qName.getLocalPart() + "/default"));
+
+				Element wsaAction = xmlContent.createElement("wsa:Action");
+				wsaAction.appendChild(xmlContent.createTextNode("null/null/" + operationName));
+
+				header.appendChild(wsaTo);
+				header.appendChild(wsaAction);
+			}
+
+//			IOSupport.printDoc(xmlContent, System.err);
 //			if(roleType.equals("M"))
 			String xPathDefaultBodyContent = "/Envelope/Body/*[1]";
 //			else
@@ -165,7 +185,7 @@ public class GetCommunicationParser
 			Node bodyNode = SimpleXmlParser.evaluate("/Envelope/Body", xmlContent, null).item(0);
 			if (defaultBodyContent == null)
 			{
-				System.err.println("ops... ");
+//				System.err.println("ops... ");
 				continue;
 			}
 
@@ -182,9 +202,12 @@ public class GetCommunicationParser
 
 			if(roleType.equals("M"))
 			{
-				request.getHttpRequest().setRequestContent(docString);				
-				String endpoint = "${#TestSuite#odeListenUri}/";
-				request.getHttpRequest().setEndpoint(endpoint+qName.getLocalPart());
+				request.getHttpRequest().setRequestContent(docString);
+				//String endpoint = "${#TestSuite#odeListenUri}/";
+				URI odeListnUri = new URI(testCase.getTestSuite().getPropertyValue("odeListenURI"));
+				String endpoint = "http://${#TestSuite#odeListenAuthority}" + odeListnUri.getPath();
+				request.getHttpRequest().setEndpoint(endpoint + qName.getLocalPart() + "/");
+				lastParsedRequest = request;
 			}
 			else
 			{
@@ -200,11 +223,15 @@ public class GetCommunicationParser
 				}
 				String path = mockURI;
 				mock.setPath(path+qName.getLocalPart());
-				mock.setPort(Integer.parseInt(testCase.getTestSuite().getPropertyValue("mockPort")));
+				//testSuite.setPropertyValue("mockPort", ((new URI(mockURI)).getPort()));
+				int port = (new URI(testCase.getTestSuite().getPropertyValue("mockURI"))).getPort();
+				mock.setPort(port);
+				if (lastParsedRequest != null)
+					mock.setStartStep(lastParsedRequest.getName());
 			}
 
 			//defaultBodyContent.setNodeValue("hmmmmm");
-			System.err.println("===============================<<");
+//			System.err.println("===============================<<");
 //			IOSupport.printDoc(xmlContent, System.err);
 
 		}

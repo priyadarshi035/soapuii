@@ -50,7 +50,7 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 			dialog = ADialogBuilder.buildDialog( Form.class );
 			dialog.setValue( Form.SAMPLE, Boolean.toString( true ) );
 			dialog.setValue( Form.MOCKURI, Defaults.outputUri );
-			dialog.setValue( Form.ODELISTENURI, Defaults.listenUri );
+			dialog.setValue( Form.ODELISTENURI, Defaults.listenUri.replace("http://0.0.0.0", "http://localhost") );
 			dialog.getFormField( Form.INITIALCOMMUNICATION ).addFormFieldListener( new XFormFieldListener()
 			{
 				public void valueChanged( XFormField sourceField, String newValue, String oldValue )
