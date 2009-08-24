@@ -138,16 +138,47 @@ public class WsdlGroovyScriptTestStep extends WsdlTestStepWithProperties impleme
 		boolean alreadyLaunchedTestSuite = getTestCase().getTestSuite().getAlreadyLaunched();
 		boolean alreadyLaunchedTestCase = getTestCase().getAlreadyLaunched();
 
-		if (getTestCase().getTestSuite().isRunSuiteStartupInTestCase() == true && alreadyLaunchedTestSuite == false)
+		//condition one: Run TestSuite and TestCase StartupScript and on start of the Groovy Test Step
+		if (getTestCase().getTestSuite().isRunSuiteStartupInTestStep() == true &&
+				getTestCase().getTestSuite().isRunCaseStartupInTestStep() == true &&
+				alreadyLaunchedTestSuite == false &&
+				alreadyLaunchedTestCase == false)
 		{
-			if(alreadyLaunchedTestCase == false)
+			try {
+				getTestCase().getTestSuite().runSetupScript(context);
+				getTestCase().runSetupScript(context, testRunner);
+			} catch (Exception ex) {
+				java.util.logging.Logger.getLogger(WsdlGroovyScriptTestStep.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+
+		//condition two: Run TestSuite and no TestCase StartupScript on start of the Groovy Test Step
+		if (getTestCase().getTestSuite().isRunSuiteStartupInTestStep() == true &&
+				getTestCase().getTestSuite().isRunCaseStartupInTestStep() == false &&
+				alreadyLaunchedTestSuite == false)
+		{
+			try
 			{
-				try {
-					getTestCase().getTestSuite().runSetupScript(context);
-					getTestCase().runSetupScript(context, testRunner);
-				} catch (Exception ex) {
-					java.util.logging.Logger.getLogger(WsdlGroovyScriptTestStep.class.getName()).log(Level.SEVERE, null, ex);
-				}
+				getTestCase().getTestSuite().runSetupScript(context);
+			}
+			catch (Exception ex)
+			{
+				java.util.logging.Logger.getLogger(WsdlGroovyScriptTestStep.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+
+		//condition three: Run TestCase and no TestSuite StartupScript on start of the Groovy Test Step
+		if (getTestCase().getTestSuite().isRunSuiteStartupInTestCase() == false &&
+				getTestCase().getTestSuite().isRunCaseStartupInTestStep() == true &&
+				alreadyLaunchedTestCase == false)
+		{
+			try
+			{
+				getTestCase().runSetupScript(context, testRunner);
+			}
+			catch (Exception ex)
+			{
+				java.util.logging.Logger.getLogger(WsdlGroovyScriptTestStep.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
 

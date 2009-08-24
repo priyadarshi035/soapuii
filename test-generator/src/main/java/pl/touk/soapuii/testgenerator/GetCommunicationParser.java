@@ -13,6 +13,7 @@ import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlMockResponseTestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.SchemaComplianceAssertion;
+import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.XPathContainsAssertion;
 import com.eviware.soapui.impl.wsdl.teststeps.assertions.soap.SoapResponseAssertion;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlMockResponseStepFactory;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
@@ -20,6 +21,7 @@ import com.eviware.soapui.model.testsuite.Assertable;
 import com.eviware.soapui.support.UISupport;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +31,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,11 +49,13 @@ import pl.touk.soapuii.testgenerator.support.GetCommunicationCommons;
 public class GetCommunicationParser
 {
 
+
 //	private ArrayList<String> operationNamesList;
 	private HashMap<WsdlTestCase, ArrayList<String>> testCaseOperataionNamesList;
 //	private HashMap<String, Integer> sameOperationNameCounter;
 	private HashMap<WsdlTestCase, HashMap<String, Integer>> testCaseSameOperationNameCounter;
 
+	private static Logger log = Logger.getLogger(GetCommunicationParser.class);
 	private WsdlTestRequestStep lastParsedRequest = null;
 
 
@@ -114,6 +119,21 @@ public class GetCommunicationParser
 
 			Node bodyContent = getBody(exchange, roleType, operationName).item(0);
 
+
+			//if soapui sends request, suspectedBodyContent is suspected response for this request
+			//if soapui creates mock response, suspectedBodyContent is suspected incomming request
+			Node suspectedBodyContent = roleType.equals("M") ?
+					getBody(exchange, "P", operationName).item(0) :
+					getBody(exchange, "M", operationName).item(0);
+
+//			IOSupport.printNode(bodyContent, System.err);
+
+//			String body = bodyNode.toString();
+
+//			int operationListLength = operationList.getLength();
+//			int serviceListLength = serviceList.getLength();
+//			int typeListLength = typeList.getLength();
+
 			QName qName = GetCommunicationCommons.parseServiceNode(serviceNode);
 
 			WsdlInterface iface = bindingMap.get(qName);
@@ -129,6 +149,9 @@ public class GetCommunicationParser
 				String localOperationName = operationName;
 				request = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				strContent = request.getHttpRequest().getRequestContent();
+
+				addAssertions(request, suspectedBodyContent);
+//				wsdlTestRequestStep.getTestRequest().setRequestContent(body);
 			}
 			else
 			{
@@ -143,6 +166,8 @@ public class GetCommunicationParser
 				mock.getMockResponse().setResponseContent(tempStrContent);
 
 				strContent = mock.getMockResponse().getResponseContent();
+
+				addAssertions(mock, suspectedBodyContent);
 			}
 
 			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), false);
@@ -150,10 +175,6 @@ public class GetCommunicationParser
 			//adding soap:header to requests
 			if(roleType.equals("M"))
 			{
-//				<soapenv:Header xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
-//					<wsa:To>http://playmobile.pl/process/mnpm/portIn/ExxHandlerUNF/default</wsa:To>
-//					<wsa:Action>null/null/handleE13</wsa:Action>
-//				</soapenv:Header>
 				Element header = (Element) SimpleXmlParser.evaluate("/Envelope/Header", xmlContent, null).item(0);
 				header.setAttribute("xmlns:wsa", "http://schemas.xmlsoap.org/ws/2004/08/addressing");
 
@@ -172,11 +193,6 @@ public class GetCommunicationParser
 
 			Node defaultBodyContent = SimpleXmlParser.evaluate(xPathDefaultBodyContent, xmlContent, null).item(0);
 			Node bodyNode = SimpleXmlParser.evaluate("/Envelope/Body", xmlContent, null).item(0);
-			if (defaultBodyContent == null)
-			{
-//				System.err.println("ops... ");
-				continue;
-			}
 
 			String docString = null;
 //			IOSupport.printNode(bodyNode, System.err);
@@ -277,16 +293,6 @@ public class GetCommunicationParser
 		if (step == null)
 			throw new TestGeneratorException("Failed to add TestStep: " + testStepName);
 		
-		step.addAssertion(SoapResponseAssertion.LABEL);//.setDisabled(true);
-		step.addAssertion(SchemaComplianceAssertion.LABEL);//.setDisabled(true);
-		//step.addAssertion("XPath Match");
-//		step.addAssertion(XPathContainsAssertion.LABEL);
-//		XPathContainsAssertion xText = (XPathContainsAssertion) step.getAssertionAt(2);
-//		UISupport.showErrorMessage(xText.getName());
-//		xText.setPath("/test/text()");
-//		xText.setExpectedContent("hhmmm?");
-		//xText.
-
 		return step;
 	}
 
@@ -367,6 +373,43 @@ public class GetCommunicationParser
 		catch(Exception ex)
 		{
 			return false;
+		}
+	}
+
+	protected void addAssertions(Assertable step, Node suspectedBodyContent)
+	{
+		//shit... suspectedBodyContent is with turned off namespace awareness... :/
+		try
+		{
+			File tmpFile = File.createTempFile("xml", null);
+			FileOutputStream fos = new FileOutputStream(tmpFile);
+			IOSupport.printNode(suspectedBodyContent, fos);
+			fos.close();
+			suspectedBodyContent = SimpleXmlParser.parse(tmpFile).getFirstChild();
+			tmpFile.delete();
+
+			step.addAssertion(SoapResponseAssertion.LABEL);//.setDisabled(true);
+			step.addAssertion(SchemaComplianceAssertion.LABEL);//.setDisabled(true);
+			//step.addAssertion("XPath Match");
+			int xpath_counter = 2;
+
+			xPathAssertionsExtractor extractor = new xPathAssertionsExtractor();
+
+			for (xPathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
+			{
+				step.addAssertion(XPathContainsAssertion.LABEL);
+				XPathContainsAssertion xText = (XPathContainsAssertion) step.getAssertionAt(xpath_counter);
+				xText.setName(assertion.getName());
+				//UISupport.showErrorMessage(xText.getName());
+				xText.setPath(assertion.getPath());
+				xText.setExpectedContent(assertion.getExpectedContent());
+				xpath_counter += 1;
+			}
+			//xText.
+		}
+		catch (Exception ex)
+		{
+			log.warn("Failed to add Xpath assertions for: " + step.getModelItem().getName());
 		}
 	}
 

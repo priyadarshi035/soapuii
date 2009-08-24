@@ -61,6 +61,8 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 	public final static String SETUP_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@setupScript";
 	public final static String TEARDOWN_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@tearDownScript";
 	public static final String RUN_SUITE_STARTUP_IN_TEST_CASE  = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_case";
+	public static final String RUN_SUITE_STARTUP_IN_TEST_STEP = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_step";
+	public static final String RUN_CASE_STARTUP_IN_TEST_STEP = WsdlTestCase.class.getName() + "@run_case_startup_in_test_step";
 
 	private final WsdlProject project;
 	private List<WsdlTestCase> testCases = new ArrayList<WsdlTestCase>();
@@ -747,6 +749,30 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 		boolean old = getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
 		getSettings().setBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE, runSuitStartupInTestCase );
 		notifyPropertyChanged( RUN_SUITE_STARTUP_IN_TEST_CASE, old, runSuitStartupInTestCase );
+	}
+
+	public boolean isRunSuiteStartupInTestStep ()
+	{
+		return getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_STEP );
+	}
+
+	public void setRunSuiteStartupInTestStep( boolean runSuitStartupInTestStep )
+	{
+		boolean old = getSettings().getBoolean( RUN_SUITE_STARTUP_IN_TEST_CASE );
+		getSettings().setBoolean( RUN_SUITE_STARTUP_IN_TEST_STEP, runSuitStartupInTestStep );
+		notifyPropertyChanged( RUN_SUITE_STARTUP_IN_TEST_STEP, old, runSuitStartupInTestStep );
+	}
+
+	public boolean isRunCaseStartupInTestStep ()
+	{
+		return getSettings().getBoolean( RUN_CASE_STARTUP_IN_TEST_STEP );
+	}
+
+	public void setRunCaseStartupInTestStep( boolean runCaseStartupInTestStep )
+	{
+		boolean old = getSettings().getBoolean( RUN_CASE_STARTUP_IN_TEST_STEP );
+		getSettings().setBoolean( RUN_CASE_STARTUP_IN_TEST_STEP, runCaseStartupInTestStep );
+		notifyPropertyChanged( RUN_CASE_STARTUP_IN_TEST_STEP, old, runCaseStartupInTestStep );
 	}
 
 	public void setAlreadyLaunched(boolean AlreadyLaunched)

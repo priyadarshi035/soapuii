@@ -47,6 +47,8 @@ public class WsdlTestSuitePanelBuilder<T extends WsdlTestSuite> extends EmptyPan
 
 		table.addProperty( "Name", "name", true );
 		table.addProperty( "Run TestSuite Startup Script On Startup Of TestCase", "runSuiteStartupInTestCase", JPropertiesTable.BOOLEAN_OPTIONS );
+		table.addProperty( "Run TestSuite Startup Script On Startup Of TestStep", "runSuiteStartupInTestStep", JPropertiesTable.BOOLEAN_OPTIONS );
+		table.addProperty( "Run TestCase Startup Script On Startup Of TestStep", "runCaseStartupInTestStep", JPropertiesTable.BOOLEAN_OPTIONS );
 
 		table.setPropertyObject( modelItem );
 
