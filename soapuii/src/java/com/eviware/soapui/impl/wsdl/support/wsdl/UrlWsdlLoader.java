@@ -94,7 +94,7 @@ public class UrlWsdlLoader extends WsdlLoader implements DefinitionLoader
 		return load( getBaseURI() );
 	}
 
-	public synchronized InputStream load( String url ) throws Exception
+	public synchronized InputStream loadUnmodified( String url ) throws Exception
 	{
 		if( !PathUtils.isHttpPath( url ) )
 		{

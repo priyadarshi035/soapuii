@@ -52,6 +52,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.log4j.Logger;
 
 /**
  * Action for creating a new WSDL project
@@ -61,6 +62,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 {
+	private static Logger log = Logger.getLogger(AddWsdlAction.class);
 	public static final String SOAPUI_ACTION_ID = "NewWsdlProjectAction";
 	private XFormDialog dialog;
 
@@ -117,12 +119,11 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 					{
 						for( File singleFile : (Collection<File>) FileUtils.listFiles(wsdl, new String[]{"wsdl"}, true) )
 						{
-							System.err.println("checking: " + singleFile.getPath());
 							if (singleFile.isDirectory())
 								continue;
 							try
 							{
-								System.err.println("importing: " + singleFile.getPath());
+								log.info("importing: " + singleFile.getPath());
 								WsdlInterface[] tmpResults = importWsdl( project, singleFile.getPath() );
 								WsdlInterface[] newResult = new WsdlInterface[results.length + tmpResults.length];
 								System.arraycopy(results, 0, newResult, 0, results.length);
@@ -136,7 +137,10 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 						}
 					}
 					else
+					{
+						log.info("importing: " + expUrl);
 						results = importWsdl( project, expUrl );
+					}
 
 					if( !url.equals( expUrl ) )
 						for( WsdlInterface iface : results )

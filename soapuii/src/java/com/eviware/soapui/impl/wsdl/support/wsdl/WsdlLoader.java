@@ -25,7 +25,6 @@ import com.eviware.soapui.impl.support.definition.support.AbstractDefinitionLoad
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
 import com.eviware.soapui.support.StringUtils;
 import com.eviware.soapui.support.Tools;
-
 /**
  * Abstract WSDLLocator for loading definitions from either URL or cache..
  * 
@@ -40,6 +39,7 @@ public abstract class WsdlLoader extends AbstractDefinitionLoader implements Wsd
 	private String username;
 	private String password;
 	protected static final Logger log = Logger.getLogger( WsdlLoader.class );
+	private WsdlBindingAdder bindingAdder = new WsdlBindingAdderImpl();
 
 	public WsdlLoader( String url )
 	{
@@ -89,7 +89,12 @@ public abstract class WsdlLoader extends AbstractDefinitionLoader implements Wsd
 		}
 	}
 
-	public abstract InputStream load( String url ) throws Exception;
+	public abstract InputStream loadUnmodified( String url ) throws Exception;
+
+	public InputStream load( String url ) throws Exception
+	{
+		return bindingAdder.addBindingToWsdl(loadUnmodified(url));
+	}
 
 	public XmlObject loadXmlObject( String url, XmlOptions options ) throws Exception
 	{
