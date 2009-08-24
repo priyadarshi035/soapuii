@@ -56,6 +56,7 @@ import com.eviware.soapui.support.components.JInspectorPanelFactory;
 import com.eviware.soapui.support.components.JXToolBar;
 import com.eviware.soapui.support.log.JLogList;
 import com.eviware.soapui.ui.support.ModelItemDesktopPanel;
+import java.util.concurrent.Semaphore;
 
 /**
  * DesktopPanel for WsdlGroovyTestSteps
@@ -255,30 +256,39 @@ public class GroovyScriptStepDesktopPanel extends ModelItemDesktopPanel<WsdlGroo
 
 	private class RunAction extends AbstractAction
 	{
+		private Semaphore canRun = new Semaphore(1);
+		
 		private class RunScript extends Thread
 		{
 			public void run()
 			{
-				MockTestRunner mockTestRunner = new MockTestRunner( groovyStep.getTestCase(), logger );
-				statusBar.setIndeterminate( true );
-				WsdlTestStepResult result = ( WsdlTestStepResult )groovyStep.run( mockTestRunner, new MockTestRunContext(
-						mockTestRunner, groovyStep ) );
-				statusBar.setIndeterminate( false );
-
-				Throwable er = result.getError();
-				if( er != null )
+				try
 				{
-					String message = er.getMessage();
+					MockTestRunner mockTestRunner = new MockTestRunner( groovyStep.getTestCase(), logger );
+					statusBar.setIndeterminate( true );
+					WsdlTestStepResult result = ( WsdlTestStepResult )groovyStep.run( mockTestRunner, new MockTestRunContext(
+							mockTestRunner, groovyStep ) );
+					statusBar.setIndeterminate( false );
 
-					// ugly...
-					editor.selectError( message );
+					Throwable er = result.getError();
+					if( er != null )
+					{
+						String message = er.getMessage();
 
-					UISupport.showErrorMessage( er.toString() );
-					editor.requestFocus();
+						// ugly...
+						editor.selectError( message );
+
+						UISupport.showErrorMessage( er.toString() );
+						editor.requestFocus();
+					}
+					else if( result.getMessages().length > 0 )
+					{
+						UISupport.showInfoMessage( StringUtils.join( result.getMessages(), "\n" ) );
+					}
 				}
-				else if( result.getMessages().length > 0 )
+				finally
 				{
-					UISupport.showInfoMessage( StringUtils.join( result.getMessages(), "\n" ) );
+					canRun.release();
 				}
 			}
 		}
@@ -291,7 +301,8 @@ public class GroovyScriptStepDesktopPanel extends ModelItemDesktopPanel<WsdlGroo
 
 		public void actionPerformed( ActionEvent e )
 		{
-			new RunScript().start();
+			if (canRun.tryAcquire())
+				new RunScript().start();
 		}
 	}
 

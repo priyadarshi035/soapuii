@@ -35,6 +35,7 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 	private Binding binding;
 	private Script script;
 	private String scriptText;
+	protected ScriptSaver saver = new ScriptSaver();
 
 	public SoapUIGroovyScriptEngine( ClassLoader parentClassLoader )
 	{
@@ -46,8 +47,39 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 		shell = new GroovyShell( classLoader, binding, config );
 	}
 
+	protected class ScriptSaver
+	{
+		private String text = null;
+		private boolean locked = false;
+		
+		public synchronized void save( String scriptText)
+		{
+			if (locked)
+				text = scriptText;
+			else
+				synchronizedSetScript(scriptText);
+		}
+
+		public synchronized void lockSave()
+		{
+			locked = true;
+		}
+
+		public synchronized void unlockSave()
+		{
+			if (text != null)
+			{
+				synchronizedSetScript(text);
+				text = null;
+			}
+			locked = false;
+		}
+	}
+
 	public synchronized Object run() throws Exception
 	{
+		saver.lockSave();
+
 		if( StringUtils.isNullOrEmpty( scriptText ) )
 			return null;
 
@@ -56,10 +88,14 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 			compile();
 		}
 
-		return script.run();
+		Object result = script.run();
+
+		saver.unlockSave();
+
+		return result;
 	}
 
-	public synchronized void setScript( String scriptText )
+	protected synchronized void synchronizedSetScript( String scriptText )
 	{
 		if( scriptText != null && scriptText.equals( this.scriptText ) )
 			return;
@@ -76,6 +112,20 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 		}
 
 		this.scriptText = scriptText;
+	}
+
+	public void setScript( String scriptText )
+	{
+		saver.save(scriptText);
+	}
+
+	protected synchronized void reset()
+	{
+		saver.lockSave();
+
+		script = null;
+		
+		saver.unlockSave();
 	}
 
 	public void compile() throws Exception
@@ -123,11 +173,6 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 	protected GroovyClassLoader getClassLoader()
 	{
 		return classLoader;
-	}
-
-	protected synchronized void reset()
-	{
-		script = null;
 	}
 
 	protected Script getScript()

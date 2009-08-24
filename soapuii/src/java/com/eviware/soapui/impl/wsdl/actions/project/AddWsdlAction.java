@@ -45,6 +45,13 @@ import com.eviware.x.form.support.ADialogBuilder;
 import com.eviware.x.form.support.AField;
 import com.eviware.x.form.support.AForm;
 import com.eviware.x.form.support.AField.AFieldType;
+import java.io.FileFilter;
+import java.util.Collection;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 
 /**
  * Action for creating a new WSDL project
@@ -99,18 +106,41 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 				if( StringUtils.hasContent( url ) )
 				{
 					String expUrl = PathUtils.expandPath( url, project );
-					if( new File( expUrl ).exists() )
-						url = new File( expUrl ).toURI().toURL().toString();
 
-					WsdlInterface[] results = importWsdl( project, expUrl );
+					File wsdl = new File( expUrl );
+					if( wsdl.exists() )
+						url = wsdl.toURI().toURL().toString();
 
-					if( !url.equals( expUrl ) )
+					WsdlInterface[] results = new WsdlInterface[0];
+
+					if (wsdl.isDirectory())
 					{
-						for( WsdlInterface iface : results )
-				{
-							iface.setDefinition( url, false );
+						for( File singleFile : (Collection<File>) FileUtils.listFiles(wsdl, new String[]{"wsdl"}, true) )
+						{
+							System.err.println("checking: " + singleFile.getPath());
+							if (singleFile.isDirectory())
+								continue;
+							try
+							{
+								System.err.println("importing: " + singleFile.getPath());
+								WsdlInterface[] tmpResults = importWsdl( project, singleFile.getPath() );
+								WsdlInterface[] newResult = new WsdlInterface[results.length + tmpResults.length];
+								System.arraycopy(results, 0, newResult, 0, results.length);
+								System.arraycopy(tmpResults, 0, newResult, results.length, tmpResults.length);
+								results = newResult;
+							}
+							catch(Exception ex)
+							{
+								UISupport.showErrorMessage( ex );
+							}
 						}
 					}
+					else
+						results = importWsdl( project, expUrl );
+
+					if( !url.equals( expUrl ) )
+						for( WsdlInterface iface : results )
+							iface.setDefinition( url, false );
 
 					break;
 				}
@@ -149,7 +179,7 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 	@AForm( name = "Form.Title", description = "Form.Description", helpUrl = HelpUrls.NEWPROJECT_HELP_URL, icon = UISupport.TOOL_ICON_PATH )
 	public interface Form
 	{
-		@AField( description = "Form.InitialWsdl.Description", type = AFieldType.FILE )
+		@AField( description = "Form.InitialWsdl.Description", type = AFieldType.FILE_OR_FOLDER )
 		public final static String INITIALWSDL = messages.get( "Form.InitialWsdl.Label" );
 
 		@AField( description = "Form.CreateRequests.Description", type = AFieldType.BOOLEAN, enabled = false )

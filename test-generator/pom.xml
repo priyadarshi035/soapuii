@@ -30,8 +30,22 @@
 					</excludes>
 				</configuration>
 			</plugin>
-  
-		</plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptor>src/main/assemblies/release.xml</descriptor>
+					<finalName>test-generator-${version}</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib</classpathPrefix>
+							<mainClass>pl.touk.soapuii.testgenerator.TestGeneratorAction</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+  		</plugins>
 	</build>
 
 	<dependencies>

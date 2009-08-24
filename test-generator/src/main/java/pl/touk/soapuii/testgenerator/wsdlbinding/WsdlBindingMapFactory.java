@@ -92,10 +92,13 @@ public class WsdlBindingMapFactory
 		return result;
 	}
 
-	protected Map<QName, WsdlInterface> matchBindings(WsdlProject project, Map<String, QName> services)
+	protected Map<QName, WsdlInterface> matchBindings(WsdlProject project, Map<String, QName> services) throws WsdlBindingException
 	{
 		//WsdlInterfaceFactory.WSDL_TYPE
 		List<AbstractInterface<?>> interfaceList = project.getInterfaces(WsdlInterfaceFactory.WSDL_TYPE);
+		if (interfaceList.size() < 1)
+			throw new WsdlBindingException("There are no WSDL interfaces in current project");
+
 		List<WsdlInterface> wsdlInterfacesList = new ArrayList();
 		for(AbstractInterface iface : interfaceList)
 			wsdlInterfacesList.add((WsdlInterface) iface);
