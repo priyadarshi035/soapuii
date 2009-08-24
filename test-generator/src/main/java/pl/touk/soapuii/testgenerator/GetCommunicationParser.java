@@ -50,6 +50,7 @@ public class GetCommunicationParser
 
 	private ArrayList<String> operationNamesList;
 	private HashMap<String, Integer> sameOperationNameCounter;
+	private static int projectTestCaseCounter = 0;
 
 	public GetCommunicationParser() throws ParserConfigurationException
 	{
@@ -131,13 +132,15 @@ public class GetCommunicationParser
 			String strContent = "";
 			if (roleType.equals("M"))
 			{
-				request = createWsdlTestRequestStep(testCase, operation, operationName);
+				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				request = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				strContent = request.getHttpRequest().getRequestContent();
 //				wsdlTestRequestStep.getTestRequest().setRequestContent(body);
 			}
 			else
 			{
-				WsdlTestRequestStep tempRequest = createWsdlTestRequestStep(testCase, operation, operationName);
+				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				WsdlTestRequestStep tempRequest = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				String tempStrContent = tempRequest.getHttpRequest().getRequestContent();
 				testCase.removeTestStep(tempRequest);
 				operationNamesList.remove(operationNamesList.size()-1);
@@ -307,6 +310,7 @@ public class GetCommunicationParser
 		{
 			Document doc = SimpleXmlParser.parse(singleFile, false);
 			parseSingleGetCommunication(testCase, doc, bindingMap);
+			projectTestCaseCounter++;
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
 		{
