@@ -145,7 +145,7 @@ public class GetCommunicationParser
 				testCase.removeTestStep(tempRequest);
 				operationNamesList.remove(operationNamesList.size()-1);
 				
-				mock = createWsdlMockResponse(testCase, operation, operationName);
+				mock = createWsdlMockResponse(testCase, operation, localOperationName);
 				mock.getMockResponse().setResponseContent(tempStrContent);
 
 				strContent = mock.getMockResponse().getResponseContent();
@@ -309,8 +309,8 @@ public class GetCommunicationParser
 		try
 		{
 			Document doc = SimpleXmlParser.parse(singleFile, false);
-			parseSingleGetCommunication(testCase, doc, bindingMap);
 			projectTestCaseCounter++;
+			parseSingleGetCommunication(testCase, doc, bindingMap);			
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
 		{
