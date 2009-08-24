@@ -10,7 +10,6 @@ import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
-import com.eviware.soapui.impl.wsdl.teststeps.WsdlMessageAssertion;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlMockResponseTestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.SchemaComplianceAssertion;
@@ -19,7 +18,6 @@ import com.eviware.soapui.impl.wsdl.teststeps.assertions.soap.SoapResponseAssert
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlMockResponseStepFactory;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
 import com.eviware.soapui.model.testsuite.Assertable;
-import com.eviware.soapui.model.testsuite.TestAssertion;
 import com.eviware.soapui.support.UISupport;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,8 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -52,24 +48,30 @@ import pl.touk.soapuii.testgenerator.support.GetCommunicationCommons;
  */
 public class GetCommunicationParser
 {
-	private static Logger log = Logger.getLogger(GetCommunicationParser.class);
-	private ArrayList<String> operationNamesList;
-	private HashMap<String, Integer> sameOperationNameCounter;
-	private static int projectTestCaseCounter = 0;
 
+
+//	private ArrayList<String> operationNamesList;
+	private HashMap<WsdlTestCase, ArrayList<String>> testCaseOperataionNamesList;
+//	private HashMap<String, Integer> sameOperationNameCounter;
+	private HashMap<WsdlTestCase, HashMap<String, Integer>> testCaseSameOperationNameCounter;
+
+	private static Logger log = Logger.getLogger(GetCommunicationParser.class);
 	private WsdlTestRequestStep lastParsedRequest = null;
 
 
 	public GetCommunicationParser()
 	{
-		operationNamesList = new ArrayList<String>();
-		sameOperationNameCounter = new HashMap<String, Integer>();
+//		operationNamesList = new ArrayList<String>();
+		testCaseOperataionNamesList = new HashMap<WsdlTestCase, ArrayList<String>>();
+
+		testCaseSameOperationNameCounter = new HashMap<WsdlTestCase, HashMap<String, Integer>>();
 	}
 
 	public void parseGetCommunications( WsdlTestSuite testSuite, File dir, String odeListenURI, String mockURI, Map<QName, WsdlInterface> bindingMap) throws TestGeneratorException
 	{
 		try
 		{
+//			int numberOfTestCases = testSuite.getTestCaseCount();
 			//WsdlTestSuite testSuite = project.addNewTestSuite(file.getName());
 			//we are parsing string to URI and back to string, to check for any parsing errors, that might occured in future
 			testSuite.setPropertyValue("odeListenURI", (new URI(odeListenURI)).toString() );
@@ -81,10 +83,10 @@ public class GetCommunicationParser
 			{
 				for( File singleFile : dir.listFiles(new ExtFileFilter(".xml")) )
 					if (validGetCommunication(singleFile))
-						createTestCase(testSuite, singleFile, bindingMap);
+						createTestCase(testSuite, singleFile, bindingMap);		
 			}
 			else
-				createTestCase(testSuite, dir, bindingMap);
+				createTestCase(testSuite, dir, bindingMap);						
 		}
 		catch (URISyntaxException ex)
 		{
@@ -117,6 +119,7 @@ public class GetCommunicationParser
 
 			Node bodyContent = getBody(exchange, roleType, operationName).item(0);
 
+
 			//if soapui sends request, suspectedBodyContent is suspected response for this request
 			//if soapui creates mock response, suspectedBodyContent is suspected incomming request
 			Node suspectedBodyContent = roleType.equals("M") ?
@@ -136,7 +139,6 @@ public class GetCommunicationParser
 			WsdlInterface iface = bindingMap.get(qName);
 
 			WsdlOperation operation = iface.getOperationByName(operationName);
-//			WsdlOperation operation = iface.getOperationByName(qName.getLocalPart());
 
 			WsdlTestRequestStep request = null;
 			WsdlMockResponseTestStep mock = null;
@@ -144,7 +146,7 @@ public class GetCommunicationParser
 			String strContent = "";
 			if (roleType.equals("M"))
 			{
-				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				String localOperationName = operationName;
 				request = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				strContent = request.getHttpRequest().getRequestContent();
 
@@ -153,11 +155,12 @@ public class GetCommunicationParser
 			}
 			else
 			{
-				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				String localOperationName = operationName;
 				WsdlTestRequestStep tempRequest = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				String tempStrContent = tempRequest.getHttpRequest().getRequestContent();
 				testCase.removeTestStep(tempRequest);
-				operationNamesList.remove(operationNamesList.size()-1);
+				ArrayList<String> thisCaseOperationNamesList = testCaseOperataionNamesList.get(testCase);
+				thisCaseOperationNamesList.remove(thisCaseOperationNamesList.size()-1);
 				
 				mock = createWsdlMockResponse(testCase, operation, localOperationName);
 				mock.getMockResponse().setResponseContent(tempStrContent);
@@ -166,8 +169,6 @@ public class GetCommunicationParser
 
 				addAssertions(mock, suspectedBodyContent);
 			}
-
-//			System.err.println("STRING CONTENT");
 
 			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), false);
 
@@ -188,11 +189,7 @@ public class GetCommunicationParser
 				header.appendChild(wsaAction);
 			}
 
-//			IOSupport.printDoc(xmlContent, System.err);
-//			if(roleType.equals("M"))
 			String xPathDefaultBodyContent = "/Envelope/Body/*[1]";
-//			else
-//				xPathDefaultBodyContent = "/Envelope/Body/"+operationName+"Response";
 
 			Node defaultBodyContent = SimpleXmlParser.evaluate(xPathDefaultBodyContent, xmlContent, null).item(0);
 			Node bodyNode = SimpleXmlParser.evaluate("/Envelope/Body", xmlContent, null).item(0);
@@ -238,10 +235,6 @@ public class GetCommunicationParser
 					mock.setStartStep(lastParsedRequest.getName());
 			}
 
-			//defaultBodyContent.setNodeValue("hmmmmm");
-//			System.err.println("===============================<<");
-//			IOSupport.printDoc(xmlContent, System.err);
-
 		}
 	}
 
@@ -259,18 +252,42 @@ public class GetCommunicationParser
 
 	protected Assertable createWsdlTestStep(WsdlTestCase testCase, WsdlOperation operation, String testStepName, TestStepConfig config) throws TestGeneratorException
 	{
-		if (operationNamesList.contains(testStepName))
+//		int id_case = testCase.getTestSuite().getTestCaseIndex(testCase);
+
+		String tempTestStepName = testStepName;
+		ArrayList<String> tempOperationNamesList = new ArrayList<String>();
+
+		if(!testCaseOperataionNamesList.isEmpty() && (testCaseOperataionNamesList.get(testCase)!= null))
 		{
-			int numberOfSameOperation = sameOperationNameCounter.get(testStepName);
-			testStepName += ("_"+numberOfSameOperation);
-			sameOperationNameCounter.put(testStepName, Integer.valueOf(numberOfSameOperation++));
+			tempOperationNamesList = testCaseOperataionNamesList.get(testCase);
+
+			if (tempOperationNamesList.contains(testStepName))
+			{
+				HashMap<String, Integer> sameOperationNameCounter = testCaseSameOperationNameCounter.get(testCase);
+				int numberOfSameOperation = sameOperationNameCounter.get(testStepName);
+
+				tempTestStepName += ("_"+(numberOfSameOperation-1));
+				numberOfSameOperation++;
+				sameOperationNameCounter.put(testStepName, Integer.valueOf(numberOfSameOperation));
+				testCaseSameOperationNameCounter.put(testCase, sameOperationNameCounter);
+			}
+			else
+			{
+				tempOperationNamesList.add(testStepName);
+				testCaseOperataionNamesList.put(testCase, tempOperationNamesList);
+//				HashMap<String, Integer> sameOperationNameCounter = new HashMap<String, Integer>();
+				testCaseSameOperationNameCounter.get(testCase).put(testStepName, Integer.valueOf(1));
+			}
 		}
 		else
 		{
-			operationNamesList.add(testStepName);
-			sameOperationNameCounter.put(testStepName, Integer.valueOf(1));
+				tempOperationNamesList.add(testStepName);
+				testCaseOperataionNamesList.put(testCase, tempOperationNamesList);
+				HashMap<String, Integer> sameOperationNameCounter = new HashMap<String, Integer>();
+				sameOperationNameCounter.put(testStepName, Integer.valueOf(1));
+				testCaseSameOperationNameCounter.put(testCase, sameOperationNameCounter);
 		}
-		config.setName(testStepName);
+		config.setName(tempTestStepName);
 	
 		Assertable step = (Assertable) testCase.addTestStep(config);
 		if (step == null)
@@ -294,10 +311,8 @@ public class GetCommunicationParser
 		String xpathBodyExpr = null;
 		
 		if (roleType.equals("M"))
-//			xpathBodyExpr = "./in/message/parameters/"+operationName;
 			xpathBodyExpr = "./in/message/parameters/*[1]";
 		else
-//			xpathBodyExpr = "./out/message/parameters/"+operationName+"Response";
 			xpathBodyExpr = "./out/message/parameters/*[1]";
 
 		bodyList = SimpleXmlParser.evaluate(xpathBodyExpr, exchange, null);
@@ -337,8 +352,7 @@ public class GetCommunicationParser
 
 		try
 		{
-			Document doc = SimpleXmlParser.parse(singleFile, false);
-			projectTestCaseCounter++;
+			Document doc = SimpleXmlParser.parse(singleFile, false);			
 			parseSingleGetCommunication(testCase, doc, bindingMap);			
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
