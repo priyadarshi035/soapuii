@@ -13,9 +13,13 @@ import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlMessageAssertion;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlMockResponseTestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequestStep;
+import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.SchemaComplianceAssertion;
+import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.XPathContainsAssertion;
+import com.eviware.soapui.impl.wsdl.teststeps.assertions.soap.SoapResponseAssertion;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlMockResponseStepFactory;
 import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
 import com.eviware.soapui.model.testsuite.Assertable;
+import com.eviware.soapui.model.testsuite.TestAssertion;
 import com.eviware.soapui.support.UISupport;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -268,8 +272,15 @@ public class GetCommunicationParser
 		if (step == null)
 			throw new TestGeneratorException("Failed to add TestStep: " + testStepName);
 		
-		((WsdlMessageAssertion) step.addAssertion("SOAP Response")).setDisabled(true);
-		((WsdlMessageAssertion) step.addAssertion("Schema Compliance")).setDisabled(true);
+		step.addAssertion(SoapResponseAssertion.LABEL);//.setDisabled(true);
+		step.addAssertion(SchemaComplianceAssertion.LABEL);//.setDisabled(true);
+		//step.addAssertion("XPath Match");
+//		step.addAssertion(XPathContainsAssertion.LABEL);
+//		XPathContainsAssertion xText = (XPathContainsAssertion) step.getAssertionAt(2);
+//		UISupport.showErrorMessage(xText.getName());
+//		xText.setPath("/test/text()");
+//		xText.setExpectedContent("hhmmm?");
+		//xText.
 
 		return step;
 	}

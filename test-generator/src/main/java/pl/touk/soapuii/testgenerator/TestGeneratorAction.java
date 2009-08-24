@@ -2,11 +2,9 @@ package pl.touk.soapuii.testgenerator;
 
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
-import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.support.HelpUrls;
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
-import com.eviware.soapui.model.iface.Interface;
 import com.eviware.soapui.support.MessageSupport;
 import com.eviware.soapui.support.StringUtils;
 import com.eviware.soapui.support.UISupport;
@@ -23,12 +21,11 @@ import com.eviware.x.form.support.AField.AFieldType;
 import java.io.File;
 import java.util.Map;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import pl.touk.proxygeneratorapi.Defaults;
 
 /**
  * 
- *
+ * @author pnw
  */
 public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 {
