@@ -53,7 +53,10 @@ public class GetCommunicationParser
 
 	private ArrayList<String> operationNamesList;
 	private HashMap<String, Integer> sameOperationNameCounter;
+	private static int projectTestCaseCounter = 0;
+
 	private WsdlTestRequestStep lastParsedRequest = null;
+
 
 	public GetCommunicationParser()
 	{
@@ -137,18 +140,20 @@ public class GetCommunicationParser
 			String strContent = "";
 			if (roleType.equals("M"))
 			{
-				request = createWsdlTestRequestStep(testCase, operation, operationName);
+				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				request = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				strContent = request.getHttpRequest().getRequestContent();
 //				wsdlTestRequestStep.getTestRequest().setRequestContent(body);
 			}
 			else
 			{
-				WsdlTestRequestStep tempRequest = createWsdlTestRequestStep(testCase, operation, operationName);
+				String localOperationName = projectTestCaseCounter+"_"+operationName;
+				WsdlTestRequestStep tempRequest = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				String tempStrContent = tempRequest.getHttpRequest().getRequestContent();
 				testCase.removeTestStep(tempRequest);
 				operationNamesList.remove(operationNamesList.size()-1);
 				
-				mock = createWsdlMockResponse(testCase, operation, operationName);
+				mock = createWsdlMockResponse(testCase, operation, localOperationName);
 				mock.getMockResponse().setResponseContent(tempStrContent);
 
 				strContent = mock.getMockResponse().getResponseContent();
@@ -344,7 +349,8 @@ public class GetCommunicationParser
 		try
 		{
 			Document doc = SimpleXmlParser.parse(singleFile, false);
-			parseSingleGetCommunication(testCase, doc, bindingMap);
+			projectTestCaseCounter++;
+			parseSingleGetCommunication(testCase, doc, bindingMap);			
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
 		{
