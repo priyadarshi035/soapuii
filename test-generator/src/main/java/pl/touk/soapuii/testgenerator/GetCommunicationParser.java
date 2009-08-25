@@ -67,7 +67,9 @@ public class GetCommunicationParser
 		testCaseSameOperationNameCounter = new HashMap<WsdlTestCase, HashMap<String, Integer>>();
 	}
 
-	public void parseGetCommunications( WsdlTestSuite testSuite, File dir, String odeListenURI, String mockURI, Map<QName, WsdlInterface> bindingMap) throws TestGeneratorException
+	public void parseGetCommunications( 
+			WsdlTestSuite testSuite, File dir, String odeListenURI, String mockURI, Map<QName, WsdlInterface> bindingMap)
+			throws TestGeneratorException
 	{
 		try
 		{
@@ -94,16 +96,35 @@ public class GetCommunicationParser
 		}
 	}
 
+	protected void createTestCase(WsdlTestSuite suite, File singleFile, Map<QName, WsdlInterface> bindingMap)
+	{
+		String testCaseName = singleFile.getName().replaceAll("\\.xml$", "");
+		WsdlTestCase testCase = suite.addNewTestCase(testCaseName);
+
+		try
+		{
+			Document doc = SimpleXmlParser.parse(singleFile, false);
+			parseSingleGetCommunication(testCase, doc, bindingMap);
+		} //Exception should be fine, at least if we dont want to handle some errors other way
+		catch (Exception ex)
+		{
+			UISupport.showErrorMessage("Parsing [" + singleFile.getName() + "] failed: " + ex);
+		}
+		UISupport.select(testCase);
+	}
+
 	/*
 	 *  parses single getCommunication.xml file to single TestCase. Particular TestSteps are exchanges operation, parsed from getCommunication file.
 	 */
-	protected void parseSingleGetCommunication(WsdlTestCase testCase, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
+	protected void parseSingleGetCommunication(
+			WsdlTestCase testCase, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
 	{
 		NodeList exchangeList = getExchangeList(getComDoc);
 		CreateTestSteps(testCase, exchangeList, getComDoc, bindingMap);
 	}
 
-	protected void CreateTestSteps(WsdlTestCase testCase, NodeList exchangeList, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
+	protected void CreateTestSteps(
+			WsdlTestCase testCase, NodeList exchangeList, Document getComDoc, Map<QName, WsdlInterface> bindingMap) throws Exception
 	{
 		int exchangeListLength = exchangeList.getLength();
 		for (int i = 0; i < exchangeListLength; i++)
@@ -238,19 +259,22 @@ public class GetCommunicationParser
 		}
 	}
 
-	protected WsdlMockResponseTestStep createWsdlMockResponse(WsdlTestCase testCase, WsdlOperation operation, String testStepName) throws TestGeneratorException
+	protected WsdlMockResponseTestStep createWsdlMockResponse(
+			WsdlTestCase testCase, WsdlOperation operation, String testStepName) throws TestGeneratorException
 	{		
 		TestStepConfig config = WsdlMockResponseStepFactory.createConfig(operation, false);
 		return (WsdlMockResponseTestStep) createWsdlTestStep(testCase, operation, testStepName, config);
 	}
 
-	protected WsdlTestRequestStep createWsdlTestRequestStep(WsdlTestCase testCase, WsdlOperation operation, String testStepName) throws TestGeneratorException
+	protected WsdlTestRequestStep createWsdlTestRequestStep(
+			WsdlTestCase testCase, WsdlOperation operation, String testStepName) throws TestGeneratorException
 	{
 		TestStepConfig config = WsdlTestRequestStepFactory.createConfig(operation, testStepName);
 		return (WsdlTestRequestStep) createWsdlTestStep(testCase, operation, testStepName, config);
 	}
 
-	protected Assertable createWsdlTestStep(WsdlTestCase testCase, WsdlOperation operation, String testStepName, TestStepConfig config) throws TestGeneratorException
+	protected Assertable createWsdlTestStep(
+			WsdlTestCase testCase, WsdlOperation operation, String testStepName, TestStepConfig config) throws TestGeneratorException
 	{
 //		int id_case = testCase.getTestSuite().getTestCaseIndex(testCase);
 
@@ -345,23 +369,6 @@ public class GetCommunicationParser
 		return serviceList;
 	}
 
-	protected void createTestCase(WsdlTestSuite suite, File singleFile, Map<QName, WsdlInterface> bindingMap)
-	{
-		String testCaseName = singleFile.getName().replaceAll("\\.xml$", "");
-		WsdlTestCase testCase = suite.addNewTestCase(testCaseName);
-
-		try
-		{
-			Document doc = SimpleXmlParser.parse(singleFile, false);			
-			parseSingleGetCommunication(testCase, doc, bindingMap);			
-		} //Exception should be fine, at least if we dont want to handle some errors other way
-		catch (Exception ex)
-		{
-			UISupport.showErrorMessage("Parsing [" + singleFile.getName() + "] failed: " + ex);
-		}
-		UISupport.select(testCase);
-	}
-
 	protected boolean validGetCommunication(File singleFile)
 	{
 		try
@@ -378,9 +385,9 @@ public class GetCommunicationParser
 
 	protected void addAssertions(Assertable step, Node suspectedBodyContent)
 	{
-		//shit... suspectedBodyContent is with turned off namespace awareness... :/
 		try
 		{
+			//shit... suspectedBodyContent is with turned off namespace awareness... :/
 			File tmpFile = File.createTempFile("xml", null);
 			FileOutputStream fos = new FileOutputStream(tmpFile);
 			IOSupport.printNode(suspectedBodyContent, fos);
@@ -390,22 +397,17 @@ public class GetCommunicationParser
 
 			step.addAssertion(SoapResponseAssertion.LABEL);//.setDisabled(true);
 			step.addAssertion(SchemaComplianceAssertion.LABEL);//.setDisabled(true);
-			//step.addAssertion("XPath Match");
-			int xpath_counter = 2;
 
 			xPathAssertionsExtractor extractor = new xPathAssertionsExtractor();
 
 			for (xPathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
 			{
-				step.addAssertion(XPathContainsAssertion.LABEL);
-				XPathContainsAssertion xText = (XPathContainsAssertion) step.getAssertionAt(xpath_counter);
+				XPathContainsAssertion xText = (XPathContainsAssertion) step.addAssertion(XPathContainsAssertion.LABEL);
 				xText.setName(assertion.getName());
-				//UISupport.showErrorMessage(xText.getName());
 				xText.setPath(assertion.getPath());
 				xText.setExpectedContent(assertion.getExpectedContent());
-				xpath_counter += 1;
+				xText.setDisabled(true);
 			}
-			//xText.
 		}
 		catch (Exception ex)
 		{
