@@ -20,16 +20,19 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.HttpState;
 
 import com.eviware.soapui.SoapUI;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.support.AbstractTestRunner;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
 import com.eviware.soapui.model.iface.SubmitContext;
 import com.eviware.soapui.model.testsuite.TestCase;
 import com.eviware.soapui.model.testsuite.TestCaseRunner;
+import com.eviware.soapui.model.testsuite.TestProperty;
 import com.eviware.soapui.model.testsuite.TestRunListener;
 import com.eviware.soapui.model.testsuite.TestStep;
 import com.eviware.soapui.model.testsuite.TestStepResult;
 import com.eviware.soapui.model.testsuite.TestStepResult.TestStepStatus;
 import com.eviware.soapui.support.types.StringToObjectMap;
+import java.util.Map;
 
 /**
  * WSDL TestCase Runner - runs all steps in a testcase and collects performance
@@ -88,6 +91,7 @@ public class WsdlTestCaseRunner extends AbstractTestRunner<WsdlTestCase, WsdlTes
 		}
 
 		boolean alreadyLaunched = testCase.getTestSuite().getAlreadyLaunched();
+
 		if (testCase.getTestSuite().isRunSuiteStartupInTestCase() == true && alreadyLaunched == false)
 		{
 			log.info("flag is true and setup script from TestSuite wasn't already launched");

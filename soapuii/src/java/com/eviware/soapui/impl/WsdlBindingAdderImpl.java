@@ -280,7 +280,7 @@ public class WsdlBindingAdderImpl implements WsdlBindingAdder
 			wsdlPort.setAttribute("name", portName);
 			wsdlPort.setAttribute("binding", ("tns:"+portName));
 				Element soapAddress = wsdlInDocument.createElementNS("http://schemas.xmlsoap.org/wsdl/soap/", "address");
-				soapAddress.setAttribute("location", "http://localhost:${HttpDefaultPort}/service");
+				soapAddress.setAttribute("location", ("http://localhost:${HttpDefaultPort}/service/"+portName));
 			wsdlPort.appendChild(soapAddress);
 
 		wsdlService.appendChild(wsdlPort);

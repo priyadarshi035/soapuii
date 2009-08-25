@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.config.TestStepConfig;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionContainer;
@@ -26,6 +27,7 @@ import com.eviware.soapui.model.support.DefaultTestStepProperty;
 import com.eviware.soapui.model.support.TestStepBeanProperty;
 import com.eviware.soapui.model.testsuite.TestCaseRunContext;
 import com.eviware.soapui.model.testsuite.TestCaseRunner;
+import com.eviware.soapui.model.testsuite.TestProperty;
 import com.eviware.soapui.model.testsuite.TestStepResult;
 import com.eviware.soapui.model.testsuite.TestRunner.Status;
 import com.eviware.soapui.model.testsuite.TestStepResult.TestStepStatus;
@@ -34,6 +36,8 @@ import com.eviware.soapui.support.scripting.SoapUIScriptEngine;
 import com.eviware.soapui.support.scripting.SoapUIScriptEngineRegistry;
 import com.eviware.soapui.support.xml.XmlObjectConfigurationBuilder;
 import com.eviware.soapui.support.xml.XmlObjectConfigurationReader;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -155,6 +159,7 @@ public class WsdlGroovyScriptTestStep extends WsdlTestStepWithProperties impleme
 		//condition two: Run TestSuite and no TestCase StartupScript on start of the Groovy Test Step
 		if (getTestCase().getTestSuite().isRunSuiteStartupInTestStep() == true &&
 				getTestCase().getTestSuite().isRunCaseStartupInTestStep() == false &&
+				alreadyLaunchedTestCase == false &&
 				alreadyLaunchedTestSuite == false)
 		{
 			try
@@ -168,8 +173,9 @@ public class WsdlGroovyScriptTestStep extends WsdlTestStepWithProperties impleme
 		}
 
 		//condition three: Run TestCase and no TestSuite StartupScript on start of the Groovy Test Step
-		if (getTestCase().getTestSuite().isRunSuiteStartupInTestCase() == false &&
+		if (getTestCase().getTestSuite().isRunSuiteStartupInTestStep() == false &&
 				getTestCase().getTestSuite().isRunCaseStartupInTestStep() == true &&
+				alreadyLaunchedTestCase == false &&
 				alreadyLaunchedTestCase == false)
 		{
 			try

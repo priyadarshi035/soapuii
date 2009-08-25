@@ -60,9 +60,9 @@ public class WsdlTestSuite extends AbstractTestPropertyHolderWsdlModelItem<TestS
 {
 	public final static String SETUP_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@setupScript";
 	public final static String TEARDOWN_SCRIPT_PROPERTY = WsdlTestSuite.class.getName() + "@tearDownScript";
-	public static final String RUN_SUITE_STARTUP_IN_TEST_CASE  = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_case";
-	public static final String RUN_SUITE_STARTUP_IN_TEST_STEP = WsdlTestCase.class.getName() + "@run_suite_startup_in_test_step";
-	public static final String RUN_CASE_STARTUP_IN_TEST_STEP = WsdlTestCase.class.getName() + "@run_case_startup_in_test_step";
+	public static final String RUN_SUITE_STARTUP_IN_TEST_CASE  = WsdlTestSuite.class.getName() + "@run_suite_startup_in_test_case";
+	public static final String RUN_SUITE_STARTUP_IN_TEST_STEP = WsdlTestSuite.class.getName() + "@run_suite_startup_in_test_step";
+	public static final String RUN_CASE_STARTUP_IN_TEST_STEP = WsdlTestSuite.class.getName() + "@run_case_startup_in_test_step";
 
 	private final WsdlProject project;
 	private List<WsdlTestCase> testCases = new ArrayList<WsdlTestCase>();
