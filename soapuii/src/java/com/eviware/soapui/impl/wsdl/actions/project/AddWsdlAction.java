@@ -45,13 +45,11 @@ import com.eviware.x.form.support.ADialogBuilder;
 import com.eviware.x.form.support.AField;
 import com.eviware.x.form.support.AForm;
 import com.eviware.x.form.support.AField.AFieldType;
-import java.io.FileFilter;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.log4j.Logger;
 
 /**
  * Action for creating a new WSDL project
@@ -61,6 +59,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 {
+	private static Logger log = Logger.getLogger(AddWsdlAction.class);
 	public static final String SOAPUI_ACTION_ID = "NewWsdlProjectAction";
 	private XFormDialog dialog;
 
@@ -111,32 +110,8 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 					if( wsdl.exists() )
 						url = wsdl.toURI().toURL().toString();
 
-					WsdlInterface[] results = new WsdlInterface[0];
-
-					if (wsdl.isDirectory())
-					{
-						for( File singleFile : (Collection<File>) FileUtils.listFiles(wsdl, new String[]{"wsdl"}, true) )
-						{
-							System.err.println("checking: " + singleFile.getPath());
-							if (singleFile.isDirectory())
-								continue;
-							try
-							{
-								System.err.println("importing: " + singleFile.getPath());
-								WsdlInterface[] tmpResults = importWsdl( project, singleFile.getPath() );
-								WsdlInterface[] newResult = new WsdlInterface[results.length + tmpResults.length];
-								System.arraycopy(results, 0, newResult, 0, results.length);
-								System.arraycopy(tmpResults, 0, newResult, results.length, tmpResults.length);
-								results = newResult;
-							}
-							catch(Exception ex)
-							{
-								UISupport.showErrorMessage( ex );
-							}
-						}
-					}
-					else
-						results = importWsdl( project, expUrl );
+					log.info("importing: " + expUrl);
+					WsdlInterface[] results = importWsdl( project, expUrl );
 
 					if( !url.equals( expUrl ) )
 						for( WsdlInterface iface : results )
@@ -154,8 +129,38 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
 
 	private WsdlInterface[] importWsdl( WsdlProject project, String url ) throws SoapUIException
 	{
-		WsdlInterface[] results = WsdlInterfaceFactory.importWsdl( project, url, dialog.getValue( Form.CREATEREQUEST )
-				.equals( "true" ) );
+		WsdlInterfaceFactory.setIgnoreInterfaces(new HashSet());
+
+		File wsdl = new File(url);
+		WsdlInterface[] results = new WsdlInterface[0];
+		
+		if (wsdl.isDirectory())
+		{
+			for (File singleFile : (Collection<File>) FileUtils.listFiles(wsdl, new String[]{"wsdl"}, true))
+			{
+				if (singleFile.isDirectory())
+					continue;
+				try
+				{
+					log.info("importing: " + singleFile.getPath());
+					WsdlInterface[] tmpResults = WsdlInterfaceFactory.importWsdl(
+							project, singleFile.getPath(), dialog.getValue( Form.CREATEREQUEST ).equals( "true" ) );
+					WsdlInterface[] newResult = new WsdlInterface[results.length + tmpResults.length];
+					System.arraycopy(results, 0, newResult, 0, results.length);
+					System.arraycopy(tmpResults, 0, newResult, results.length, tmpResults.length);
+					results = newResult;
+				} catch (Exception ex)
+				{
+					UISupport.showErrorMessage(ex);
+				}
+			}
+		}
+		else
+			results = WsdlInterfaceFactory.importWsdl( project, url, dialog.getValue( Form.CREATEREQUEST )
+					.equals( "true" ) );
+
+		WsdlInterfaceFactory.setIgnoreInterfaces(null);
+
 		for( WsdlInterface iface : results )
 		{
 			UISupport.select( iface );

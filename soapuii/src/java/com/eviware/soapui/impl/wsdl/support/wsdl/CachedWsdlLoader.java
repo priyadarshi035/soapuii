@@ -58,7 +58,7 @@ public class CachedWsdlLoader extends WsdlLoader
 		this( WsdlUtils.cacheWsdl( new UrlWsdlLoader( PathUtils.expandPath( iface.getDefinition(), iface ), iface ) ) );
 	}
 
-	public InputStream load( String url ) throws Exception
+	public InputStream loadUnmodified( String url ) throws Exception
 	{
 		XmlObject xmlObject = loadXmlObject( url, null );
 		return xmlObject == null ? null : xmlObject.newInputStream();

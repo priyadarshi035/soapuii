@@ -37,6 +37,8 @@ import com.eviware.soapui.impl.wsdl.support.soap.Soap11HttpBindingImporter;
 import com.eviware.soapui.impl.wsdl.support.soap.Soap12HttpBindingImporter;
 import com.eviware.soapui.settings.WsdlSettings;
 import com.eviware.soapui.support.UISupport;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Importer for WsdlInterfaces from WSDL urls / files
@@ -49,6 +51,7 @@ public class WsdlImporter
 	private static List<BindingImporter> bindingImporters = new ArrayList<BindingImporter>();
 	@SuppressWarnings( "unused" )
 	private static WsdlImporter instance;
+	private static Set<String> ignoreIfaces = null;
 
 	private final static Logger log = Logger.getLogger( WsdlImporter.class );
 
@@ -65,6 +68,11 @@ public class WsdlImporter
 		}
 	}
 
+	public static void setIgnoreInterfaces(Set<String> ignoreIfaces)
+	{
+		WsdlImporter.ignoreIfaces = ignoreIfaces;
+	}
+
 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl ) throws Exception
 	{
 		return importWsdl( project, wsdlUrl, null );
@@ -72,13 +80,17 @@ public class WsdlImporter
 
 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl, QName bindingName ) throws Exception
 	{
-		return importWsdl( project, wsdlUrl, bindingName, null );
+		return importWsdl( project, wsdlUrl, bindingName, null);
 	}
 
 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl, QName bindingName,
 			WsdlLoader wsdlLoader ) throws Exception
 	{
+		//importedIfaces - set with names of already imported interfaces. Prevents adding same ifaces multipletimes
+		//when importing multiple wsdls and when some of those imported wsdls imports same super wsdls more then once
+		
 		WsdlContext wsdlContext = new WsdlContext( wsdlUrl );
+
 		if( !wsdlContext.load( wsdlLoader ) )
 		{
 			UISupport.showErrorMessage( "Failed to import WSDL" );
@@ -124,6 +136,9 @@ public class WsdlImporter
 					}
 
 					String ifaceName = getInterfaceNameForBinding( binding );
+					if (skipInterface(ifaceName))
+						continue;
+
 					WsdlInterface ifc = ( WsdlInterface )project.getInterfaceByName( ifaceName );
 					if( ifc != null )
 					{
@@ -192,6 +207,9 @@ public class WsdlImporter
 				else
 				{
 					String ifaceName = getInterfaceNameForBinding( binding );
+					if (skipInterface(ifaceName))
+						continue;
+
 					WsdlInterface ifc = ( WsdlInterface )project.getInterfaceByName( ifaceName );
 					if( ifc != null && result.indexOf( ifc ) == -1 )
 					{
@@ -265,5 +283,23 @@ public class WsdlImporter
 		log.info( "Missing importer for " + binding.getQName() );
 
 		return null;
+	}
+
+	private static boolean skipInterface(String iface)
+	{
+		log.debug("oooo, jednak dziala????????????????????????????");
+		if (ignoreIfaces != null)
+		{
+			if (ignoreIfaces.contains(iface))
+			{
+				log.debug("Skipping [" + iface + "]");
+				return true;
+			}
+			log.debug("Adding [" + iface + "]");
+			ignoreIfaces.add(iface);
+		}
+		else
+			log.debug("ignoreIfaces is not set");
+		return false;
 	}
 }

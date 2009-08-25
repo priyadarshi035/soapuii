@@ -3,7 +3,8 @@
  * and open the template in the editor.
  */
 
-package com.eviware.soapui.impl;
+package com.eviware.soapui.impl.wsdl.support.wsdl;
+import com.eviware.soapui.impl.*;
 import java.io.InputStream;
 
 /**
