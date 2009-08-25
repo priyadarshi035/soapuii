@@ -5,6 +5,7 @@
 
 package com.eviware.soapui.impl;
 
+import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlBindingAdderImpl;
 import com.eviware.soapui.support.xml.XmlUtils;
 import java.io.File;
 import java.io.FileInputStream;

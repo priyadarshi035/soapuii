@@ -29,6 +29,7 @@ import com.eviware.soapui.model.propertyexpansion.DefaultPropertyExpansionContex
 import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionContext;
 import com.eviware.soapui.support.SoapUIException;
+import java.util.Set;
 
 public class WsdlInterfaceFactory implements InterfaceFactory<WsdlInterface>
 {
@@ -49,11 +50,17 @@ public class WsdlInterfaceFactory implements InterfaceFactory<WsdlInterface>
 		return iface;
 	}
 
+	public static void setIgnoreInterfaces(Set<String> ignoreIfaces)
+	{
+		WsdlImporter.setIgnoreInterfaces(ignoreIfaces);
+	}
+	
 	public static WsdlInterface[] importWsdl( WsdlProject project, String url, boolean createRequests )
 			throws SoapUIException
 	{
 		return importWsdl( project, url, createRequests, null, null );
 	}
+
 
 	public static WsdlInterface[] importWsdl( WsdlProject project, String url, boolean createRequests,
 			WsdlLoader wsdlLoader ) throws SoapUIException
