@@ -40,6 +40,11 @@
 		<dependencySet>
 			<unpack>false</unpack>
 			<scope>runtime</scope>
+			<excludes>
+				<exclude>pl.touk:test-generator</exclude>
+			 	<exclude>pl.touk:soapuii-tg</exclude>
+			 	<exclude>pl.touk:proxy-generator-api</exclude>
+			</excludes>
 			<outputDirectory>lib</outputDirectory>
 		</dependencySet>
 	</dependencySets>
