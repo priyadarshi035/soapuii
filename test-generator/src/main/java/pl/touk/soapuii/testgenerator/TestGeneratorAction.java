@@ -80,7 +80,8 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 						{
 							Map<QName, WsdlInterface> bindingMap = new WsdlBindingMapFactory().createBindingMap(testSuite.getProject(), file);
 							if (bindingMap.isEmpty())
-								throw new TestGeneratorException("Empty binding map. Generation failed.");
+								//throw new TestGeneratorException("Empty binding map. Generation failed.");
+								throw new TestGeneratorException("Generation canceled.");
 							
 							new GetCommunicationParser().parseGetCommunications(
 									testSuite, file, dialog.getValue(Form.ODELISTENURI),

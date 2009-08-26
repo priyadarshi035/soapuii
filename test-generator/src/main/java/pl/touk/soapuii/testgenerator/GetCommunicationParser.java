@@ -232,7 +232,10 @@ public class GetCommunicationParser
 				//String endpoint = "${#TestSuite#odeListenUri}/";
 				URI odeListnUri = new URI(testCase.getTestSuite().getPropertyValue("odeListenURI"));
 				String endpoint = "http://${#TestSuite#odeListenAuthority}" + odeListnUri.getPath();
-				request.getHttpRequest().setEndpoint(endpoint + qName.getLocalPart() + "/");
+//				request.getHttpRequest().setEndpoint(endpoint + qName.getLocalPart() + "/");
+				request.getHttpRequest().setEndpoint(
+						endpoint + iface.getBinding().getPortType().getQName().getLocalPart() + "/");
+
 				lastParsedRequest = request;
 			}
 			else
@@ -248,7 +251,8 @@ public class GetCommunicationParser
 					throw new TestGeneratorException(ex.toString(), ex);
 				}
 				String path = mockURI;
-				mock.setPath(path+qName.getLocalPart());
+//				mock.setPath(path+qName.getLocalPart());
+				mock.setPath(path + iface.getBinding().getPortType().getQName().getLocalPart());
 				//testSuite.setPropertyValue("mockPort", ((new URI(mockURI)).getPort()));
 				int port = (new URI(testCase.getTestSuite().getPropertyValue("mockURI"))).getPort();
 				mock.setPort(port);

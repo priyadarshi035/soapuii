@@ -17,13 +17,14 @@ import pl.touk.proxygeneratorapi.URIGetter;
  */
 public class GetCommunicationCommons
 {
-	protected final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(\\w+)");
+	protected final static Pattern namespacePrefixPattern = Pattern.compile("(\\w+):(.+)");
 
 	public static QName parseServiceNode(Node service)
 	{
 		String serviceNamespace = null;
-		String serviceName = URIGetter.getUriEndingKey(service.getTextContent());
-
+//		String serviceName = URIGetter.getUriEndingKey(service.getTextContent());
+		String serviceName = service.getTextContent();
+		
 		Matcher matcher = namespacePrefixPattern.matcher(serviceName);
 
 		if (matcher.find())

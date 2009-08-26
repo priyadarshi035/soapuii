@@ -287,7 +287,6 @@ public class WsdlImporter
 
 	private static boolean skipInterface(String iface)
 	{
-		log.debug("oooo, jednak dziala????????????????????????????");
 		if (ignoreIfaces != null)
 		{
 			if (ignoreIfaces.contains(iface))
@@ -295,7 +294,7 @@ public class WsdlImporter
 				log.debug("Skipping [" + iface + "]");
 				return true;
 			}
-			log.debug("Adding [" + iface + "]");
+			log.debug("Added for further skipping [" + iface + "]");
 			ignoreIfaces.add(iface);
 		}
 		else
