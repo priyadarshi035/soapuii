@@ -10,6 +10,7 @@ import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Class containing some data collected during parsing getCommunication file
@@ -17,6 +18,7 @@ import java.util.List;
  */
 public class GCResult
 {
+	private Logger log = Logger.getLogger(GCResult.class);
 	protected WsdlTestSuite testSuite;
 	protected List<GCTestCase> testCases = new ArrayList();
 
@@ -39,8 +41,17 @@ public class GCResult
 		testCases.add(createTestCase);
 	}
 
-	public Collection<GCXpathAssertion> getXpathAssertionsCollection(WsdlOperation operationFilter, String shortXpath)
+	public Collection<GCXpathAssertion> getXpathAssertionsCollection(WsdlOperation operationFilter, String shortXpathFilter)
 	{
-		throw new UnsupportedOperationException();
+		System.out.println("getXpathAssertionsCollection [" + operationFilter.getName() + "] [" + shortXpathFilter + "]");
+		//log.debug("getXpathAssertionsCollection [" + operationFilter.getName() + "] [" + shortXpathFilter + "]");
+		List<GCXpathAssertion> result = new ArrayList<GCXpathAssertion>();
+		for (GCTestCase testCase : getTestCaseCollection())
+		{
+			log.debug("visiting testCase: [" + testCase + "]");
+			//result.addAll( testCase.getXpathAssertionsCollection(operationFilter, shortXpathFilter) );
+		}
+						
+		return result;
 	}
 }

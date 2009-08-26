@@ -29,9 +29,28 @@ public class GCTestStep
 	{
 		return assertions;
 	}
+	public Collection<GCXpathAssertion> getXpathAssertionsCollection(String shortXpathFilter)
+	{
+		List<GCXpathAssertion> result = new ArrayList<GCXpathAssertion>();
+		for (GCXpathAssertion assertion : getXpathAssertionCollection() )
+			if (assertion.getShortName().equals(shortXpathFilter))
+				result.add(assertion);
+		return result;
+	}
 
 	public void addAssertions(List<GCXpathAssertion> addAssertions)
 	{
 		assertions.addAll(addAssertions);
+	}
+
+	OperationTestStep getOperation()
+	{
+		return step;
+	}
+
+	@Override
+	public String toString()
+	{
+		return step.getName();
 	}
 }

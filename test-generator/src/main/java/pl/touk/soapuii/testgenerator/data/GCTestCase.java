@@ -5,6 +5,7 @@
 
 package pl.touk.soapuii.testgenerator.data;
 
+import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,16 @@ public class GCTestCase
 	{
 		this.testCase = testCase;
 	}
+	public Collection<GCXpathAssertion> getXpathAssertionsCollection(WsdlOperation operationFilter, String shortXpathFilter)
+	{
+		List<GCXpathAssertion> result = new ArrayList<GCXpathAssertion>();
+		for (GCTestStep testStep : getTestStepCollection())
+			if (testStep.getOperation().equals(operationFilter))
+				result.addAll( testStep.getXpathAssertionsCollection(shortXpathFilter) );
+		
+		return result;
+	}
+
 	public Collection<GCTestStep> getTestStepCollection()
 	{
 		return testSteps;
@@ -31,5 +42,11 @@ public class GCTestCase
 	public void addTestSteps(List<GCTestStep> parseSingleGetCommunication)
 	{
 		testSteps.addAll(testSteps);
+	}
+
+	@Override
+	public String toString()
+	{
+		return testCase.toString();
 	}
 }

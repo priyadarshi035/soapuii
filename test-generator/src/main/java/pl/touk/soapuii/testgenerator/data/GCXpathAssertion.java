@@ -25,6 +25,11 @@ public class GCXpathAssertion
 	@Override
 	public String toString()
 	{
+		return getShortName();
+	}
+
+	public String getShortName()
+	{
 		return shortName;
 	}
 }
