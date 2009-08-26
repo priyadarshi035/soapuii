@@ -5,16 +5,33 @@
 
 package pl.touk.soapuii.testgenerator.data;
 
+import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
+import com.eviware.soapui.model.testsuite.OperationTestStep;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
  * @author pnw
  */
-class GCTestStep
+public class GCTestStep
 {
+	protected List<GCXpathAssertion> assertions = new ArrayList<GCXpathAssertion>();
+	protected OperationTestStep step;
+	
+	public GCTestStep(OperationTestStep step)
+	{
+		this.step = step;
+	}
+
 	public Collection<GCXpathAssertion> getXpathAssertionCollection()
 	{
-		throw new UnsupportedOperationException();
+		return assertions;
+	}
+
+	public void addAssertions(List<GCXpathAssertion> addAssertions)
+	{
+		assertions.addAll(addAssertions);
 	}
 }

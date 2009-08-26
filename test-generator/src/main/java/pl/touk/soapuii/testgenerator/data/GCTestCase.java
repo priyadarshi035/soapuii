@@ -5,7 +5,10 @@
 
 package pl.touk.soapuii.testgenerator.data;
 
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -13,8 +16,20 @@ import java.util.Collection;
  */
 public class GCTestCase
 {
-	public Collection<GCTestStep> getTestCaseCollection()
+	protected WsdlTestCase testCase;
+	protected List<GCTestStep> testSteps = new ArrayList<GCTestStep>();
+	
+	public GCTestCase(WsdlTestCase testCase)
 	{
-		throw new UnsupportedOperationException();
+		this.testCase = testCase;
+	}
+	public Collection<GCTestStep> getTestStepCollection()
+	{
+		return testSteps;
+	}
+
+	public void addTestSteps(List<GCTestStep> parseSingleGetCommunication)
+	{
+		testSteps.addAll(testSteps);
 	}
 }
