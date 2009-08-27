@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pl.touk.proxygeneratorapi.support.BasicNamespaceContext;
 import pl.touk.proxygeneratorapi.support.ExtFileFilter;
 import pl.touk.proxygeneratorapi.support.IOSupport;
 import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
@@ -103,7 +104,7 @@ public class GetCommunicationParser
 
 		try
 		{
-			Document doc = SimpleXmlParser.parse(singleFile, false);
+			Document doc = SimpleXmlParser.parse(singleFile, true);
 			parseSingleGetCommunication(testCase, doc, bindingMap);
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
@@ -191,12 +192,12 @@ public class GetCommunicationParser
 				addAssertions(mock, suspectedBodyContent);
 			}
 
-			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), false);
+			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), true);
 
 			//adding soap:header to requests
 			if(roleType.equals("M"))
 			{
-				Element header = (Element) SimpleXmlParser.evaluate("/Envelope/Header", xmlContent, null).item(0);
+				Element header = (Element) SimpleXmlParser.evaluate("/*[local-name()='Envelope']/*[local-name()='Header']", xmlContent, new BasicNamespaceContext()).item(0);
 				header.setAttribute("xmlns:wsa", "http://schemas.xmlsoap.org/ws/2004/08/addressing");
 
 				Element wsaTo = xmlContent.createElement("wsa:To");
@@ -210,10 +211,10 @@ public class GetCommunicationParser
 				header.appendChild(wsaAction);
 			}
 
-			String xPathDefaultBodyContent = "/Envelope/Body/*[1]";
+			String xPathDefaultBodyContent = "/*[local-name()='Envelope']/*[local-name()='Body']/*[1]";
 
-			Node defaultBodyContent = SimpleXmlParser.evaluate(xPathDefaultBodyContent, xmlContent, null).item(0);
-			Node bodyNode = SimpleXmlParser.evaluate("/Envelope/Body", xmlContent, null).item(0);
+			Node defaultBodyContent = SimpleXmlParser.evaluate(xPathDefaultBodyContent, xmlContent, new BasicNamespaceContext()).item(0);
+			Node bodyNode = SimpleXmlParser.evaluate("/*[local-name()='Envelope']/*[local-name()='Body']", xmlContent, new BasicNamespaceContext()).item(0);
 
 			String docString = null;
 //			IOSupport.printNode(bodyNode, System.err);
@@ -326,9 +327,9 @@ public class GetCommunicationParser
 
 	protected NodeList getExchangeList(Document comDoc) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
-		String xpathExpr = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse/restoreInstance/exchange";
+		String xpathExpr = "/*[local-name()='Envelope']/*[local-name()='Body']/*[local-name()='getCommunicationResponse']/*[local-name()='getCommunicationResponse']/*[local-name()='restoreInstance']/*[local-name()='exchange']";
 		NodeList exchangeList = null;
-		exchangeList = SimpleXmlParser.evaluate(xpathExpr, comDoc, null);
+		exchangeList = SimpleXmlParser.evaluate(xpathExpr, comDoc, new BasicNamespaceContext());
 
 		return exchangeList;
 	}
@@ -339,36 +340,36 @@ public class GetCommunicationParser
 		String xpathBodyExpr = null;
 		
 		if (roleType.equals("M"))
-			xpathBodyExpr = "./in/message/parameters/*[1]";
+			xpathBodyExpr = "./*[local-name()='in']/*[local-name()='message']/*[local-name()='parameters']/*[1]";
 		else
-			xpathBodyExpr = "./out/message/parameters/*[1]";
+			xpathBodyExpr = "./*[local-name()='out']/*[local-name()='message']/*[local-name()='parameters']/*[1]";
 
-		bodyList = SimpleXmlParser.evaluate(xpathBodyExpr, exchange, null);
+		bodyList = SimpleXmlParser.evaluate(xpathBodyExpr, exchange, new BasicNamespaceContext());
 		return bodyList;
 	}
 
 	protected NodeList getType(Node exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
-		String xpathTypeExpr = "./type";
+		String xpathTypeExpr = "./*[local-name()='type']";
 		NodeList typeList = null;
-		typeList = SimpleXmlParser.evaluate(xpathTypeExpr, exchange, null);
+		typeList = SimpleXmlParser.evaluate(xpathTypeExpr, exchange, new BasicNamespaceContext());
 		return typeList;
 	}
 
 	protected NodeList getOperation(Node exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
-		String xpathOperationExpr = "./operation";
+		String xpathOperationExpr = "./*[local-name()='operation']";
 		NodeList operationList = null;
-		operationList = SimpleXmlParser.evaluate(xpathOperationExpr, exchange, null);
+		operationList = SimpleXmlParser.evaluate(xpathOperationExpr, exchange, new BasicNamespaceContext());
 
 		return operationList;
 	}
 
 	protected NodeList getService(Node exchange) throws ParserConfigurationException, IOException, IOException, SAXException, XPathExpressionException
 	{
-		String xpathServiceExpr = "./service";
+		String xpathServiceExpr = "./*[local-name()='service']";
 		NodeList serviceList = null;
-		serviceList = SimpleXmlParser.evaluate(xpathServiceExpr, exchange, null);
+		serviceList = SimpleXmlParser.evaluate(xpathServiceExpr, exchange, new BasicNamespaceContext());
 
 		return serviceList;
 	}
@@ -377,8 +378,8 @@ public class GetCommunicationParser
 	{
 		try
 		{
-			String testXpath = "/Envelope/Body/getCommunicationResponse/getCommunicationResponse";
-			NodeList nodes = SimpleXmlParser.evaluate(testXpath, singleFile, null);
+			String testXpath = "/*[local-name()='Envelope']/*[local-name()='Body']/*[local-name()='getCommunicationResponse']/*[local-name()='getCommunicationResponse']";
+			NodeList nodes = SimpleXmlParser.evaluate(testXpath, singleFile, new BasicNamespaceContext());
 			return nodes.getLength() == 1;
 		}
 		catch(Exception ex)
@@ -391,20 +392,23 @@ public class GetCommunicationParser
 	{
 		try
 		{
+			if (suspectedBodyContent.getChildNodes().getLength() < 1)
+				return;
+
 			//shit... suspectedBodyContent is with turned off namespace awareness... :/
 			File tmpFile = File.createTempFile("xml", null);
 			FileOutputStream fos = new FileOutputStream(tmpFile);
 			IOSupport.printNode(suspectedBodyContent, fos);
 			fos.close();
 			suspectedBodyContent = SimpleXmlParser.parse(tmpFile).getFirstChild();
-			tmpFile.delete();
+			//tmpFile.delete();
 
 			step.addAssertion(SoapResponseAssertion.LABEL);//.setDisabled(true);
 			step.addAssertion(SchemaComplianceAssertion.LABEL);//.setDisabled(true);
 
-			xPathAssertionsExtractor extractor = new xPathAssertionsExtractor();
+			XpathAssertionsExtractor extractor = new XpathAssertionsExtractor();
 
-			for (xPathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
+			for (XpathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
 			{
 				XPathContainsAssertion xText = (XPathContainsAssertion) step.addAssertion(XPathContainsAssertion.LABEL);
 				xText.setName(assertion.getName());
@@ -415,6 +419,7 @@ public class GetCommunicationParser
 		}
 		catch (Exception ex)
 		{
+			//log doesnt work :|
 			log.warn("Failed to add Xpath assertions for: " + step.getModelItem().getName());
 		}
 	}

@@ -22,7 +22,7 @@ import org.w3c.dom.Text;
  *
  * @author pnw
  */
-public class xPathAssertionsExtractor
+public class XpathAssertionsExtractor
 {
 	protected static final String defaultNode = "defaultNode";
 	protected Set<String> usedPrefixes = new HashSet<String>();

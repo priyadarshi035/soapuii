@@ -79,20 +79,25 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
 	public synchronized Object run() throws Exception
 	{
 		saver.lockSave();
-
-		if( StringUtils.isNullOrEmpty( scriptText ) )
-			return null;
-
-		if( script == null )
+		try
 		{
-			compile();
+
+			if( StringUtils.isNullOrEmpty( scriptText ) )
+				return null;
+
+			if( script == null )
+			{
+				compile();
+			}
+
+			Object result = script.run();
+
+			return result;
 		}
-
-		Object result = script.run();
-
-		saver.unlockSave();
-
-		return result;
+		finally
+		{
+			saver.unlockSave();
+		}
 	}
 
 	protected synchronized void synchronizedSetScript( String scriptText )
