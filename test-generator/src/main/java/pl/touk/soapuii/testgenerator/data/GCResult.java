@@ -5,11 +5,10 @@
 
 package pl.touk.soapuii.testgenerator.data;
 
-import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.model.iface.Operation;
+import com.eviware.soapui.model.testsuite.TestCase;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -58,11 +57,36 @@ public class GCResult
 		return getXpathAssertions(similarAssertion.getParent().getOperation(), similarAssertion.getShortName());
 	}
 
-	public void setDisabledXpathAssertions(GCXpathAssertion similarAssertion, boolean flag)
+	public void setSimilarXpathAssertions(GCXpathAssertion similarAssertion, GCConfig flag)
 	{
 		Operation operation = similarAssertion.getParent().getOperation();
 		String shortName = similarAssertion.getShortName();
 		for(GCXpathAssertion assertion : getXpathAssertions( operation, shortName) )
-			assertion.setDisabled(flag);
+		{
+			switch(flag.getType())
+			{
+				case DISABLED:
+					assertion.setDisabled(true);
+					break;
+				case STATIC:
+					assertion.setDisabled(false);
+					assertion.setExpcectedContent(flag.getValue());
+					break;
+				case CASE:
+					assertion.setDisabled(false);
+					TestCase testCase = assertion.getParent().getParentWsdlTestCase();
+					if (!testCase.hasProperty(flag.getValue()))
+						testCase.setPropertyValue(flag.getValue(), assertion.getDefaultValue());
+					assertion.setExpcectedContent("${#TestCase#" + flag.getValue() + "}");
+					break;
+				case SUITE:
+					assertion.setDisabled(false);
+					if (!testSuite.hasProperty(flag.getValue()))
+						testSuite.setPropertyValue(flag.getValue(), assertion.getDefaultValue());
+					assertion.setExpcectedContent("${#TestSuite#" + flag.getValue() + "}");
+					break;
+			}
+			
+		}
 	}
 }

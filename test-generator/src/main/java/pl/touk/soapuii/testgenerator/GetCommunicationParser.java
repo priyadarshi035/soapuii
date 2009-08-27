@@ -418,7 +418,7 @@ public class GetCommunicationParser
 				xText.setPath(assertion.getPath());
 				xText.setExpectedContent(assertion.getExpectedContent());
 				xText.setDisabled(true);
-				assertions.add(new GCXpathAssertion(xText, assertion.getShortName(), gcStep));
+				assertions.add(new GCXpathAssertion(xText, assertion.getShortName(), gcStep, assertion.getExpectedContent()));
 			}
 		}
 		catch (Exception ex)

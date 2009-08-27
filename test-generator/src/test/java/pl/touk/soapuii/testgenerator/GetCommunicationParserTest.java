@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 import org.junit.*;
 import org.w3c.dom.Document;
 import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
+import pl.touk.soapuii.testgenerator.data.GCConfig;
 import pl.touk.soapuii.testgenerator.data.GCResult;
 import pl.touk.soapuii.testgenerator.data.GCTestCase;
 import pl.touk.soapuii.testgenerator.data.GCTestStep;
@@ -48,10 +49,10 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 	@Test
 	public void testCreateWsdlTestRequestStep() throws Exception
 	{
-		System.out.println("createTestCase");
+		System.out.println("testCreateWsdlTestRequestStep");
 		File file = new File("src/test/resources/testFiles/");
 
-		WsdlTestSuite suite1 = project.addNewTestSuite("suite1");
+		WsdlTestSuite suite1 = project.addNewTestSuite("suite3");
 		WsdlInterface iface = (WsdlInterface) project.getInterfaceByName("CaseRunner");
 		WsdlOperation operation = iface.getOperationByName("createCase");
 		
@@ -64,13 +65,15 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 		GCResult result = getComParser.parseGetCommunications(suite1, file, "listen_uri", "mock_uri", bindingMap);
 		GCTestCase testCase = result.getTestCases().get(0);
 		GCTestStep step = testCase.getTestSteps().get(0);
-		String fstShortXpath = step.getXpathAssertions().get(0).getShortName();
+		GCXpathAssertion assertion = step.getXpathAssertions().get(0);
 
-		List<GCXpathAssertion> xpaths = result.getXpathAssertions(operation, "/createCaseResponse/caseId");
-//		List<GCXpathAssertion> xpaths = result.getXpathAssertions(step.getOperationStep().getOperation(), fstShortXpath);
+		result.setSimilarXpathAssertions(assertion, new GCConfig(GCConfig.Type.SUITE, "caseId"));
+		result.setSimilarXpathAssertions(step.getXpathAssertions().get(1), new GCConfig(GCConfig.Type.CASE, "msisdn"));
+
+//		List<GCXpathAssertion> xpaths = result.getXpathAssertions(operation, "/createCaseResponse/caseId");
+		List<GCXpathAssertion> xpaths = result.getXpathAssertions(assertion);
 
 		System.out.println("found xpaths: " + xpaths.size());
-
-		performAsserts();
+		project.saveIn(new File("test_project3.xml"));
 	}
 }

@@ -5,9 +5,11 @@
 
 package pl.touk.soapuii.testgenerator.data;
 
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
 import com.eviware.soapui.model.iface.Operation;
 import com.eviware.soapui.model.testsuite.OperationTestStep;
+import com.eviware.soapui.model.testsuite.TestCase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +39,11 @@ public class GCTestStep
 			if (assertion.getShortName().equals(shortXpathFilter))
 				result.add(assertion);
 		return result;
+	}
+
+	public TestCase getParentWsdlTestCase()
+	{
+		return step.getTestCase();
 	}
 
 	public void addAssertions(List<GCXpathAssertion> addAssertions)
