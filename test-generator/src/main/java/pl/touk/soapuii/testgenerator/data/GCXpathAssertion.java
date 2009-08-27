@@ -15,11 +15,18 @@ public class GCXpathAssertion
 {
 	protected XPathContainsAssertion assertion;
 	protected String shortName;
+	protected GCTestStep parent;
 
-	public GCXpathAssertion(XPathContainsAssertion assertion, String shortName)
+	public GCXpathAssertion(XPathContainsAssertion assertion, String shortName, GCTestStep parent)
 	{
+		this.parent = parent;
 		this.assertion = assertion;
 		this.shortName = shortName;
+	}
+
+	public void setDisabled(boolean flag)
+	{
+		assertion.setDisabled(flag);
 	}
 
 	@Override
@@ -32,4 +39,10 @@ public class GCXpathAssertion
 	{
 		return shortName;
 	}
+
+	public GCTestStep getParent()
+	{
+		return parent;
+	}
+
 }

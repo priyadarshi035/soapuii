@@ -6,6 +6,7 @@
 package pl.touk.soapuii.testgenerator.data;
 
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
+import com.eviware.soapui.model.iface.Operation;
 import com.eviware.soapui.model.testsuite.OperationTestStep;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,14 +26,14 @@ public class GCTestStep
 		this.step = step;
 	}
 
-	public Collection<GCXpathAssertion> getXpathAssertionCollection()
+	public List<GCXpathAssertion> getXpathAssertions()
 	{
 		return assertions;
 	}
-	public Collection<GCXpathAssertion> getXpathAssertionsCollection(String shortXpathFilter)
+	public List<GCXpathAssertion> getXpathAssertions(String shortXpathFilter)
 	{
 		List<GCXpathAssertion> result = new ArrayList<GCXpathAssertion>();
-		for (GCXpathAssertion assertion : getXpathAssertionCollection() )
+		for (GCXpathAssertion assertion : getXpathAssertions() )
 			if (assertion.getShortName().equals(shortXpathFilter))
 				result.add(assertion);
 		return result;
@@ -43,7 +44,12 @@ public class GCTestStep
 		assertions.addAll(addAssertions);
 	}
 
-	OperationTestStep getOperation()
+	public Operation getOperation()
+	{
+		return getOperationStep().getOperation();
+	}
+
+	public OperationTestStep getOperationStep()
 	{
 		return step;
 	}

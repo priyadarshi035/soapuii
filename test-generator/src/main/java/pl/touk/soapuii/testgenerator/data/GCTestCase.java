@@ -7,6 +7,7 @@ package pl.touk.soapuii.testgenerator.data;
 
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import com.eviware.soapui.model.iface.Operation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,24 +25,35 @@ public class GCTestCase
 	{
 		this.testCase = testCase;
 	}
-	public Collection<GCXpathAssertion> getXpathAssertionsCollection(WsdlOperation operationFilter, String shortXpathFilter)
+	public List<GCXpathAssertion> getXpathAssertions(Operation operationFilter, String shortXpathFilter)
 	{
 		List<GCXpathAssertion> result = new ArrayList<GCXpathAssertion>();
-		for (GCTestStep testStep : getTestStepCollection())
-			if (testStep.getOperation().equals(operationFilter))
-				result.addAll( testStep.getXpathAssertionsCollection(shortXpathFilter) );
+		for (GCTestStep testStep : getTestSteps())
+		{
+			Operation stepsOperation = testStep.getOperationStep().getOperation();;
+//			System.err.println("filter = " + operationFilter);
+//			System.err.println("comparing to = " + stepsOperation);
+
+			if (stepsOperation.getId().equals(operationFilter.getId()))
+				result.addAll( testStep.getXpathAssertions(shortXpathFilter) );
+		}
 		
 		return result;
 	}
 
-	public Collection<GCTestStep> getTestStepCollection()
+	public List<GCTestStep> getTestSteps()
 	{
 		return testSteps;
 	}
 
-	public void addTestSteps(List<GCTestStep> parseSingleGetCommunication)
+	public void addTestStep(GCTestStep step)
 	{
-		testSteps.addAll(testSteps);
+		testSteps.add(step);
+	}
+	
+	public void addTestSteps(List<GCTestStep> addTestSteps)
+	{
+		testSteps.addAll(addTestSteps);
 	}
 
 	@Override

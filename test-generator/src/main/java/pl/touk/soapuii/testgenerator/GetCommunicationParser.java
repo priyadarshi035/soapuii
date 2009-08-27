@@ -169,6 +169,7 @@ public class GetCommunicationParser
 			WsdlTestRequestStep request = null;
 			WsdlMockResponseTestStep mock = null;
 
+			GCTestStep gcTestStep = null;
 			String strContent = "";
 			if (roleType.equals("M"))
 			{
@@ -176,8 +177,8 @@ public class GetCommunicationParser
 				request = createWsdlTestRequestStep(testCase, operation, localOperationName);
 				strContent = request.getHttpRequest().getRequestContent();
 
-				GCTestStep gcTestStep = new GCTestStep(request);
-				gcTestStep.addAssertions( addAssertions(request, suspectedBodyContent) );
+				gcTestStep = new GCTestStep(request);
+				gcTestStep.addAssertions( addAssertions(gcTestStep, request, suspectedBodyContent) );
 //				wsdlTestRequestStep.getTestRequest().setRequestContent(body);
 			}
 			else
@@ -194,9 +195,10 @@ public class GetCommunicationParser
 
 				strContent = mock.getMockResponse().getResponseContent();
 
-				GCTestStep gcTestStep = new GCTestStep(mock);
-				gcTestStep.addAssertions( addAssertions(mock, suspectedBodyContent) );
+				gcTestStep = new GCTestStep(mock);
+				gcTestStep.addAssertions( addAssertions(gcTestStep, mock, suspectedBodyContent) );
 			}
+			gcTestSteps.add(gcTestStep);
 
 			Document xmlContent = SimpleXmlParser.parse(new ByteArrayInputStream(strContent.getBytes()), false);
 
@@ -391,7 +393,7 @@ public class GetCommunicationParser
 		}
 	}
 
-	protected List<GCXpathAssertion> addAssertions(Assertable step, Node suspectedBodyContent)
+	protected List<GCXpathAssertion> addAssertions(GCTestStep gcStep, Assertable step, Node suspectedBodyContent)
 	{
 		List<GCXpathAssertion> assertions = new ArrayList<GCXpathAssertion>();
 		try
@@ -416,7 +418,7 @@ public class GetCommunicationParser
 				xText.setPath(assertion.getPath());
 				xText.setExpectedContent(assertion.getExpectedContent());
 				xText.setDisabled(true);
-				assertions.add(new GCXpathAssertion(xText, assertion.getShortName()));
+				assertions.add(new GCXpathAssertion(xText, assertion.getShortName(), gcStep));
 			}
 		}
 		catch (Exception ex)

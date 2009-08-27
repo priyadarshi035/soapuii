@@ -16,6 +16,7 @@ import com.eviware.x.form.XFormFactory;
 import com.eviware.x.impl.swing.SwingFormFactory;
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import org.junit.*;
@@ -23,6 +24,7 @@ import org.w3c.dom.Document;
 import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
 import pl.touk.soapuii.testgenerator.data.GCResult;
 import pl.touk.soapuii.testgenerator.data.GCTestCase;
+import pl.touk.soapuii.testgenerator.data.GCTestStep;
 import pl.touk.soapuii.testgenerator.data.GCXpathAssertion;
 import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
 
@@ -30,7 +32,6 @@ import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
  *
  * @author pnw
  */
-@Ignore
 public class GetCommunicationParserTest extends AbstractProjectTestCase
 {
 
@@ -61,10 +62,13 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 
 		GetCommunicationParser getComParser= new GetCommunicationParser();
 		GCResult result = getComParser.parseGetCommunications(suite1, file, "listen_uri", "mock_uri", bindingMap);
-		Collection<GCTestCase> cases = result.getTestCaseCollection();
-		Collection<GCXpathAssertion> xpaths = result.getXpathAssertionsCollection(operation, "/createCaseResponse/msisdn");
+		GCTestCase testCase = result.getTestCases().get(0);
+		GCTestStep step = testCase.getTestSteps().get(0);
+		String fstShortXpath = step.getXpathAssertions().get(0).getShortName();
 
-		System.out.println("found cases: " + cases.size());
+		List<GCXpathAssertion> xpaths = result.getXpathAssertions(operation, "/createCaseResponse/caseId");
+//		List<GCXpathAssertion> xpaths = result.getXpathAssertions(step.getOperationStep().getOperation(), fstShortXpath);
+
 		System.out.println("found xpaths: " + xpaths.size());
 
 		performAsserts();
