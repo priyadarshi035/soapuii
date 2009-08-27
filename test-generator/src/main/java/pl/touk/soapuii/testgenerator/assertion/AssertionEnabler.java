@@ -5,31 +5,19 @@
 
 package pl.touk.soapuii.testgenerator.assertion;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
-import com.eviware.soapui.impl.wsdl.actions.iface.tools.support.SwingToolHost;
-import com.eviware.soapui.impl.wsdl.support.HelpUrls;
 import com.eviware.soapui.support.SoapUIException;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.SwingConfigurationDialogImpl;
 import com.eviware.soapui.support.types.StringToStringMap;
-import com.eviware.x.form.XForm;
-import com.eviware.x.form.XFormDialog;
-import com.eviware.x.form.XFormDialogBuilder;
-import com.eviware.x.form.XFormFactory;
-import com.eviware.x.impl.swing.JTextFieldFormField;
-import com.eviware.x.impl.swing.SwingFormFactory;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -45,6 +33,9 @@ import pl.touk.soapuii.testgenerator.data.GCXpathAssertion;
  */
 public class AssertionEnabler
 {
+
+	protected static int numberOfAssertions = 10;
+
 	protected static WsdlProject project;
 	private SwingConfigurationDialogImpl dialog;
 
@@ -80,11 +71,11 @@ public class AssertionEnabler
 		}
 
 
-		dialog = new SwingConfigurationDialogImpl( "Enable Assertions", HelpUrls.PREFERENCES_HELP_URL,
+		dialog = new SwingConfigurationDialogImpl( "Enable Assertions", "http://top.touk.pl/confluence/display/SUI/Test-generator",
 				"Set set which assertion can be enabled with xpath", UISupport.OPTIONS_ICON );
 
-		dialog.setContent( UISupport.createHorizontalSplit(UISupport.setFixedSize(createTree(), 200, 800), UISupport.setFixedSize(createExchangePane(), 1000, 800)));
-
+//		JPanel panelTemp = createExchangePane(numberOfAssertions);
+		dialog.setContent( UISupport.createHorizontalSplit(UISupport.setFixedSize(createTree(), 200, 200), UISupport.setFixedSize(createExchangePane(numberOfAssertions), 800, 200)));
 
 		dialog.show(values);
 	}
@@ -102,40 +93,52 @@ public class AssertionEnabler
 
 	private JLabel createLabel(String label)
 	{
-		JLabel jlabel = new JLabel(label,JLabel.LEFT);
-		jlabel.setSize(300, 20);
+		JLabel jlabel = new JLabel(label);
+		jlabel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 0));
 		return jlabel;
 	}
 
 	private JTextField createTextField()
 	{
-		JTextField jtext = new JTextField(null, 300);
+		JTextField jtext = new JTextField();
+		jtext.setMinimumSize(new Dimension(300, 0));
+		//jtext.setSize(200, 20);
 
 		return jtext;
 	}
 
-	private JPanel createExchangePane()
+	private JScrollPane createExchangePane(int numberOfAssertions)
 	{
-				
-		JPanel exchangePane = new JPanel();
+//Pa
+		
+		JPanel panel = new JPanel();
 
+		panel.setLayout(new BorderLayout());
+		Box box = Box.createVerticalBox();
+		for (int i = 0; i < 10; i++) {
+			Box sub = Box.createHorizontalBox();
+			sub.setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));
+			//JPanel subPanel = new JPanel();
+			//subPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));
+			//subPanel.setLayout(new BorderLayout());
+			//subPanel.add(sub);
+			sub.add(Box.createHorizontalStrut(20));
+			sub.add(createLabel("hej"+i));
+			sub.add(Box.createHorizontalStrut(20));
+			sub.add(createComboBox());
+			sub.add(Box.createHorizontalStrut(20));
+			sub.add(createTextField());
+			sub.add(Box.createHorizontalStrut(20));
+			box.add(sub);
+		}
+		//box.add(subPanel);
+//		box.add(Box.createVerticalStrut(Integer.MAX_VALUE));
+		panel.add(box);
+		panel.setSize(800, 500);
 
-		exchangePane.add(createLabel("hej"));
-		exchangePane.add(createComboBox());
-		exchangePane.add(createTextField());
+		JScrollPane jScrollPane = new JScrollPane(panel);
 
-
-//		exchangePane = (JPanel) builder.buildDialog( builder.buildOkCancelActions(),
-//				"Select matching bindings to services", UISupport.OPTIONS_ICON );
-//
-//		for(int i = 0; i < 10; i++)
-//		{
-//			String temp = values.get("string"+i);
-//			Object[] ob = {"enable", "disable", "suite", "case"};
-//			form.setOptions(temp, ob);
-//		}
-//		
-		return exchangePane;
+		return jScrollPane;
 	}
 
 	private JButton createNextButton()
@@ -150,15 +153,10 @@ public class AssertionEnabler
 		DefaultMutableTreeNode top =  new DefaultMutableTreeNode("TestGenerator");
 		createNodes(top);
 		tree = new JTree(top);
-
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
 		tree.addTreeSelectionListener(treeSelectionListener);
-
 		tree.setSize(new Dimension(300, 400));
-
 		JScrollPane treeView = new JScrollPane(tree);
-
 
 		return treeView;
 	}
@@ -191,7 +189,7 @@ public class AssertionEnabler
 
 		//Tutorial Continued
 //		testStep = new DefaultMutableTreeNode("Exchange2");
-		testStep = new DefaultMutableTreeNode(new GCXpathAssertion(null, "test"));
+		testStep = new DefaultMutableTreeNode("Exchange2");
 		testCase.add(testStep);
 
 		testCase = new DefaultMutableTreeNode("TestCase2");
