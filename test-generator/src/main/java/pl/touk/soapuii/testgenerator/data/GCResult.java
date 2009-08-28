@@ -62,31 +62,6 @@ public class GCResult
 		Operation operation = similarAssertion.getParent().getOperation();
 		String shortName = similarAssertion.getShortName();
 		for(GCXpathAssertion assertion : getXpathAssertions( operation, shortName) )
-		{
-			switch(flag.getType())
-			{
-				case DISABLED:
-					assertion.setDisabled(true);
-					break;
-				case STATIC:
-					assertion.setDisabled(false);
-					assertion.setExpcectedContent(flag.getValue());
-					break;
-				case CASE:
-					assertion.setDisabled(false);
-					TestCase testCase = assertion.getParent().getParentWsdlTestCase();
-					if (!testCase.hasProperty(flag.getValue()))
-						testCase.setPropertyValue(flag.getValue(), assertion.getDefaultValue());
-					assertion.setExpcectedContent("${#TestCase#" + flag.getValue() + "}");
-					break;
-				case SUITE:
-					assertion.setDisabled(false);
-					if (!testSuite.hasProperty(flag.getValue()))
-						testSuite.setPropertyValue(flag.getValue(), assertion.getDefaultValue());
-					assertion.setExpcectedContent("${#TestSuite#" + flag.getValue() + "}");
-					break;
-			}
-			
-		}
+			assertion.setConfig(flag);
 	}
 }

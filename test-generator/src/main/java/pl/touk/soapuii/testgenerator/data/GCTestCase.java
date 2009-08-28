@@ -59,6 +59,6 @@ public class GCTestCase
 	@Override
 	public String toString()
 	{
-		return testCase.toString();
+		return testCase.getName();
 	}
 }

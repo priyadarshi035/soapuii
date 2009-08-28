@@ -10,6 +10,7 @@ import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStep;
 import com.eviware.soapui.model.iface.Operation;
 import com.eviware.soapui.model.testsuite.OperationTestStep;
 import com.eviware.soapui.model.testsuite.TestCase;
+import com.eviware.soapui.model.testsuite.TestSuite;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +45,11 @@ public class GCTestStep
 	public TestCase getParentWsdlTestCase()
 	{
 		return step.getTestCase();
+	}
+
+	TestSuite getParentWsdlTestSuite()
+	{
+		return getParentWsdlTestCase().getTestSuite();
 	}
 
 	public void addAssertions(List<GCXpathAssertion> addAssertions)

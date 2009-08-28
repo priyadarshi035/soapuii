@@ -6,6 +6,8 @@
 package pl.touk.soapuii.testgenerator.data;
 
 import com.eviware.soapui.impl.wsdl.teststeps.assertions.basic.XPathContainsAssertion;
+import com.eviware.soapui.model.testsuite.TestCase;
+import com.eviware.soapui.model.testsuite.TestSuite;
 
 /**
  *
@@ -55,5 +57,34 @@ public class GCXpathAssertion
 	public GCTestStep getParent()
 	{
 		return parent;
+	}
+
+	void setConfig(GCConfig flag)
+	{
+		switch(flag.getType())
+		{
+			case DISABLED:
+				setDisabled(true);
+				setExpcectedContent(flag.getValue());
+				break;
+			case STATIC:
+				setDisabled(false);
+				setExpcectedContent(flag.getValue());
+				break;
+			case CASE:
+				setDisabled(false);
+				TestCase testCase = getParent().getParentWsdlTestCase();
+				if (!testCase.hasProperty(flag.getValue()))
+					testCase.setPropertyValue(flag.getValue(), getDefaultValue());
+				setExpcectedContent("${#TestCase#" + flag.getValue() + "}");
+				break;
+			case SUITE:
+				TestSuite testSuite = getParent().getParentWsdlTestSuite();
+				setDisabled(false);
+				if (!testSuite.hasProperty(flag.getValue()))
+					testSuite.setPropertyValue(flag.getValue(), getDefaultValue());
+				setExpcectedContent("${#TestSuite#" + flag.getValue() + "}");
+				break;
+		}
 	}
 }
