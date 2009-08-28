@@ -109,7 +109,7 @@ public class AssertionEnabler
 
 	private JComboBox createComboBox(GCXpathAssertion assertion)
 	{
-		JComboBox box = UISupport.createComboBox(75, STATIC);
+		JComboBox box = UISupport.createComboBox(100, STATIC);
 		box.addItem(STATIC);
 		box.addItem(DISABLED);
 		box.addItem(SUITE);
@@ -185,7 +185,7 @@ public class AssertionEnabler
 		{
 //			sub.setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));//
 			AssertionTuple tuple = new AssertionTuple(
-			assertion, createComboBox(assertion), createTextField(assertion.getDefaultValue()));
+			assertion, createComboBox(assertion), createTextField(assertion.getConfig().getValue()));
 			column1.add(createLabel(assertion.getShortName()));
 			column2.add(tuple.getCombo());
 			column3.add(tuple.getText());
