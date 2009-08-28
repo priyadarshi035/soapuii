@@ -5,28 +5,52 @@
 
 package pl.touk.soapuii.testgenerator.assertion;
 
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.actions.iface.tools.support.SwingToolHost;
 import com.eviware.soapui.support.SoapUIException;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.x.form.XFormFactory;
 import com.eviware.x.impl.swing.SwingFormFactory;
-import java.io.IOException;
-import org.apache.xmlbeans.XmlException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.eviware.soapui.config.TestStepConfig;
+import com.eviware.soapui.impl.wsdl.WsdlInterface;
+import com.eviware.soapui.impl.wsdl.WsdlOperation;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
+import com.eviware.soapui.impl.wsdl.actions.iface.tools.support.SwingToolHost;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
+import com.eviware.soapui.support.UISupport;
+import com.eviware.x.form.XFormFactory;
+import com.eviware.x.impl.swing.SwingFormFactory;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import javax.xml.namespace.QName;
+import org.junit.*;
+import org.w3c.dom.Document;
+import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
+import pl.touk.soapuii.testgenerator.AbstractProjectTestCase;
+import pl.touk.soapuii.testgenerator.GetCommunicationParser;
+import pl.touk.soapuii.testgenerator.data.GCConfig;
+import pl.touk.soapuii.testgenerator.data.GCResult;
+import pl.touk.soapuii.testgenerator.data.GCTestCase;
+import pl.touk.soapuii.testgenerator.data.GCTestStep;
+import pl.touk.soapuii.testgenerator.data.GCXpathAssertion;
+import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
 
 /**
  *
  * @author azl
  */
-public class AssertionEnablerTest {
+public class AssertionEnablerTest extends AbstractProjectTestCase
+{
 
-    public AssertionEnablerTest() {
-    }
+	public AssertionEnablerTest(String testName) throws Exception
+	{
+		super(testName, "src/test/resources/testFiles/getCommunicationTest-soapui-project.xml");
+		setQuite(true);
+		setExpXpathResult("getCommunicationTest");
+	}
 
 	@BeforeClass
 	public static void setUpClass() throws Exception
@@ -50,34 +74,28 @@ public class AssertionEnablerTest {
 	 * Test of attachPathToProject method, of class AssertionEnabler.
 	 */
 	@Test
-	public void testAttachPathToProject() throws AssertionEnablerException
+	public void testAttachPathToProject() throws Exception
 	{
 		System.out.println("attachPathToProject");
-		String projectPath = "src/test/resources/testFiles/getCommunicationTest-soapui-project.xml";
 
-		AssertionEnabler assertionInstance = new AssertionEnabler();
+		File file = new File("src/test/resources/testFiles/");
+
+		WsdlTestSuite suite1 = project.addNewTestSuite("suite3");
+
+		UISupport.setToolHost( new SwingToolHost() );
+		XFormFactory.Factory.instance = new SwingFormFactory();
+
+		Map<QName, WsdlInterface> bindingMap = (new WsdlBindingMapFactory()).createBindingMap(project, file);
+
+		GetCommunicationParser getComParser= new GetCommunicationParser();
+		GCResult result = getComParser.parseGetCommunications(suite1, file, "listen_uri", "mock_uri", bindingMap);
+
+		AssertionEnabler assertionInstance = new AssertionEnabler(result);
 
 
-		try
-		{
-			assertionInstance.attachPathToProject(projectPath);
-			UISupport.setToolHost( new SwingToolHost() );
-			XFormFactory.Factory.instance = new SwingFormFactory();
-			assertionInstance.buildDialog();
-
-		}
-		catch (XmlException ex)
-		{
-			throw new AssertionEnablerException("cannot generate UI", ex);
-		}
-		catch (IOException ex)
-		{
-			throw new AssertionEnablerException("cannot generate UI", ex);
-		}
-		catch (SoapUIException ex)
-		{
-			throw new AssertionEnablerException("cannot generate UI", ex);
-		}
+		UISupport.setToolHost( new SwingToolHost() );
+		XFormFactory.Factory.instance = new SwingFormFactory();
+		assertionInstance.buildDialog();
 
 		// TODO review the generated test code and remove the default call to fail.
 
