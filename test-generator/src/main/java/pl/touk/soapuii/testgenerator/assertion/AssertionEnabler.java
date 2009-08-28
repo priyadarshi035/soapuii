@@ -75,6 +75,10 @@ public class AssertionEnabler
 		paneView = createExchangePane(result.getTestCases().get(0).getTestSteps().get(0));
 	}
 
+	public void show()
+	{
+		buildDialog();
+	}
 
 	protected void attachPathToProject(String projectPath) throws XmlException, IOException, SoapUIException
 	{
@@ -303,7 +307,8 @@ public class AssertionEnabler
 		tree.addTreeSelectionListener(new TreeChangeListener());
 //		tree.setSize(new Dimension(300, 400));
 
-		int height = (result.getTestCases().size())*(result.getTestCases().get(0).getTestSteps().size()*20);
+		int height = (result.getTestCases().size())*(result.getTestCases().get(0).getTestSteps().size()*30);
+
 		tree.setPreferredSize(new Dimension(200, height));
 		tree.setMinimumSize(new Dimension(150, 500));
 		tree.setMaximumSize(new Dimension(800, Integer.MAX_VALUE));
