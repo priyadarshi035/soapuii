@@ -57,11 +57,11 @@ public class GCResult
 		return getXpathAssertions(similarAssertion.getParent().getOperation(), similarAssertion.getShortName());
 	}
 
-	public void setSimilarXpathAssertions(GCXpathAssertion similarAssertion, GCConfig flag)
+	public void setSimilarXpathAssertions(GCXpathAssertion similarAssertion, GCConfig config)
 	{
 		Operation operation = similarAssertion.getParent().getOperation();
 		String shortName = similarAssertion.getShortName();
 		for(GCXpathAssertion assertion : getXpathAssertions( operation, shortName) )
-			assertion.setConfig(flag);
+			assertion.setConfig(config);
 	}
 }

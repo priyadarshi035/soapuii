@@ -15,10 +15,11 @@ import com.eviware.soapui.model.testsuite.TestSuite;
  */
 public class GCXpathAssertion
 {
-	protected XPathContainsAssertion assertion;
-	protected String shortName;
-	protected GCTestStep parent;
-	protected String defaultValue;
+	private XPathContainsAssertion assertion;
+	private String shortName;
+	private GCTestStep parent;
+	private String defaultValue;
+	private GCConfig config;
 
 	public GCXpathAssertion(XPathContainsAssertion assertion, String shortName, GCTestStep parent, String defaultValue)
 	{
@@ -26,6 +27,7 @@ public class GCXpathAssertion
 		this.parent = parent;
 		this.assertion = assertion;
 		this.shortName = shortName;
+		config = new GCConfig(GCConfig.Type.DISABLED, defaultValue);
 	}
 
 	public String getDefaultValue()
@@ -33,11 +35,10 @@ public class GCXpathAssertion
 		return defaultValue;
 	}
 
-	public void setDisabled(boolean flag)
-	{
-		assertion.setDisabled(flag);
-	}
-	
+	public void setDisabled(boolean flag) { assertion.setDisabled(flag); }
+
+	public String getExpcectedContent() { return assertion.getExpectedContent(); }
+
 	public void setExpcectedContent(String string)
 	{
 		assertion.setExpectedContent(string);
@@ -59,31 +60,34 @@ public class GCXpathAssertion
 		return parent;
 	}
 
-	public void setConfig(GCConfig flag)
+	public GCConfig getConfig() { return config; }
+
+	public void setConfig(GCConfig config)
 	{
-		switch(flag.getType())
+		this.config = config;
+		switch(config.getType())
 		{
 			case DISABLED:
 				setDisabled(true);
-				setExpcectedContent(flag.getValue());
+				setExpcectedContent(config.getValue());
 				break;
 			case STATIC:
 				setDisabled(false);
-				setExpcectedContent(flag.getValue());
+				setExpcectedContent(config.getValue());
 				break;
 			case CASE:
 				setDisabled(false);
 				TestCase testCase = getParent().getParentWsdlTestCase();
-				if (!testCase.hasProperty(flag.getValue()))
-					testCase.setPropertyValue(flag.getValue(), getDefaultValue());
-				setExpcectedContent("${#TestCase#" + flag.getValue() + "}");
+				if (!testCase.hasProperty(config.getValue()))
+					testCase.setPropertyValue(config.getValue(), getDefaultValue());
+				setExpcectedContent("${#TestCase#" + config.getValue() + "}");
 				break;
 			case SUITE:
 				TestSuite testSuite = getParent().getParentWsdlTestSuite();
 				setDisabled(false);
-				if (!testSuite.hasProperty(flag.getValue()))
-					testSuite.setPropertyValue(flag.getValue(), getDefaultValue());
-				setExpcectedContent("${#TestSuite#" + flag.getValue() + "}");
+				if (!testSuite.hasProperty(config.getValue()))
+					testSuite.setPropertyValue(config.getValue(), getDefaultValue());
+				setExpcectedContent("${#TestSuite#" + config.getValue() + "}");
 				break;
 		}
 	}
