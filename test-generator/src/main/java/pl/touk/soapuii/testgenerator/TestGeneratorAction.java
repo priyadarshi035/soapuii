@@ -63,7 +63,7 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		else
 		{
 			dialog.setValue( Form.INITIALCOMMUNICATION, "" );
-			dialog.getFormField( Form.ASSERTION ).setEnabled( false );
+			dialog.getFormField( Form.ASSERTION ).setEnabled( true );
 		}
 
 		while( dialog.show() )

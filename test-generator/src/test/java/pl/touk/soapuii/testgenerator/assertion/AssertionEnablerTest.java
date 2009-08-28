@@ -52,24 +52,6 @@ public class AssertionEnablerTest extends AbstractProjectTestCase
 		setExpXpathResult("getCommunicationTest");
 	}
 
-	@BeforeClass
-	public static void setUpClass() throws Exception
-	{
-	}
-
-	@AfterClass
-	public static void tearDownClass() throws Exception
-	{
-	}
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
 	/**
 	 * Test of attachPathToProject method, of class AssertionEnabler.
 	 */
