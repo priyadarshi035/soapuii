@@ -59,7 +59,7 @@ public class GCXpathAssertion
 		return parent;
 	}
 
-	void setConfig(GCConfig flag)
+	public void setConfig(GCConfig flag)
 	{
 		switch(flag.getType())
 		{
