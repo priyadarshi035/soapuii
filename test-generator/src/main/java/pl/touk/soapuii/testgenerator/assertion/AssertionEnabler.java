@@ -9,12 +9,18 @@ import com.eviware.soapui.support.SoapUIException;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.components.SwingConfigurationDialogImpl;
 import com.eviware.soapui.support.types.StringToStringMap;
+import com.eviware.soapui.support.types.TupleList.Tuple;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,8 +34,11 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import org.apache.xmlbeans.XmlException;
+import org.oasisOpen.docs.wss.x2004.x01.oasis200401WssWssecuritySecext10.TUsage;
 import pl.touk.soapuii.testgenerator.data.GCConfig;
 import pl.touk.soapuii.testgenerator.data.GCResult;
 import pl.touk.soapuii.testgenerator.data.GCTestCase;
@@ -48,6 +57,7 @@ public class AssertionEnabler
 	public final static String SUITE = "Suite";
 
 	private ArrayList<AssertionTuple> assertionTupleList;
+	private Set<GCTestStep> changedTestSteps = new HashSet();
 		
 //	protected static int numberOfAssertions = 60;
 
@@ -59,6 +69,7 @@ public class AssertionEnabler
 	private JTree tree;
 	private JScrollPane treeView;
 	private JScrollPane paneView;
+
 
 	private GCResult result;
 //	private static AssertionEnabler instance;
@@ -97,14 +108,14 @@ public class AssertionEnabler
 				"Set set which assertion can be enabled with xpath", UISupport.OPTIONS_ICON );
 
 		split = UISupport.createHorizontalSplit(UISupport.setFixedSize(treeView, 200, 500), createPanelForRightPanelSplit(paneView));
-		dialog.setSize(new Dimension(1100, 500));
+		dialog.setSize(new Dimension(800, 500));
 		dialog.setContent( split );
 
 		dialog.show(values);
 	}
 
 	private JComponent createPanelForRightPanelSplit(JComponent comp) {
-		return UISupport.setFixedSize(comp, 700, 500);
+		return UISupport.setFixedSize(comp, 300, 500);
 	}
 
 	private JComboBox createComboBox(GCXpathAssertion assertion)
@@ -157,24 +168,10 @@ public class AssertionEnabler
 	private JScrollPane createExchangePane(GCTestStep testStep)
 	{
 		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(800, testStep.getXpathAssertions().size()*20 + 40));
+		panel.setPreferredSize(new Dimension(300, testStep.getXpathAssertions().size()*20 + 40));
 		panel.setLayout(new BorderLayout());
 		Box box = Box.createHorizontalBox();
 
-//		for (int i = 0; i < numberOfAssertions; i++)
-//		for (GCXpathAssertion assertion : testStep.getXpathAssertions())
-//		{
-//			Box sub = Box.createHorizontalBox();
-//			sub.setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));
-//			sub.add(Box.createHorizontalStrut(10));
-//			sub.add(createLabel(assertion.getShortName()));
-//			sub.add(Box.createHorizontalStrut(10));
-//			sub.add(createComboBox());
-//			sub.add(Box.createHorizontalStrut(10));
-//			sub.add(createTextField(assertion.getDefaultValue()));
-//			sub.add(Box.createHorizontalStrut(10));
-//			box.add(sub);
-//		}
 		Box column1 = Box.createVerticalBox();
 		Box column2 = Box.createVerticalBox();
 		Box column3 = Box.createVerticalBox();
@@ -262,8 +259,10 @@ public class AssertionEnabler
 						config = new GCConfig(GCConfig.Type.CASE, assertionContent);
 
 					tuple.getAssertion().setConfig(config);
+					changedTestSteps.add(tuple.getAssertion().getParent());
+					System.err.println("adding: " + tuple.getAssertion().getParent());
 				}
-
+				tree.repaint();
 			}
 		});
 		return button;
@@ -291,8 +290,15 @@ public class AssertionEnabler
 					if(choice.equals(CASE))
 						config = new GCConfig(GCConfig.Type.CASE, assertionContent);
 										
-					result.setSimilarXpathAssertions(tuple.getAssertion(), config);
+					List<GCXpathAssertion> changedAssertions = 
+							result.setSimilarXpathAssertions(tuple.getAssertion(), config);
+					for (GCXpathAssertion assertion : changedAssertions)
+					{
+						changedTestSteps.add(assertion.getParent());
+						System.err.println("adding: " + assertion.getParent());
+					}
 				}
+				tree.repaint();
 			}
 		});
 		return button;
@@ -303,6 +309,8 @@ public class AssertionEnabler
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("TestGenerator");
 		createNodes(top);
 		tree = new JTree(top);
+		tree.setCellRenderer(new AssertionTreeCellRenderer());
+		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeChangeListener());
 //		tree.setSize(new Dimension(300, 400));
@@ -312,6 +320,7 @@ public class AssertionEnabler
 		tree.setPreferredSize(new Dimension(200, height));
 		tree.setMinimumSize(new Dimension(150, 500));
 		tree.setMaximumSize(new Dimension(800, Integer.MAX_VALUE));
+
 		treeView = new JScrollPane(tree);
 		treeView.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeView.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -368,6 +377,26 @@ public class AssertionEnabler
 		{
 			paneView = createExchangePane(testStep);
 			split.setRightComponent(createPanelForRightPanelSplit(paneView));
+		}
+	}
+
+	private class AssertionTreeCellRenderer extends DefaultTreeCellRenderer
+	{
+		public Component getTreeCellRendererComponent(JTree pTree,
+				Object pValue, boolean pIsSelected, boolean pIsExpanded,
+				boolean pIsLeaf, int pRow, boolean pHasFocus)
+		{
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) pValue;
+			super.getTreeCellRendererComponent(pTree, pValue, pIsSelected,
+					pIsExpanded, pIsLeaf, pRow, pHasFocus);
+
+			if (pIsLeaf && changedTestSteps.contains(node.getUserObject()))
+			{
+				setBackgroundNonSelectionColor(new Color(100, 255, 100));
+			}
+			else
+				setBackgroundNonSelectionColor(Color.white);
+			return this;
 		}
 	}
 
