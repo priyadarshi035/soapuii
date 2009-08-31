@@ -107,13 +107,13 @@ public class GetCommunicationParser
 
 		try
 		{
-<<<<<<< HEAD:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
+//<<<<<<< HEAD:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
+//			Document doc = SimpleXmlParser.parse(singleFile, true);
+//			parseSingleGetCommunication(testCase, doc, bindingMap);
+//=======
 			Document doc = SimpleXmlParser.parse(singleFile, true);
-			parseSingleGetCommunication(testCase, doc, bindingMap);
-=======
-			Document doc = SimpleXmlParser.parse(singleFile, false);
 			gcTestCase.addTestSteps( parseSingleGetCommunication(testCase, doc, bindingMap) );
->>>>>>> assertdev:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
+//>>>>>>> assertdev:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
 		} //Exception should be fine, at least if we dont want to handle some errors other way
 		catch (Exception ex)
 		{
@@ -409,7 +409,7 @@ public class GetCommunicationParser
 		try
 		{
 			if (suspectedBodyContent.getChildNodes().getLength() < 1)
-				return;
+				return assertions;
 
 			//shit... suspectedBodyContent is with turned off namespace awareness... :/
 			File tmpFile = File.createTempFile("xml", null);
@@ -424,13 +424,9 @@ public class GetCommunicationParser
 
 			XpathAssertionsExtractor extractor = new XpathAssertionsExtractor();
 
-<<<<<<< HEAD:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
+
 			for (XpathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
-			{
-=======
-			for (xPathAssertionsExtractor.xPathAssertion assertion : extractor.extract(suspectedBodyContent))
 			{	
->>>>>>> assertdev:test-generator/src/main/java/pl/touk/soapuii/testgenerator/GetCommunicationParser.java
 				XPathContainsAssertion xText = (XPathContainsAssertion) step.addAssertion(XPathContainsAssertion.LABEL);
 				xText.setName(assertion.getName());
 				xText.setPath(assertion.getPath());
