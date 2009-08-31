@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import pl.touk.proxygeneratorapi.Defaults;
+import pl.touk.soapuii.testgenerator.assertion.AssertionEnabler;
+import pl.touk.soapuii.testgenerator.data.GCResult;
 
 /**
  * 
@@ -45,23 +47,23 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		if( dialog == null )
 		{
 			dialog = ADialogBuilder.buildDialog( Form.class );
-			dialog.setValue( Form.SAMPLE, Boolean.toString( true ) );
+			dialog.setValue( Form.ASSERTION, Boolean.toString( true ) );
 			dialog.setValue( Form.MOCKURI, Defaults.outputUri );
 			dialog.setValue( Form.ODELISTENURI, Defaults.listenUri.replace("http://0.0.0.0", "http://localhost") );
-			dialog.getFormField( Form.INITIALCOMMUNICATION ).addFormFieldListener( new XFormFieldListener()
-			{
-				public void valueChanged( XFormField sourceField, String newValue, String oldValue )
-				{
-					String value = newValue.toLowerCase().trim();
-
-					dialog.getFormField( Form.SAMPLE ).setEnabled( value.length() > 0 );
-				}
-			} );
+//			dialog.getFormField( Form.INITIALCOMMUNICATION ).addFormFieldListener( new XFormFieldListener()
+//			{
+//				public void valueChanged( XFormField sourceField, String newValue, String oldValue )
+//				{
+//					String value = newValue.toLowerCase().trim();
+//
+//					dialog.getFormField( Form.ASSERTION ).setEnabled( value.length() > 0 );
+//				}
+//			} );
 		}
 		else
 		{
 			dialog.setValue( Form.INITIALCOMMUNICATION, "" );
-			dialog.getFormField( Form.SAMPLE ).setEnabled( false );
+			dialog.getFormField( Form.ASSERTION ).setEnabled( true );
 		}
 
 		while( dialog.show() )
@@ -83,9 +85,11 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 								//throw new TestGeneratorException("Empty binding map. Generation failed.");
 								throw new TestGeneratorException("Generation canceled.");
 							
-							new GetCommunicationParser().parseGetCommunications(
+							GCResult result = new GetCommunicationParser().parseGetCommunications(
 									testSuite, file, dialog.getValue(Form.ODELISTENURI),
 									dialog.getValue(Form.MOCKURI), bindingMap);
+							if (dialog.getBooleanValue( Form.ASSERTION))
+								(new AssertionEnabler(result)).show();
 						}
 						catch (TestGeneratorException ex)
 						{
@@ -121,7 +125,7 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		@AField( description = "Form.MockUri.Description", type = AFieldType.STRING )
 		public final static String MOCKURI = messages.get( "Form.MockUri.Label" );
 
-		@AField( description = "Form.Sample.Description", type = AFieldType.BOOLEAN, enabled = false )
-		public final static String SAMPLE = messages.get( "Form.Sample.Label" );
+		@AField( description = "Form.Assertion.Description", type = AFieldType.BOOLEAN, enabled = true )
+		public final static String ASSERTION = messages.get( "Form.Assertion.Label" );
 	}
 }

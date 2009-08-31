@@ -7,11 +7,13 @@ package pl.touk.soapuii.testgenerator;
 
 import com.eviware.soapui.impl.wsdl.*;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import org.junit.Ignore;
 
 /**
  *
  * @author pnw
  */
+@Ignore
 public class NewTestCaseTestCase extends AbstractProjectTestCase
 {
 	public NewTestCaseTestCase(String testName) throws Exception

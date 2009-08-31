@@ -4,27 +4,30 @@
  */
 package pl.touk.soapuii.testgenerator;
 
-import com.eviware.soapui.config.TestStepConfig;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.actions.iface.tools.support.SwingToolHost;
-import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
-import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.x.form.XFormFactory;
 import com.eviware.x.impl.swing.SwingFormFactory;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import org.junit.*;
-import org.w3c.dom.Document;
-import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
+import pl.touk.soapuii.testgenerator.data.GCConfig;
+import pl.touk.soapuii.testgenerator.data.GCResult;
+import pl.touk.soapuii.testgenerator.data.GCTestCase;
+import pl.touk.soapuii.testgenerator.data.GCTestStep;
+import pl.touk.soapuii.testgenerator.data.GCXpathAssertion;
 import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
 
 /**
  *
  * @author pnw
  */
+
 @Ignore
 public class GetCommunicationParserTest extends AbstractProjectTestCase
 {
@@ -42,30 +45,31 @@ public class GetCommunicationParserTest extends AbstractProjectTestCase
 	@Test
 	public void testCreateWsdlTestRequestStep() throws Exception
 	{
-		System.out.println("createTestCase");
-		File file = new File("src/test/resources/testFiles/getCommunication.xml");
+		System.out.println("testCreateWsdlTestRequestStep");
+		File file = new File("src/test/resources/testFiles/");
 
-		WsdlTestCase case1 = project.addNewTestSuite("suite1").addNewTestCase("case1");
-		
+		WsdlTestSuite suite1 = project.addNewTestSuite("suite3");
 		WsdlInterface iface = (WsdlInterface) project.getInterfaceByName("CaseRunner");
 		WsdlOperation operation = iface.getOperationByName("createCase");
-		TestStepConfig config = WsdlTestRequestStepFactory.createConfig(operation, "teststep1");
-		case1.addTestStep(config);
-
+		
 		UISupport.setToolHost( new SwingToolHost() );
 		XFormFactory.Factory.instance = new SwingFormFactory();
 
 		Map<QName, WsdlInterface> bindingMap = (new WsdlBindingMapFactory()).createBindingMap(project, file);
 
-		GetCommunicationParser gCP= new GetCommunicationParser();
+		GetCommunicationParser getComParser= new GetCommunicationParser();
+		GCResult result = getComParser.parseGetCommunications(suite1, file, "listen_uri", "mock_uri", bindingMap);
+		GCTestCase testCase = result.getTestCases().get(0);
+		GCTestStep step = testCase.getTestSteps().get(0);
+		GCXpathAssertion assertion = step.getXpathAssertions().get(0);
 
+		result.setSimilarXpathAssertions(assertion, new GCConfig(GCConfig.Type.SUITE, "caseId"));
+		result.setSimilarXpathAssertions(step.getXpathAssertions().get(1), new GCConfig(GCConfig.Type.CASE, "msisdn"));
 
-		Document doc = SimpleXmlParser.parse(file, false);
+//		List<GCXpathAssertion> xpaths = result.getXpathAssertions(operation, "/createCaseResponse/caseId");
+		List<GCXpathAssertion> xpaths = result.getXpathAssertions(assertion);
 
-//		gCP.parseSingleGetCommunication(case1, doc, bindingMap);
-
-
-		// TODO review the generated test code and remove the default call to fail.
-		performAsserts();
+		System.out.println("found xpaths: " + xpaths.size());
+		project.saveIn(new File("test_project3.xml"));
 	}
 }
