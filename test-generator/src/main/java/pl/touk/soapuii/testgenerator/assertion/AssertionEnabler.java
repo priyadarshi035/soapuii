@@ -391,9 +391,7 @@ public class AssertionEnabler
 					pIsExpanded, pIsLeaf, pRow, pHasFocus);
 
 			if (pIsLeaf && changedTestSteps.contains(node.getUserObject()))
-			{
 				setBackgroundNonSelectionColor(new Color(100, 255, 100));
-			}
 			else
 				setBackgroundNonSelectionColor(Color.white);
 			return this;
