@@ -1,0 +1,244 @@
+diff --git a/soapuii/src/java/com/eviware/soapui/impl/WsdlInterfaceFactory.java b/soapuii/src/java/com/eviware/soapui/impl/WsdlInterfaceFactory.java
+index aa48e15..209891b 100644
+--- a/soapuii/src/java/com/eviware/soapui/impl/WsdlInterfaceFactory.java
++++ b/soapuii/src/java/com/eviware/soapui/impl/WsdlInterfaceFactory.java
+@@ -29,6 +29,7 @@ import com.eviware.soapui.model.propertyexpansion.DefaultPropertyExpansionContex
+ import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
+ import com.eviware.soapui.model.propertyexpansion.PropertyExpansionContext;
+ import com.eviware.soapui.support.SoapUIException;
++import java.util.Set;
+ 
+ public class WsdlInterfaceFactory implements InterfaceFactory<WsdlInterface>
+ {
+@@ -49,12 +50,18 @@ public class WsdlInterfaceFactory implements InterfaceFactory<WsdlInterface>
+ 		return iface;
+ 	}
+ 
++	public static void setIgnoreInterfaces(Set<String> ignoreIfaces)
++	{
++		WsdlImporter.setIgnoreInterfaces(ignoreIfaces);
++	}
++	
+ 	public static WsdlInterface[] importWsdl( WsdlProject project, String url, boolean createRequests )
+ 			throws SoapUIException
+ 	{
+ 		return importWsdl( project, url, createRequests, null, null );
+ 	}
+ 
++
+ 	public static WsdlInterface[] importWsdl( WsdlProject project, String url, boolean createRequests,
+ 			WsdlLoader wsdlLoader ) throws SoapUIException
+ 	{
+diff --git a/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/AddWsdlAction.java b/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/AddWsdlAction.java
+index c27d707..09c3b68 100644
+--- a/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/AddWsdlAction.java
++++ b/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/AddWsdlAction.java
+@@ -45,6 +45,11 @@ import com.eviware.x.form.support.ADialogBuilder;
+ import com.eviware.x.form.support.AField;
+ import com.eviware.x.form.support.AForm;
+ import com.eviware.x.form.support.AField.AFieldType;
++import java.util.Collection;
++import java.util.HashSet;
++import java.util.Set;
++import org.apache.commons.io.FileUtils;
++import org.apache.log4j.Logger;
+ 
+ /**
+  * Action for creating a new WSDL project
+@@ -54,6 +59,7 @@ import com.eviware.x.form.support.AField.AFieldType;
+ 
+ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
+ {
++	private static Logger log = Logger.getLogger(AddWsdlAction.class);
+ 	public static final String SOAPUI_ACTION_ID = "NewWsdlProjectAction";
+ 	private XFormDialog dialog;
+ 
+@@ -99,18 +105,17 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
+ 				if( StringUtils.hasContent( url ) )
+ 				{
+ 					String expUrl = PathUtils.expandPath( url, project );
+-					if( new File( expUrl ).exists() )
+-						url = new File( expUrl ).toURI().toURL().toString();
+ 
++					File wsdl = new File( expUrl );
++					if( wsdl.exists() )
++						url = wsdl.toURI().toURL().toString();
++
++					log.info("importing: " + expUrl);
+ 					WsdlInterface[] results = importWsdl( project, expUrl );
+ 
+ 					if( !url.equals( expUrl ) )
+-					{
+ 						for( WsdlInterface iface : results )
+-				{
+ 							iface.setDefinition( url, false );
+-						}
+-					}
+ 
+ 					break;
+ 				}
+@@ -124,8 +129,38 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
+ 
+ 	private WsdlInterface[] importWsdl( WsdlProject project, String url ) throws SoapUIException
+ 	{
+-		WsdlInterface[] results = WsdlInterfaceFactory.importWsdl( project, url, dialog.getValue( Form.CREATEREQUEST )
+-				.equals( "true" ) );
++		WsdlInterfaceFactory.setIgnoreInterfaces(new HashSet());
++
++		File wsdl = new File(url);
++		WsdlInterface[] results = new WsdlInterface[0];
++		
++		if (wsdl.isDirectory())
++		{
++			for (File singleFile : (Collection<File>) FileUtils.listFiles(wsdl, new String[]{"wsdl"}, true))
++			{
++				if (singleFile.isDirectory())
++					continue;
++				try
++				{
++					log.info("importing: " + singleFile.getPath());
++					WsdlInterface[] tmpResults = WsdlInterfaceFactory.importWsdl(
++							project, singleFile.getPath(), dialog.getValue( Form.CREATEREQUEST ).equals( "true" ) );
++					WsdlInterface[] newResult = new WsdlInterface[results.length + tmpResults.length];
++					System.arraycopy(results, 0, newResult, 0, results.length);
++					System.arraycopy(tmpResults, 0, newResult, results.length, tmpResults.length);
++					results = newResult;
++				} catch (Exception ex)
++				{
++					UISupport.showErrorMessage(ex);
++				}
++			}
++		}
++		else
++			results = WsdlInterfaceFactory.importWsdl( project, url, dialog.getValue( Form.CREATEREQUEST )
++					.equals( "true" ) );
++
++		WsdlInterfaceFactory.setIgnoreInterfaces(null);
++
+ 		for( WsdlInterface iface : results )
+ 		{
+ 			UISupport.select( iface );
+@@ -149,7 +184,7 @@ public class AddWsdlAction extends AbstractSoapUIAction<WsdlProject>
+ 	@AForm( name = "Form.Title", description = "Form.Description", helpUrl = HelpUrls.NEWPROJECT_HELP_URL, icon = UISupport.TOOL_ICON_PATH )
+ 	public interface Form
+ 	{
+-		@AField( description = "Form.InitialWsdl.Description", type = AFieldType.FILE )
++		@AField( description = "Form.InitialWsdl.Description", type = AFieldType.FILE_OR_FOLDER )
+ 		public final static String INITIALWSDL = messages.get( "Form.InitialWsdl.Label" );
+ 
+ 		@AField( description = "Form.CreateRequests.Description", type = AFieldType.BOOLEAN, enabled = false )
+diff --git a/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties b/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties
+index a4f08e9..45fa62b 100644
+--- a/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties
++++ b/soapuii/src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties
+@@ -12,12 +12,12 @@ AddWadlAction.Form.InitialWadl.Description=URL or filename of WADL
+ AddWadlAction.Form.GenerateTestSuite.Label=Create TestSuite
+ AddWadlAction.Form.GenerateTestSuite.Description=Creates a TestSuite for the imported WADL
+ 
+-AddWsdlAction.Title=Add WSDL
++AddWsdlAction.Title=Add WSDL(s)
+ AddWsdlAction.Description=Creates an Interface from a WSDL definition
+-AddWsdlAction.Form.Title=Add WSDL
++AddWsdlAction.Form.Title=Add WSDL(s)
+ AddWsdlAction.Form.Description=Creates a WSDL Interface from a WSDL definition
+-AddWsdlAction.Form.InitialWsdl.Label=WSDL Location
+-AddWsdlAction.Form.InitialWsdl.Description=URL or filename of WSDL definition
++AddWsdlAction.Form.InitialWsdl.Label=WSDL(s) Location
++AddWsdlAction.Form.InitialWsdl.Description=URL, filename or directory of WSDL(s) definition(s)
+ AddWsdlAction.Form.CreateRequests.Label=Create Requests
+ AddWsdlAction.Form.CreateRequests.Description=Create sample requests for all operations?
+ AddWsdlAction.Form.GenerateTestSuite.Label=Create TestSuite
+diff --git a/soapuii/src/java/com/eviware/soapui/impl/wsdl/support/wsdl/WsdlImporter.java b/soapuii/src/java/com/eviware/soapui/impl/wsdl/support/wsdl/WsdlImporter.java
+index c85a71c..8cfc857 100644
+--- a/soapuii/src/java/com/eviware/soapui/impl/wsdl/support/wsdl/WsdlImporter.java
++++ b/soapuii/src/java/com/eviware/soapui/impl/wsdl/support/wsdl/WsdlImporter.java
+@@ -37,6 +37,8 @@ import com.eviware.soapui.impl.wsdl.support.soap.Soap11HttpBindingImporter;
+ import com.eviware.soapui.impl.wsdl.support.soap.Soap12HttpBindingImporter;
+ import com.eviware.soapui.settings.WsdlSettings;
+ import com.eviware.soapui.support.UISupport;
++import java.util.HashSet;
++import java.util.Set;
+ 
+ /**
+  * Importer for WsdlInterfaces from WSDL urls / files
+@@ -49,6 +51,7 @@ public class WsdlImporter
+ 	private static List<BindingImporter> bindingImporters = new ArrayList<BindingImporter>();
+ 	@SuppressWarnings( "unused" )
+ 	private static WsdlImporter instance;
++	private static Set<String> ignoreIfaces = null;
+ 
+ 	private final static Logger log = Logger.getLogger( WsdlImporter.class );
+ 
+@@ -65,6 +68,11 @@ public class WsdlImporter
+ 		}
+ 	}
+ 
++	public static void setIgnoreInterfaces(Set<String> ignoreIfaces)
++	{
++		WsdlImporter.ignoreIfaces = ignoreIfaces;
++	}
++
+ 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl ) throws Exception
+ 	{
+ 		return importWsdl( project, wsdlUrl, null );
+@@ -72,13 +80,17 @@ public class WsdlImporter
+ 
+ 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl, QName bindingName ) throws Exception
+ 	{
+-		return importWsdl( project, wsdlUrl, bindingName, null );
++		return importWsdl( project, wsdlUrl, bindingName, null);
+ 	}
+ 
+ 	public static WsdlInterface[] importWsdl( WsdlProject project, String wsdlUrl, QName bindingName,
+ 			WsdlLoader wsdlLoader ) throws Exception
+ 	{
++		//importedIfaces - set with names of already imported interfaces. Prevents adding same ifaces multipletimes
++		//when importing multiple wsdls and when some of those imported wsdls imports same super wsdls more then once
++		
+ 		WsdlContext wsdlContext = new WsdlContext( wsdlUrl );
++
+ 		if( !wsdlContext.load( wsdlLoader ) )
+ 		{
+ 			UISupport.showErrorMessage( "Failed to import WSDL" );
+@@ -124,6 +136,9 @@ public class WsdlImporter
+ 					}
+ 
+ 					String ifaceName = getInterfaceNameForBinding( binding );
++					if (skipInterface(ifaceName))
++						continue;
++
+ 					WsdlInterface ifc = ( WsdlInterface )project.getInterfaceByName( ifaceName );
+ 					if( ifc != null )
+ 					{
+@@ -192,6 +207,9 @@ public class WsdlImporter
+ 				else
+ 				{
+ 					String ifaceName = getInterfaceNameForBinding( binding );
++					if (skipInterface(ifaceName))
++						continue;
++
+ 					WsdlInterface ifc = ( WsdlInterface )project.getInterfaceByName( ifaceName );
+ 					if( ifc != null && result.indexOf( ifc ) == -1 )
+ 					{
+@@ -266,4 +284,21 @@ public class WsdlImporter
+ 
+ 		return null;
+ 	}
++
++	private static boolean skipInterface(String iface)
++	{
++		if (ignoreIfaces != null)
++		{
++			if (ignoreIfaces.contains(iface))
++			{
++				log.debug("Skipping [" + iface + "]");
++				return true;
++			}
++			log.debug("Added for further skipping [" + iface + "]");
++			ignoreIfaces.add(iface);
++		}
++		else
++			log.debug("ignoreIfaces is not set");
++		return false;
++	}
+ }

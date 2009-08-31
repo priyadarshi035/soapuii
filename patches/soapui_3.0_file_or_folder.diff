@@ -1,0 +1,75 @@
+diff --git a/soapuii/src/java/com/eviware/x/form/XForm.java b/soapuii/src/java/com/eviware/x/form/XForm.java
+index f77ec8d..702c631 100644
+--- a/soapuii/src/java/com/eviware/x/form/XForm.java
++++ b/soapuii/src/java/com/eviware/x/form/XForm.java
+@@ -19,7 +19,7 @@ public interface XForm
+ {
+ 	public enum FieldType
+ 	{
+-		TEXT, FOLDER, FILE, URL, JAVA_PACKAGE, JAVA_CLASS, PASSWORD, PROJECT_FILE, PROJECT_FOLDER, TEXTAREA
++		TEXT, FOLDER, FILE, FILE_OR_FOLDER, URL, JAVA_PACKAGE, JAVA_CLASS, PASSWORD, PROJECT_FILE, PROJECT_FOLDER, TEXTAREA
+ 	}
+ 
+ 	public XFormTextField addTextField( String name, String description, FieldType type );
+diff --git a/soapuii/src/java/com/eviware/x/form/support/ADialogBuilder.java b/soapuii/src/java/com/eviware/x/form/support/ADialogBuilder.java
+index ca7053d..0dfd889 100644
+--- a/soapuii/src/java/com/eviware/x/form/support/ADialogBuilder.java
++++ b/soapuii/src/java/com/eviware/x/form/support/ADialogBuilder.java
+@@ -215,6 +215,9 @@ public class ADialogBuilder
+ 		case FOLDER :
+ 			field = form.addTextField( name, description, FieldType.FOLDER );
+ 			break;
++		case FILE_OR_FOLDER :
++			field = form.addTextField( name, description, FieldType.FILE_OR_FOLDER );
++			break;
+ 		case ENUMERATION :
+ 			field = form.addComboBox( name, values, description );
+ 			break;
+diff --git a/soapuii/src/java/com/eviware/x/form/support/AField.java b/soapuii/src/java/com/eviware/x/form/support/AField.java
+index a938d3c..5f3601c 100644
+--- a/soapuii/src/java/com/eviware/x/form/support/AField.java
++++ b/soapuii/src/java/com/eviware/x/form/support/AField.java
+@@ -29,7 +29,7 @@ public @interface AField
+ {
+ 	public enum AFieldType
+ 	{
+-		BOOLEAN, STRING, FILE, FOLDER, INT, ENUMERATION, PASSWORD, FILELIST, RADIOGROUP, STRINGAREA, MULTILIST, STRINGLIST, TABLE, ACTION, COMPONENT, SEPARATOR
++		BOOLEAN, STRING, FILE, FOLDER, FILE_OR_FOLDER, INT, ENUMERATION, PASSWORD, FILELIST, RADIOGROUP, STRINGAREA, MULTILIST, STRINGLIST, TABLE, ACTION, COMPONENT, SEPARATOR
+ 	}
+ 
+ 	public String name() default "";
+diff --git a/soapuii/src/java/com/eviware/x/impl/swing/FileFormField.java b/soapuii/src/java/com/eviware/x/impl/swing/FileFormField.java
+index 5951576..7c122ff 100644
+--- a/soapuii/src/java/com/eviware/x/impl/swing/FileFormField.java
++++ b/soapuii/src/java/com/eviware/x/impl/swing/FileFormField.java
+@@ -142,10 +142,16 @@ public class FileFormField extends AbstractSwingXFormField<JPanel> implements XF
+ 		{
+ 			if( fileChooser == null )
+ 			{
+-				if( type == FieldType.FOLDER || type == FieldType.PROJECT_FOLDER )
++				if(type == FieldType.FILE_OR_FOLDER)
++				{
++					fileChooser = new JFileChooser();
++					fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
++				}
++				else if( type == FieldType.FOLDER || type == FieldType.PROJECT_FOLDER )
+ 					fileChooser = new JDirectoryChooser();
+ 				else
+ 					fileChooser = new JFileChooser();
++
+ 			}
+ 
+ 			String value = FileFormField.this.getValue();
+diff --git a/soapuii/src/java/com/eviware/x/impl/swing/SwingXFormImpl.java b/soapuii/src/java/com/eviware/x/impl/swing/SwingXFormImpl.java
+index c2cf0a3..88e6973 100644
+--- a/soapuii/src/java/com/eviware/x/impl/swing/SwingXFormImpl.java
++++ b/soapuii/src/java/com/eviware/x/impl/swing/SwingXFormImpl.java
+@@ -169,7 +169,7 @@ public class SwingXFormImpl implements XForm
+ 	public XFormTextField addTextField( String name, String description, FieldType type )
+ 	{
+ 		if( type == FieldType.FOLDER || type == FieldType.FILE || type == FieldType.PROJECT_FOLDER
+-				|| type == FieldType.PROJECT_FILE )
++				|| type == FieldType.PROJECT_FILE || type == FieldType.FILE_OR_FOLDER )
+ 		{
+ 			return ( XFormTextField )addComponent( name, new FileFormField( description, type ) );
+ 		}

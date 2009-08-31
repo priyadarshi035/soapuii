@@ -1,0 +1,40 @@
+diff --git a/soapuii/src/java/com/eviware/soapui/support/scripting/groovy/SoapUIGroovyScriptEngine.java b/soapuii/src/java/com/eviware/soapui/support/scripting/groovy/SoapUIGroovyScriptEngine.java
+index 105cf12..01815e8 100644
+--- a/soapuii/src/java/com/eviware/soapui/support/scripting/groovy/SoapUIGroovyScriptEngine.java
++++ b/soapuii/src/java/com/eviware/soapui/support/scripting/groovy/SoapUIGroovyScriptEngine.java
+@@ -79,20 +79,25 @@ public class SoapUIGroovyScriptEngine implements SoapUIScriptEngine
+ 	public synchronized Object run() throws Exception
+ 	{
+ 		saver.lockSave();
+-
+-		if( StringUtils.isNullOrEmpty( scriptText ) )
+-			return null;
+-
+-		if( script == null )
++		try
+ 		{
+-			compile();
+-		}
+ 
+-		Object result = script.run();
++			if( StringUtils.isNullOrEmpty( scriptText ) )
++				return null;
+ 
+-		saver.unlockSave();
++			if( script == null )
++			{
++				compile();
++			}
++
++			Object result = script.run();
+ 
+-		return result;
++			return result;
++		}
++		finally
++		{
++			saver.unlockSave();
++		}
+ 	}
+ 
+ 	protected synchronized void synchronizedSetScript( String scriptText )

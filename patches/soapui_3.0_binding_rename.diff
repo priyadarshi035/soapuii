@@ -1,14 +1,3 @@
-Index: src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties
-===================================================================
---- src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties	(wersja 12883)
-+++ src/java/com/eviware/soapui/impl/wsdl/actions/project/Bundle.properties	(wersja 12885)
-@@ -23,4 +23,4 @@
- AddWsdlAction.Form.GenerateTestSuite.Label=Create TestSuite
- AddWsdlAction.Form.GenerateTestSuite.Description=Creates a TestSuite for the imported WSDL
- AddWsdlAction.Form.GenerateMockService.Label=Create MockService
--AddWsdlAction.Form.GenerateMockService.Description=Creates a Web Service Simulation of the imported WSDL
-+AddWsdlAction.Form.GenerateMockService.Description=Creates a Web Service Simulation of the imported WSDL
-\ No newline at end of file
 Index: src/java/com/eviware/soapui/impl/wsdl/actions/iface/RenameInterfaceAction.java
 ===================================================================
 --- src/java/com/eviware/soapui/impl/wsdl/actions/iface/RenameInterfaceAction.java	(wersja 0)

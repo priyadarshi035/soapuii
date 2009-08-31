@@ -112,7 +112,6 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		public final static String FILENOTFOUND = messages.get( "Form.FileNotFound" );
 
 		@AField( description = "Form.GetCommunication.Description", type = AFieldType.FILE_OR_FOLDER )
-		//@AField( description = "Form.GetCommunication.Description", type = AFieldType.FILE )
 		public final static String INITIALCOMMUNICATION = messages.get( "Form.GetCommunication.Label" );
 
 		@AField( description = "Form.OdeListenUri.Description", type = AFieldType.STRING )
