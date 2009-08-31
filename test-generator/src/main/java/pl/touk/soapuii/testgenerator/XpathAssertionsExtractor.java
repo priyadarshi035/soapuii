@@ -35,9 +35,11 @@ public class XpathAssertionsExtractor
 		private String xpath;
 		private String content;
 		private String name;
+		private String shortXPath;
 
 		private xPathAssertion(String string, Collection<QName> declarations, String nodeValue, String shortXPath)
 		{
+			this.shortXPath = shortXPath;
 			this.name = "XPath [" + shortXPath + "] Match [" + nodeValue + "]";
 			xpath = "";
 			for (QName declaration : declarations)
@@ -58,6 +60,10 @@ public class XpathAssertionsExtractor
 		{
 			return name;
 		}
+		public String getShortName()
+		{
+			return shortXPath;
+		}
 	}
 
 	public List<xPathAssertion> extract(Node xml)
@@ -74,7 +80,7 @@ public class XpathAssertionsExtractor
 			declarations.put(qnamedXml.getNamespaceURI(), qnamedXml);
 			final String xPath = "/soap:Envelope/soap:Body/" + qnamedXml.getPrefix() + ":" + xml.getLocalName();
 			
-			assertions = traverse((Element) xml, xPath, xml.getLocalName());
+			assertions = traverse((Element) xml, xPath, "/" + xml.getLocalName());
 		}
 		return assertions;
 	}
