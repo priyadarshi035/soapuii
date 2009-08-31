@@ -4,24 +4,18 @@
  */
 package pl.touk.soapuii.testgenerator;
 
-import com.eviware.soapui.config.TestStepConfig;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.actions.iface.tools.support.SwingToolHost;
-import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
-import com.eviware.soapui.impl.wsdl.teststeps.registry.WsdlTestRequestStepFactory;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.x.form.XFormFactory;
 import com.eviware.x.impl.swing.SwingFormFactory;
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import org.junit.*;
-import org.w3c.dom.Document;
-import pl.touk.proxygeneratorapi.support.SimpleXmlParser;
 import pl.touk.soapuii.testgenerator.data.GCConfig;
 import pl.touk.soapuii.testgenerator.data.GCResult;
 import pl.touk.soapuii.testgenerator.data.GCTestCase;
@@ -33,6 +27,8 @@ import pl.touk.soapuii.testgenerator.wsdlbinding.WsdlBindingMapFactory;
  *
  * @author pnw
  */
+
+@Ignore
 public class GetCommunicationParserTest extends AbstractProjectTestCase
 {
 
