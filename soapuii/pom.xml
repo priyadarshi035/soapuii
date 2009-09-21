@@ -655,7 +655,7 @@
 		</repository>
 		<repository>
 			<id>TouK Snapshot Repository</id>
-			<url>https://nexus.touk.pl/nexus/content/repositories/touk-repository-snapshots/</url>
+			<url>https://nexus.touk.pl/nexus/content/groups/public-snapshots</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -663,7 +663,7 @@
 
 		<repository>
 			<id>TouK Nexus 3rd party</id>
-			<url>https://nexus.touk.pl/nexus/content/repositories/thirdparty/</url>
+			<url>https://nexus.touk.pl/nexus/content/groups/public</url>
 			<releases>
 			</releases>
 			<snapshots>
