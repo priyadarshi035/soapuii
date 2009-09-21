@@ -106,6 +106,7 @@ public class WsdlMockResponseTestStep extends WsdlTestStepWithProperties impleme
 
 	private AssertionsSupport assertionsSupport;
 	private InternalMockRunListener mockRunListener;
+	private Boolean mockRunListenerStarted = false;
 	private StartStepMockRunListener startStepMockRunListener;
 
 	private final InternalProjectListener projectListener = new InternalProjectListener();
@@ -295,7 +296,11 @@ public class WsdlMockResponseTestStep extends WsdlTestStepWithProperties impleme
 
 		LoadTestRunner loadTestRunner = ( LoadTestRunner )testRunContext
 				.getProperty( TestCaseRunContext.LOAD_TEST_RUNNER );
-		mockRunListener = new InternalMockRunListener();
+		synchronized (this) {
+		    mockRunListener = new InternalMockRunListener();
+		    mockRunListenerStarted = true;
+		    this.notifyAll();
+		}
 
 		for( TestAssertion assertion : getAssertionList() )
 		{
@@ -1414,7 +1419,16 @@ public class WsdlMockResponseTestStep extends WsdlTestStepWithProperties impleme
 				else
 				{
 					initTestMockResponse( runContext );
-					mockRunListener.setWaiting( true );
+					synchronized (WsdlMockResponseTestStep.this) {
+                     
+					    while (!mockRunListenerStarted) {
+					        log.info("Waiting for mockRunListener to start");
+					        try {
+					            WsdlMockResponseTestStep.this.wait();
+					        } catch (InterruptedException ex) {}
+					    }
+					    mockRunListener.setWaiting( true );
+					}
 				}
 			}
 		}

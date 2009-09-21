@@ -28,7 +28,7 @@ import com.eviware.soapui.model.testsuite.TestPropertyListener;
 import com.eviware.soapui.support.StringUtils;
 
 public abstract class AbstractTestPropertyHolderWsdlModelItem<T extends ModelItemConfig> extends
-		AbstractWsdlModelItem<T> implements MutableTestPropertyUrlHolder
+		AbstractWsdlModelItem<T> implements MutableTestPropertyHolder
 {
 	private XmlBeansPropertiesTestPropertyHolder propertyHolderSupport;
 	private final static Logger log = Logger.getLogger( AbstractTestPropertyHolderWsdlModelItem.class );
@@ -38,15 +38,15 @@ public abstract class AbstractTestPropertyHolderWsdlModelItem<T extends ModelIte
 		super( config, parent, icon );
 	}
 
-	public void setPropertiesUrl(String url)
-	{
-		propertyHolderSupport.setPropertiesUrl(url);
-	}
-
-	public String getPropertiesUrl()
-	{
-		return propertyHolderSupport.getPropertiesUrl();
-	}
+//	public void setPropertiesUrl(String url)
+//	{
+//		propertyHolderSupport.setPropertiesUrl(url);
+//	}
+//
+//	public String getPropertiesUrl()
+//	{
+//		return propertyHolderSupport.getPropertiesUrl();
+//	}
 
 	protected void setPropertiesConfig( PropertiesTypeConfig config )
 	{
