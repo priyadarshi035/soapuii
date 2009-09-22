@@ -4,7 +4,7 @@
 	<groupId>pl.touk</groupId>
 	<artifactId>soapuii</artifactId>
 	<packaging>pom</packaging>
-	<version>3.0-touk8-SNAPSHOT</version>
+	<version>3.0-touk8</version>
 	<name>soapuii-build</name>
 	<modules>
 		<module>soapuii-test-generator</module>
