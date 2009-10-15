@@ -64,9 +64,6 @@
 			<groupId>pl.touk</groupId>
 			<artifactId>soapuii-core</artifactId>
 			<version>${project.version}</version>
-			<!--groupId>eviware</groupId>
-			<artifactId>soapui-core</artifactId>
-			<version>3.0-touk4</version-->
 		</dependency>
 	</dependencies>
 </project>

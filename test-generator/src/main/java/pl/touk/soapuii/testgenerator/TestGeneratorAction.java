@@ -70,9 +70,10 @@ public class TestGeneratorAction extends AbstractSoapUIAction<WsdlTestSuite>
 		{
 			try
 			{
-				String url = dialog.getValue( Form.INITIALCOMMUNICATION ).trim();
+				String url = dialog.getValue( Form.INITIALCOMMUNICATION );
 				if( StringUtils.hasContent( url ) )
 				{
+				    url = url.trim();
 					String expUrl = PathUtils.expandPath( url, testSuite.getProject() );
 					File file = new File (expUrl);
 
