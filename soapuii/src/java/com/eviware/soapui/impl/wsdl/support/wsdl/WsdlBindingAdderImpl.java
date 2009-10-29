@@ -78,9 +78,10 @@ public class WsdlBindingAdderImpl implements WsdlBindingAdder
 		
 		if(bindingListWithTheSameTypeLength >= 1)
 		{
-			Node bindingNode = bindingList.item(0);	
-			if(!bindingNode.getAttributes().getNamedItem("name").getNodeValue().equals(portName))
-				bindingNode.getAttributes().getNamedItem("name").setNodeValue(portName);			
+		    // Fix for MNP-1274
+//			Node bindingNode = bindingList.item(0);	
+//			if(!bindingNode.getAttributes().getNamedItem("name").getNodeValue().equals(portName))
+//				bindingNode.getAttributes().getNamedItem("name").setNodeValue(portName);			
 			return true;	
 		}
 		else
