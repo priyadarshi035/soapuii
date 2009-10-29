@@ -256,10 +256,11 @@ public class WsdlImporter
 
 	public final static String getInterfaceNameForBinding( Binding binding )
 	{
-		if( SoapUI.getSettings().getBoolean( WsdlSettings.NAME_WITH_BINDING ) )
+		if( SoapUI.getSettings().getBoolean( WsdlSettings.NAME_WITH_BINDING ) || binding.getPortType() == null) {
 			return binding.getQName().getLocalPart();
-		else
+		} else {
 			return binding.getPortType().getQName().getLocalPart();
+		}
 	}
 
 	private static WsdlInterface importBinding( WsdlProject project, WsdlContext wsdlContext, Binding binding )
